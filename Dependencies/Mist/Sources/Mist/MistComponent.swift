@@ -142,7 +142,7 @@ struct AnyComponent: Sendable
         // capture concrete type function
         self._render =
         { id, db, renderer in
-            print("*** Server rendering '\(C.name)' (file template)... ")
+            await Clients.shared.broadcastToAll("*** Server rendering '\(C.name)' (file template)... ")
             return await C.render(id: id, on: db, using: renderer)
         }
     }

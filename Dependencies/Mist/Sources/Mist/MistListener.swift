@@ -51,6 +51,7 @@ struct Listener<M: Mist.Model>: AsyncModelMiddleware
         // Only update if component says it should
         guard component.shouldUpdate(for: model) else { return }
         await Clients.shared.broadcastToAll("Component '\(component.name) should upadate...")
+        
         // render using ID and database OR test update
         guard let html = await component.render(id: modelID, on: db, using: renderer) else { return }
         await Clients.shared.broadcastToAll("Component '\(component.name) HTML re-rendered: '\(html)' ...")
