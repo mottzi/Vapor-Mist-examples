@@ -97,8 +97,12 @@ public extension Component
         // create dynamic template datan context
         guard let context = await makeContext(of: id, in: db) else { return nil }
         
+        await Clients.shared.broadcastToAll("reder (post context)")
+        
         // render the template using the context
         guard let buffer = try? await renderer.render(template, context).data else { return nil }
+        
+        await Clients.shared.broadcastToAll("reder (post buffer)")
 
         // return html string
         return String(buffer: buffer)
