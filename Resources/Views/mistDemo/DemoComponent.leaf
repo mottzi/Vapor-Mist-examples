@@ -17,7 +17,7 @@
 
     <td class="px-6 py-4">
         <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
-            #(component.demomodel1.text2)
+            #(component.demomodel2.text)
         </span>
     </td>
 </tr>
