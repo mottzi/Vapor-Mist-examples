@@ -1,3 +1,5 @@
+// Move this file (mist.js) to: /Public
+
 class MistSocket
 {
     constructor()
@@ -103,7 +105,7 @@ class MistSocket
                     const elements = document.querySelectorAll(`[mist-component="${data.component}"][mist-id="${data.id}"]`);
                     
                     elements.forEach(element =>
-                    {
+                                     {
                         element.outerHTML = data.html;
                     });
                 }

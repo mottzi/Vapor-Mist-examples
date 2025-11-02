@@ -42,7 +42,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
                   #for(component in components):
-                    #extend("/DemoComponent")
+                    #extend("/mistDemo/DemoComponent")
                   #endfor
                 </tbody>
               </table>
@@ -52,6 +52,6 @@
       </div>
     </div>
   </div>
-  <script src="/mist.js"></script>
+  <script src="/mistDemo/mist.js"></script>
 </body>
 </html>
