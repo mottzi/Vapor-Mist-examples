@@ -4,7 +4,7 @@ extension Application
 {
     func useMistDemo()
     {
-        self.get("mistDemo")
+        self.get("mist")
         { request async throws -> View in
             let context = await DemoComponent.makeContext(ofAll: request.db)
             
