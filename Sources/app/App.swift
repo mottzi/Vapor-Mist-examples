@@ -2,6 +2,7 @@ import Vapor
 import Leaf
 import Fluent
 import FluentSQLiteDriver
+import Mist
 
 @main
 struct App
@@ -17,12 +18,21 @@ struct App
 
         app.databases.use(.sqlite(.file("deploy/github/deployments.db")), as: .sqlite)
         app.databases.middleware.use(Deployment.Listener(), on: .sqlite)
-        app.migrations.add(Deployment.Table())
+        app.migrations.add([
+            Deployment.Table(),
+            DemoModel1.Table(),
+            DemoModel2.Table()
+        ])
         try await app.autoMigrate()
                 
         app.initTestRoute()
         app.initPushWebhook()
         app.initDeployPanel()
+        
+        let components: [any Mist.Component.Type] = [DemoComponent.self]
+        let config = Mist.Configuration(for: app, components: components)
+        await Mist.configure(using: config)
+        app.useMistDemo()
                 
         try await app.execute()
         try await app.asyncShutdown()
