@@ -7,8 +7,7 @@ let package = Package(
         .macOS(.v13),
     ],
     dependencies: [
-        .package(path: "Dependencies/Mist"),
-//        .package(url: "https://github.com/mottzi/Mist", from: "0.6.2"),
+        .package(url: "https://github.com/mottzi/Mist", from: "0.6.2"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.110.1"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
         .package(url: "https://github.com/vapor/leaf.git", from: "4.4.0"),
