@@ -23,7 +23,7 @@ class MistSocket
         
         // Find all elements with mist-component attribute
         document.querySelectorAll('[mist-component]').forEach(element =>
-                                                              {
+        {
             const component = element.getAttribute('mist-component');
             
             if (component)
@@ -98,12 +98,12 @@ class MistSocket
                 console.log(`RAW: ${event.data}`);
                 const data = JSON.parse(event.data);
                 
-                if (data.type === 'componentUpdate')
+                if (data.type === 'update')
                 {
                     const elements = document.querySelectorAll(`[mist-component="${data.component}"][mist-id="${data.id}"]`);
                     
                     elements.forEach(element =>
-                                     {
+                    {
                         element.outerHTML = data.html;
                     });
                 }
