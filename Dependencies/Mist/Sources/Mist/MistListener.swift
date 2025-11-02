@@ -25,6 +25,7 @@ struct Listener<M: Mist.Model>: AsyncModelMiddleware
     // update callback
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
+        await Clients.shared.broadcastToAll("*** Listener triggered for model '\(String(describing: model.self))' .")
         print("*** Listener triggered for model '\(String(describing: model.self))' .")
         
         // perform middleware chain
@@ -39,6 +40,7 @@ struct Listener<M: Mist.Model>: AsyncModelMiddleware
         // process each component
         for component in components
         {
+            await Clients.shared.broadcastToAll("*** Found affected component: '\(component.name)' ...")
             await renderComponent(component, for: model, modelID: modelID, db: db, renderer: config.app.leaf.renderer)
         }
     }
@@ -48,10 +50,10 @@ struct Listener<M: Mist.Model>: AsyncModelMiddleware
     {
         // Only update if component says it should
         guard component.shouldUpdate(for: model) else { return }
-             
+        await Clients.shared.broadcastToAll("Component '\(component.name) should upadate...")
         // render using ID and database OR test update
         guard let html = await component.render(id: modelID, on: db, using: renderer) else { return }
-                    
+        await Clients.shared.broadcastToAll("Component '\(component.name) HTML re-rendered: '\(html)' ...")
         // create update message with component data
         let message = Message.update(
             component: component.name,

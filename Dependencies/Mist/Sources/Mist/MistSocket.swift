@@ -25,10 +25,15 @@ extension Socket
             // receive client message
             ws.onText()
             { ws, text async in
-                
                 // abort if message is not of type Mist.Message.subscribe
                 guard let data = text.data(using: .utf8) else { return }
                 guard let message = try? JSONDecoder().decode(Message.self, from: data) else { return }
+                
+                if case .message(let message) = message {
+                    Logger(label: "Mist").warning("Received message from Client '\(clientID)': '\(message)'")
+                    return
+                }
+                
                 guard case .subscribe(let component) = message else { return }
                         
                 // add component subscription to client

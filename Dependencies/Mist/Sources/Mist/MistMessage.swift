@@ -6,6 +6,7 @@ enum Message: Codable
     case subscribe(component: String)
     // case unsubscribe(component: String)
     case update(component: String/*, action: String*/, id: UUID?, html: String)
+    case message(String)
 
     private enum CodingKeys: String, CodingKey
     {
@@ -14,6 +15,7 @@ enum Message: Codable
         // case action
         case id
         case html
+        case message
     }
     
     // Custom encoding to properly format the message
@@ -33,6 +35,9 @@ enum Message: Codable
 //                try container.encode(action, forKey: .action)
                 try container.encode(id, forKey: .id)
                 try container.encode(html, forKey: .html)
+                
+            case .message(let message):
+                try container.encode(message, forKey: .message)
         }
     }
     
@@ -58,6 +63,10 @@ enum Message: Codable
                 let id = try container.decodeIfPresent(UUID.self, forKey: .id)
                 let html = try container.decode(String.self, forKey: .html)
                 self = .update(component: component, /*action: action,*/ id: id, html: html)
+                
+            case "message":
+                let message = try container.decode(String.self, forKey: .message)
+                self = .message(message)
                 
             default:
                 throw DecodingError.dataCorrupted(

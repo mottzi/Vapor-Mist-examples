@@ -81,6 +81,14 @@ extension Clients
         // send update message payload
         for subscriber in subscribers { Task { try? await subscriber.socket.send(jsonString) } }
     }
+    
+    func broadcastToAll(_ message: String) async {
+        let message = Mist.Message.message(message)
+        guard let jsonData = try? JSONEncoder().encode(message) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for client in clients { Task { try? await client.socket.send(jsonString) } }
+    }
 }
 
 #if DEBUG
