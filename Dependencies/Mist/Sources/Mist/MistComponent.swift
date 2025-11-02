@@ -100,12 +100,20 @@ public extension Component
         await Clients.shared.broadcastToAll("reder (post context): template: '\(template)', context: '\(context)'")
         
         // render the template using the context
-        guard let buffer = try? await renderer.render(template, context).data else { return nil }
+        do {
+            let buffer = try await renderer.render(template, context).data
+            await Clients.shared.broadcastToAll("reder (post buffer)")
+            return String(buffer: buffer)
+        } catch {
+            await Clients.shared.broadcastToAll("Error: '\(error.localizedDescription)'")
+            return nil
+        }
+//        guard let buffer = try? await renderer.render(template, context).data else { return nil }
         
-        await Clients.shared.broadcastToAll("reder (post buffer)")
-
-        // return html string
-        return String(buffer: buffer)
+//        await Clients.shared.broadcastToAll("reder (post buffer)")
+//
+//        // return html string
+//        return String(buffer: buffer)
     }
     
     // check if component should update when the provided model changes
