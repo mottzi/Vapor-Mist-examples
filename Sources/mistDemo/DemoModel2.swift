@@ -4,7 +4,7 @@ import Mist
 
 final class DemoModel2: Mist.Model, Content, @unchecked Sendable
 {
-    static let schema = "dummymodels2"
+    static let schema = "DemoModel2"
     
     @ID(key: .id) var id: UUID?
     @Field(key: "text") var text: String
