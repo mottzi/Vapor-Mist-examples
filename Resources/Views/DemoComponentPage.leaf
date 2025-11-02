@@ -42,7 +42,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
                   #for(component in components):
-                    #extend("mistDemo/DemoComponent")
+                    #extend("/DemoComponent")
                   #endfor
                 </tbody>
               </table>
