@@ -36,7 +36,7 @@ class MistSocket
         
         // Subscribe to each unique component type exactly once
         uniqueComponents.forEach(component =>
-                                 {
+        {
             this.subscribe(component);
         });
     }
@@ -47,8 +47,9 @@ class MistSocket
         {
             const message =
             {
-                type: 'subscribe',
-                component: component
+                subscribe: {
+                    component: component
+                }
             };
             
             this.socket.send(JSON.stringify(message));
@@ -61,8 +62,9 @@ class MistSocket
         {
             const message =
             {
-                type: 'unsubscribe',
-                component: component
+                unsubscribe: {
+                    component: component
+                }
             };
             
             this.socket.send(JSON.stringify(message));
@@ -100,13 +102,14 @@ class MistSocket
                 console.log(`RAW: ${event.data}`);
                 const data = JSON.parse(event.data);
                 
-                if (data.type === 'update')
+                if (data.update)
                 {
-                    const elements = document.querySelectorAll(`[mist-component="${data.component}"][mist-id="${data.id}"]`);
+                    const { component, id, html } = data.update;
+                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
                     
                     elements.forEach(element =>
-                                     {
-                        element.outerHTML = data.html;
+                    {
+                        element.outerHTML = html;
                     });
                 }
             }
@@ -126,16 +129,16 @@ class MistSocket
             
             // start trying every 5s
             setTimeout(() =>
-                       {
+            {
                 this.connect();
                 
                 this.timer = setInterval(() =>
-                                         {
+                {
                     this.connect();
                 },
-                                         this.interval);
+                this.interval);
             },
-                       this.initialDelay);
+            this.initialDelay);
         };
     }
     
@@ -151,7 +154,7 @@ class MistSocket
 
 // Wait for the DOM to be fully loaded before executing the code
 document.addEventListener('DOMContentLoaded', function ()
-                          {
+{
     window.ws = new MistSocket();
     window.ws.connect()
 });
