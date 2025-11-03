@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mottzi/Mist",
       "state" : {
-        "revision" : "05c0b69f75847b2d4b7b15f199ae9f1ab4ea5923",
-        "version" : "0.7.5"
+        "revision" : "09292f8307609725b46ed24f1c4c2351cc4a7510",
+        "version" : "0.7.6"
       }
     },
     {
