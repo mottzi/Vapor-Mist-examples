@@ -42,9 +42,9 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
                   #for(component in components):
-                    #extend("DemoComponentDefault")
-                    #extend("/mistDemo/DemoComponentFile")
-                    #extend("DemoComponentInline")
+                    #extend("DemoComponentBlue")
+                    #extend("/mistDemo/DemoComponentRed")
+                    #extend("DemoComponentGreen")
                   #endfor
                 </tbody>
               </table>

@@ -2,24 +2,24 @@ import Vapor
 import Fluent
 import Mist
 
-struct DemoComponentDefault: Mist.Component
+struct DemoComponentBlue: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
 }
 
-struct DemoComponentFile: Mist.Component
+struct DemoComponentRed: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
-    let template: TemplateType = .file(path: "/mistDemo/DemoComponentFile")
+    let template: TemplateType = .file(path: "/mistDemo/DemoComponentRed")
 }
 
-struct DemoComponentInline: Mist.Component
+struct DemoComponentGreen: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
     let template: TemplateType = .inline(template:
         """
         <tr
-            class="hover:bg-red-500 dark:hover:bg-neutral-750 transition-colors duration-150"
+            class="hover:bg-green-500 dark:hover:bg-neutral-750 transition-colors duration-150"
             mist-component="DemoComponentInline"
             mist-id="#(component.demomodel1.id)"
         >

@@ -1,6 +1,6 @@
 <tr
     class="hover:bg-red-50 dark:hover:bg-neutral-750 transition-colors duration-150"
-    mist-component="DemoComponentFile"
+    mist-component="DemoComponentRed"
     mist-id="#(component.demomodel1.id)"
 >
     <td class="px-6 py-4">
