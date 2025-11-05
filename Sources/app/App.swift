@@ -30,9 +30,9 @@ struct App
         app.initDeployPanel()
         
         let components: [any Mist.Component] = [
-            DemoComponentDefault(),
-            DemoComponentFile(),
-            DemoComponentInline()
+            DemoComponentRed(),
+            DemoComponentGreen(),
+            DemoComponentBlue()
         ]
         
         let config = Mist.Configuration(for: app, components: components)
