@@ -6,7 +6,7 @@ extension Application
     {
         self.get("mistDemo")
         { request async throws -> View in
-            let context = await DemoComponent().makeContext(ofAll: request.db)
+            let context = await DemoComponentFile().makeContext(ofAll: request.db)
             
             return try await request.view.render("/mistDemo/DemoComponentPage", context)
         }

@@ -29,7 +29,12 @@ struct App
         app.initPushWebhook()
         app.initDeployPanel()
         
-        let components: [any Mist.Component] = [DemoComponent(), DemoComponentInline()]
+        let components: [any Mist.Component] = [
+            DemoComponentDefault(),
+            DemoComponentFile(),
+            DemoComponentInline()
+        ]
+        
         let config = Mist.Configuration(for: app, components: components)
         await Mist.configure(using: config)
         app.useMistDemo()
