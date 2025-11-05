@@ -2,7 +2,7 @@ import Vapor
 
 extension Application
 {
-    func useMistDemo()
+    func initMistDemo()
     {
         self.get("mistDemo")
         { request async throws -> View in

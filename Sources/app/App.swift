@@ -13,9 +13,8 @@ struct App
         let app = try await Application.make(env)
         
         app.environment.useVariables()
-        app.views.use(.leaf)
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+        
         app.databases.use(.sqlite(.file("deploy/github/deployments.db")), as: .sqlite)
         app.databases.middleware.use(Deployment.Listener(), on: .sqlite)
         app.migrations.add([
@@ -24,21 +23,25 @@ struct App
             DemoModel2.Table()
         ])
         try await app.autoMigrate()
-                
+        
+        await Mist.configure(using:
+            Mist.Configuration(
+                for: app,
+                components: [
+                    DemoComponentRed(),
+                    DemoComponentGreen(),
+                    DemoComponentBlue(),
+                ]
+            )
+        )
+        
+        app.views.use(.leaf)
+        
+        app.initMistDemo()
         app.initTestRoute()
         app.initPushWebhook()
         app.initDeployPanel()
         
-        let components: [any Mist.Component] = [
-            DemoComponentRed(),
-            DemoComponentGreen(),
-            DemoComponentBlue()
-        ]
-        
-        let config = Mist.Configuration(for: app, components: components)
-        await Mist.configure(using: config)
-        app.useMistDemo()
-                
         try await app.execute()
         try await app.asyncShutdown()
     }
