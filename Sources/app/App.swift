@@ -13,7 +13,7 @@ struct App
         let app = try await Application.make(env)
         
         app.environment.useVariables()
-        app.views.use(.leaf)
+        
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
         app.databases.use(.sqlite(.file("deploy/github/deployments.db")), as: .sqlite)
@@ -33,6 +33,8 @@ struct App
         let config = Mist.Configuration(for: app, components: components)
         await Mist.configure(using: config)
         app.useMistDemo()
+        
+        app.views.use(.leaf)
                 
         try await app.execute()
         try await app.asyncShutdown()
