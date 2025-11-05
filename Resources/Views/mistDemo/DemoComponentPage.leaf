@@ -44,7 +44,7 @@
                   #for(component in components):
                     #extend("DemoComponentDefault")
                     #extend("/mistDemo/DemoComponentFile")
-                    #extend("DemoComponentInline")
+                    
                   #endfor
                 </tbody>
               </table>
