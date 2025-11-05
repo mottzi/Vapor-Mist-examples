@@ -10,13 +10,13 @@ struct DemoComponentDefault: Mist.Component
 struct DemoComponentFile: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
-    let template: String = "/mistDemo/DemoComponent"
+    let template: TemplateSource = .file(path: "/mistDemo/DemoComponent")
 }
 
 struct DemoComponentInline: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
-    let templateSource: String? =
+    let template: TemplateSource = .inline(template:
         """
         <tr
             class="hover:bg-red-500 dark:hover:bg-neutral-750 transition-colors duration-150"
@@ -28,13 +28,13 @@ struct DemoComponentInline: Mist.Component
                     #(component.demomodel1.id)
                 </span>
             </td>
-
+        
             <td class="px-6 py-4 max-w-[160px]">
                 <span class="block text-sm text-gray-700 dark:text-neutral-300 truncate font-medium">
                     #(component.demomodel1.text)
                 </span>
             </td>
-
+        
             <td class="px-6 py-4">
                 <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
                     #(component.demomodel2.text)
@@ -42,4 +42,5 @@ struct DemoComponentInline: Mist.Component
             </td>
         </tr>
         """
+    )
 }
