@@ -1,5 +1,5 @@
 <tr
-    class="hover:bg-gray-50 dark:hover:bg-neutral-750 transition-colors duration-150"
+    class="hover:bg-red-50 dark:hover:bg-neutral-750 transition-colors duration-150"
     mist-component="DemoComponentFile"
     mist-id="#(component.demomodel1.id)"
 >
