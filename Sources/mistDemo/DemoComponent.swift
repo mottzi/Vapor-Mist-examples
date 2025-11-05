@@ -10,7 +10,7 @@ struct DemoComponentDefault: Mist.Component
 struct DemoComponentFile: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
-    let template: TemplateSource = .file(path: "/mistDemo/DemoComponent")
+    let template: TemplateSource = .file(path: "/mistDemo/DemoComponentFile")
 }
 
 struct DemoComponentInline: Mist.Component
