@@ -14,8 +14,8 @@ struct DemoComponentInline: Mist.Component
     let templateSource: String? =
         """
         <tr
-            class="hover:bg-red-50 dark:hover:bg-neutral-750 transition-colors duration-150"
-            mist-component="DemoComponent"
+            class="hover:bg-red-500 dark:hover:bg-neutral-750 transition-colors duration-150"
+            mist-component="DemoComponentInline"
             mist-id="#(component.demomodel1.id)"
         >
             <td class="px-6 py-4">
