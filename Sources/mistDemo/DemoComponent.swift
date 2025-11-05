@@ -20,7 +20,7 @@ struct DemoComponentGreen: Mist.Component
         """
         <tr
             class="hover:bg-green-500 dark:hover:bg-neutral-750 transition-colors duration-150"
-            mist-component="DemoComponentInline"
+            mist-component="DemoComponentGreen"
             mist-id="#(component.demomodel1.id)"
         >
             <td class="px-6 py-4">
