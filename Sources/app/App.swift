@@ -17,22 +17,17 @@ struct App
         
         app.databases.use(.sqlite(.file("deploy/github/deployments.db")), as: .sqlite)
         app.databases.middleware.use(Deployment.Listener(), on: .sqlite)
-        app.migrations.add([
+        app.migrations.add(
             Deployment.Table(),
             DemoModel1.Table(),
             DemoModel2.Table()
-        ])
+        )
         try await app.autoMigrate()
         
-        await Mist.configure(using:
-            Mist.Configuration(
-                for: app,
-                components: [
-                    DemoComponentRed(),
-                    DemoComponentGreen(),
-                    DemoComponentBlue(),
-                ]
-            )
+        await app.mist.use(
+            DemoComponentRed(),
+            DemoComponentGreen(),
+            DemoComponentBlue(),
         )
         
         app.views.use(.leaf)
