@@ -37,24 +37,25 @@ struct DemoComponentGreen: Mist.Component
             </td>
         
             <td class="px-6 py-4">
-                <div class="flex items-center justify-between gap-3">
-                    <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
-                        #(component.demomodel2.text)
-                    </span>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <button
-                            mist-action="RandomizeAction"
-                            class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
-                        >
-                            Randomize
-                        </button>
-                        <button
-                            mist-action="delete"
-                            class="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
-                        >
-                            Delete
-                        </button>
-                    </div>
+                <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
+                    #(component.demomodel2.text)
+                </span>
+            </td>
+        
+            <td class="px-6 py-4">
+                <div class="flex gap-2">
+                    <button
+                        mist-action="RandomizeAction"
+                        class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                    >
+                        Randomize
+                    </button>
+                    <button
+                        mist-action="delete"
+                        class="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+                    >
+                        Delete
+                    </button>
                 </div>
             </td>
         </tr>
