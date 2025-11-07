@@ -16,6 +16,7 @@ struct DemoComponentRed: Mist.Component
 struct DemoComponentGreen: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
+    
     let template: TemplateType = .inline(template:
         """
         <tr
@@ -36,11 +37,53 @@ struct DemoComponentGreen: Mist.Component
             </td>
         
             <td class="px-6 py-4">
-                <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
-                    #(component.demomodel2.text)
-                </span>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
+                        #(component.demomodel2.text)
+                    </span>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button
+                            mist-action="randomize"
+                            class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                        >
+                            Randomize
+                        </button>
+                        <button
+                            mist-action="delete"
+                            class="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
             </td>
         </tr>
         """
     )
+    
+    var actions: [String: MistActionHandler]
+    {
+        return [
+            "delete": { id, db in
+                if let model1 = try await DemoModel1.find(id, on: db) {
+                    try await model1.delete(on: db)
+                }
+                if let model2 = try await DemoModel2.find(id, on: db) {
+                    try await model2.delete(on: db)
+                }
+                return .success
+            },
+            "randomize": { id, db in
+                if let model1 = try await DemoModel1.find(id, on: db) {
+                    model1.text = "Random-\(UUID().uuidString.prefix(8))"
+                    try await model1.save(on: db)
+                }
+                if let model2 = try await DemoModel2.find(id, on: db) {
+                    model2.text = "Random-\(UUID().uuidString.prefix(8))"
+                    try await model2.save(on: db)
+                }
+                return .success
+            }
+        ]
+    }
 }
