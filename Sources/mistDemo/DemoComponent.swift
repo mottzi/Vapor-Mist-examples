@@ -70,34 +70,34 @@ struct DemoComponentGreen: Mist.Component
     }
 }
 
-struct DeleteAction: Action
+struct DeleteAction: Mist.Action
 {
     let name: String = "delete"
     
-    func execute(id: UUID, on db: Database) async throws -> ActionResult
+    func perform(id: UUID, on db: Database) async -> ActionResult
     {
-        if let model1 = try await DemoModel1.find(id, on: db) {
-            try await model1.delete(on: db)
-        }
-        if let model2 = try await DemoModel2.find(id, on: db) {
-            try await model2.delete(on: db)
-        }
-        return .success
+        guard let model1 = try? await DemoModel1.find(id, on: db) else { return .failure(message: "Model1 not found") }
+        guard let model2 = try? await DemoModel2.find(id, on: db) else { return .failure(message: "Model2 not found") }
+        guard let _ = try? await model1.delete(on: db) else { return .failure(message: "Failed to delete Model1") }
+        guard let _ = try? await model2.delete(on: db) else { return .failure(message: "Failed to delete Model2") }
+        
+        return .success()
     }
 }
 
-struct RandomizeAction: Action
+struct RandomizeAction: Mist.Action
 {
-    func execute(id: UUID, on db: Database) async throws -> ActionResult
+    func perform(id: UUID, on db: Database) async -> ActionResult
     {
-        if let model1 = try await DemoModel1.find(id, on: db) {
-            model1.text = "Random-\(UUID().uuidString.prefix(8))"
-            try await model1.save(on: db)
-        }
-        if let model2 = try await DemoModel2.find(id, on: db) {
-            model2.text = "Random-\(UUID().uuidString.prefix(8))"
-            try await model2.save(on: db)
-        }
-        return .success
+        guard let model1 = try? await DemoModel1.find(id, on: db) else { return .failure(message: "Model1 not found") }
+        guard let model2 = try? await DemoModel2.find(id, on: db) else { return .failure(message: "Model2 not found") }
+        
+        model1.text = "Random-\(UUID().uuidString.prefix(8))"
+        model2.text = "Random-\(UUID().uuidString.prefix(8))"
+        
+        guard let _ = try? await model1.save(on: db) else { return .failure(message: "Failed to save Model1") }
+        guard let _ = try? await model2.save(on: db) else { return .failure(message: "Failed to save Model2") }
+        
+        return .success(message: "Randomized successfully")
     }
 }
