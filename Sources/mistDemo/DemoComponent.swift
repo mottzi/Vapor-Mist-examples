@@ -16,6 +16,7 @@ struct DemoComponentRed: Mist.Component
 struct DemoComponentGreen: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
+    let actions: [any Action] = [DeleteAction(), RandomizeAction()]
     
     let template: TemplateType = .inline(template:
         """
@@ -24,6 +25,12 @@ struct DemoComponentGreen: Mist.Component
             mist-component="DemoComponentGreen"
             mist-id="#(component.demomodel1.id)"
         >
+            <td class="px-6 py-4">
+                <span class="text-sm font-semibold text-green-600 dark:text-green-400">
+                    DemoComponentGreen
+                </span>
+            </td>
+        
             <td class="px-6 py-4">
                 <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
                     #(component.demomodel1.id)
@@ -61,14 +68,6 @@ struct DemoComponentGreen: Mist.Component
         </tr>
         """
     )
-    
-    var actions: [any Action]
-    {
-        [
-            DeleteAction(),
-            RandomizeAction()
-        ]
-    }
 }
 
 struct DeleteAction: Mist.Action

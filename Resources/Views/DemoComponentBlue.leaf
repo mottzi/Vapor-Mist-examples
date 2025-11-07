@@ -4,6 +4,12 @@
     mist-id="#(component.demomodel1.id)"
 >
     <td class="px-6 py-4">
+        <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">
+            DemoComponentBlue
+        </span>
+    </td>
+
+    <td class="px-6 py-4">
         <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
             #(component.demomodel1.id)
         </span>
