@@ -16,6 +16,32 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
     {
         self.text = text
     }
+    
+    var shortID: String
+    {
+        String(id?.uuidString.prefix(8) ?? "")
+    }
+}
+
+extension DemoModel1
+{
+    enum CodingKeys: String, CodingKey
+    {
+        case id, text, created
+        case shortID  // Add the computed property
+    }
+    
+    func encode(to encoder: Encoder) throws
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(id, forKey: .id)
+        try container.encode(text, forKey: .text)
+        try container.encode(created, forKey: .created)
+        
+        // Encode the computed property
+        try container.encode(shortID, forKey: .shortID)
+    }
 }
 
 extension DemoModel1

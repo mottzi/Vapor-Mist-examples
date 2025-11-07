@@ -33,7 +33,7 @@ struct DemoComponentGreen: Mist.Component
         
             <td class="px-6 py-4">
                 <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
-                    #(component.demomodel1.id)
+                    #(component.demomodel1.shortID)
                 </span>
             </td>
         
