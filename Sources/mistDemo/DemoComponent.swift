@@ -43,7 +43,7 @@ struct DemoComponentGreen: Mist.Component
                     </span>
                     <div class="flex gap-2 flex-shrink-0">
                         <button
-                            mist-action="randomize"
+                            mist-action="RandomizeAction"
                             class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
                         >
                             Randomize
@@ -88,8 +88,6 @@ struct DeleteAction: Action
 
 struct RandomizeAction: Action
 {
-    let name: String = "randomize"
-    
     func execute(id: UUID, on db: Database) async throws -> ActionResult
     {
         if let model1 = try await DemoModel1.find(id, on: db) {
