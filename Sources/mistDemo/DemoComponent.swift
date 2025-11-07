@@ -92,8 +92,8 @@ struct RandomizeAction: Mist.Action
         guard let model1 = try? await DemoModel1.find(id, on: db) else { return .failure(message: "Model1 not found") }
         guard let model2 = try? await DemoModel2.find(id, on: db) else { return .failure(message: "Model2 not found") }
         
-        model1.text = "Random-\(UUID().uuidString.prefix(8))"
-        model2.text = "Random-\(UUID().uuidString.prefix(8))"
+        model1.text = "\(UUID().uuidString.prefix(8))"
+        model2.text = "\(UUID().uuidString.prefix(8))"
         
         guard let _ = try? await model1.save(on: db) else { return .failure(message: "Failed to save Model1") }
         guard let _ = try? await model2.save(on: db) else { return .failure(message: "Failed to save Model2") }
