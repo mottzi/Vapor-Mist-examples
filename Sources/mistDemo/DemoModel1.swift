@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-final class DemoModel1: Mist.Model, Content, @unchecked Sendable
+final class DemoModel1: Mist.Model, Content, AutoEncodable, @unchecked Sendable
 {
     static let schema = "DemoModel1"
     
@@ -22,9 +22,29 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
         String(id?.uuidString.prefix(8) ?? "")
     }
     
+    private enum CodingKeys: CodingKey {}
 }
 
-
+//extension DemoModel1
+//{
+//    enum CodingKeys: String, CodingKey
+//    {
+//        case id, text, created
+//        case shortID  // Add the computed property
+//    }
+//    
+//    func encode(to encoder: Encoder) throws
+//    {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        
+//        try container.encode(id, forKey: .id)
+//        try container.encode(text, forKey: .text)
+//        try container.encode(created, forKey: .created)
+//        
+//        // Encode the computed property
+//        try container.encode(shortID, forKey: .shortID)
+//    }
+//}
 
 extension DemoModel1
 {
