@@ -16,6 +16,10 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
     {
         self.text = text
     }
+    
+    var shortID: String {
+        String(id?.uuidString.prefix(8) ?? "")
+    }
 }
 
 extension DemoModel1
