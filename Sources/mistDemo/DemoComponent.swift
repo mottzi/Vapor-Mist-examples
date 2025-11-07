@@ -61,29 +61,45 @@ struct DemoComponentGreen: Mist.Component
         """
     )
     
-    var actions: [String: MistActionHandler]
+    var actions: [any Action]
     {
-        return [
-            "delete": { id, db in
-                if let model1 = try await DemoModel1.find(id, on: db) {
-                    try await model1.delete(on: db)
-                }
-                if let model2 = try await DemoModel2.find(id, on: db) {
-                    try await model2.delete(on: db)
-                }
-                return .success
-            },
-            "randomize": { id, db in
-                if let model1 = try await DemoModel1.find(id, on: db) {
-                    model1.text = "Random-\(UUID().uuidString.prefix(8))"
-                    try await model1.save(on: db)
-                }
-                if let model2 = try await DemoModel2.find(id, on: db) {
-                    model2.text = "Random-\(UUID().uuidString.prefix(8))"
-                    try await model2.save(on: db)
-                }
-                return .success
-            }
+        [
+            DeleteAction(),
+            RandomizeAction()
         ]
+    }
+}
+
+struct DeleteAction: Action
+{
+    let name: String = "delete"
+    
+    func execute(id: UUID, on db: Database) async throws -> ActionResult
+    {
+        if let model1 = try await DemoModel1.find(id, on: db) {
+            try await model1.delete(on: db)
+        }
+        if let model2 = try await DemoModel2.find(id, on: db) {
+            try await model2.delete(on: db)
+        }
+        return .success
+    }
+}
+
+struct RandomizeAction: Action
+{
+    let name: String = "randomize"
+    
+    func execute(id: UUID, on db: Database) async throws -> ActionResult
+    {
+        if let model1 = try await DemoModel1.find(id, on: db) {
+            model1.text = "Random-\(UUID().uuidString.prefix(8))"
+            try await model1.save(on: db)
+        }
+        if let model2 = try await DemoModel2.find(id, on: db) {
+            model2.text = "Random-\(UUID().uuidString.prefix(8))"
+            try await model2.save(on: db)
+        }
+        return .success
     }
 }
