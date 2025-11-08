@@ -3,7 +3,7 @@ import Fluent
 
 extension Deployment
 {
-    /// Handles deployment process execution (pull, build, queue check, restart). 
+    /// Handles deployment process execution (pull, build, queue check, restart).
     /// Ensures chronological execution by re-running latest canceled commit after successfull deployments.
     struct Pipeline
     {
