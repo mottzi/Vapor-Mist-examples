@@ -2,7 +2,6 @@ import Vapor
 import Fluent
 import Mist
 
-@ExtraContextProvider
 final class DemoModel1: Mist.Model, Content, @unchecked Sendable
 {
     static let schema = "DemoModel1"
@@ -18,11 +17,15 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
         self.text = text
     }
     
-    @ExtraContext var shortID: String
+    var shortID: String
     {
         String(id?.uuidString.prefix(8) ?? "")
     }
     
+    func contextExtras() -> [String: any Encodable]
+    {
+        ["shortID": shortID]
+    }
 }
 
 extension DemoModel1
