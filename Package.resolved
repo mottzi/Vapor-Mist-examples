@@ -299,15 +299,6 @@
       }
     },
     {
-      "identity" : "swift-syntax",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-syntax.git",
-      "state" : {
-        "revision" : "0687f71944021d616d34d922343dcef086855920",
-        "version" : "600.0.1"
-      }
-    },
-    {
       "identity" : "swift-system",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
@@ -330,8 +321,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mottzi/Vapor-Mist.git",
       "state" : {
-        "revision" : "5cb8fa7537a6303b2da56a5ae30ef3b556960db7",
-        "version" : "0.14.15"
+        "revision" : "20dac55cf8038f533f4fb94d668b039f81503233",
+        "version" : "0.14.16"
       }
     },
     {
