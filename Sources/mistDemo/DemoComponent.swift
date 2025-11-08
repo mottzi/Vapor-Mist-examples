@@ -32,9 +32,18 @@ struct DemoComponentGreen: Mist.Component
             </td>
         
             <td class="px-6 py-4">
-                <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
-                    #(component.demomodel1.shortID)
-                </span>
+                <div class="flex items-center gap-2">
+                    <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
+                        #(component.demomodel1.shortID)
+                    </span>
+                    <button
+                        onclick="navigator.clipboard.writeText('#(component.demomodel1.id)'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
+                        class="px-1.5 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded transition-colors"
+                        title="Copy full ID"
+                    >
+                        📋
+                    </button>
+                </div>
             </td>
         
             <td class="px-6 py-4 max-w-[160px]">
