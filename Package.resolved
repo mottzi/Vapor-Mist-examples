@@ -1,5 +1,5 @@
 {
-  "originHash" : "96708c6be0555b87e34aed95e20ffbaa4249508f82abb4bef70a343dd9571acc",
+  "originHash" : "f46cdbcec951304089353e97d77d30958b85eed889b5153cb52dc102e20bd01f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -71,15 +71,6 @@
       "state" : {
         "revision" : "0c325fc46d42455914abd0105e88fe4561fc31a8",
         "version" : "1.14.0"
-      }
-    },
-    {
-      "identity" : "mist",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mottzi/Mist",
-      "state" : {
-        "revision" : "f151d7f0671c4183a8b48cf08ff91cfdd6ef1ed7",
-        "version" : "0.14.13"
       }
     },
     {
@@ -308,6 +299,15 @@
       }
     },
     {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    },
+    {
       "identity" : "swift-system",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
@@ -323,6 +323,15 @@
       "state" : {
         "revision" : "773ea6a63595ae4f6bc46a366d78769d4cb8b08c",
         "version" : "4.117.0"
+      }
+    },
+    {
+      "identity" : "vapor-mist",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mottzi/Vapor-Mist.git",
+      "state" : {
+        "revision" : "5cb8fa7537a6303b2da56a5ae30ef3b556960db7",
+        "version" : "0.14.15"
       }
     },
     {
