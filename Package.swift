@@ -2,12 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "mottzi",
+    name: "Mottzi",
     platforms: [
         .macOS(.v13),
     ],
     dependencies: [
-        .package(url: "https://github.com/mottzi/Vapor-Mist.git", from: "0.14.15"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.110.1"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
         .package(url: "https://github.com/vapor/leaf.git", from: "4.4.0"),
@@ -15,15 +14,30 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "App",
+            name: "Mottzi",
             dependencies: [
-                .product(name: "Mist", package: "Vapor-Mist"),
+                "Mist",
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .product(name: "Leaf", package: "leaf"),
             ],
             swiftSettings: swiftSettings
+        ),
+        .target(
+            name: "Mist",
+            dependencies: [
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "Leaf", package: "leaf"),
+            ]
+        ),
+        .testTarget(
+            name: "MistTests",
+            dependencies: [
+                "Mist",
+                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
+            ]
         ),
     ],
     swiftLanguageModes: [.v5]
