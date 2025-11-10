@@ -10,7 +10,6 @@ extension Application
         public let application: Application   
         public var clients: MistClients { _clients }
         public var components: Components { _components }
-        public var socket: Socket { Socket() }
     }
     
     public var mist: Mist { Mist(application: self) }

@@ -28,5 +28,7 @@ private func configure(components: [any Component], on application: Application)
     application.leaf.sources = sources
     
     await application.mist.components.registerComponents(components, with: application)
-    application.mist.socket.register(on: application)
+
+    let websocket = Socket()
+    websocket.register(on: application)
 }
