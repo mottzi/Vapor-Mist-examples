@@ -1,6 +1,8 @@
 import Vapor
 import Fluent
 
+public typealias MistClients = Clients
+
 public actor Clients
 {
     var clients: [Client] = []

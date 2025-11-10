@@ -3,61 +3,36 @@ import Fluent
 import Leaf
 import LeafKit
 
-extension Application {
-    
-    public struct MistDependency {
-        
-        public let application: Application
-        
-        public var clients: Mist.Clients { _clients }
-        public var components: Mist.Components { _components }
-        
-    }
-    
-    public var mist: MistDependency { .init(application: self) }
-    
-}
-
-extension Application.MistDependency {
-    
-    public func use(_ components: [any Component]) async
+extension Vapor.Application 
+{    
+    public struct Mist 
     {
-        let inlineTemplates = TemplateSource()
-        for component in components {
-            guard case .inline(let template) = component.template else { continue }
-            await inlineTemplates.register(name: component.name, template: template)
-        }
-        
-        let sources = LeafSources()
-        try? sources.register(source: "mist-templates", using: inlineTemplates)
-        try? sources.register(source: "default", using: application.leaf.defaultSource)
-        application.leaf.sources = sources
-        
-        await _components.registerComponents(components, with: application)
-        Socket.register(on: application)
+        public let application: Application   
+        public var clients: MistClients { _clients }
+        public var components: Components { _components }
     }
     
-    public func use(_ components: any Component...) async {
-        await use(components)
+    public var mist: Mist
+    { 
+        return Mist(application: self) 
     }
-    
 }
 
-extension Application.MistDependency
+extension Application.Mist
 {
-    private struct Key: StorageKey
-    {
-        typealias Value = Storage
-    }
-    
     final class Storage: @unchecked Sendable
     {
         init() {}
         var clients: Mist.Clients?
         var components: Mist.Components?
     }
+
+    private struct Key: StorageKey 
+    {
+        typealias Value = Storage
+    }
     
-    var storage: Storage
+    var _storage: Storage
     {
         if let existing = self.application.storage[Key.self] { return existing }
         let new = Storage()
@@ -66,7 +41,7 @@ extension Application.MistDependency
     }
 }
 
-extension Application.MistDependency
+extension Application.Mist
 {
     private struct ClientsKey: LockKey {}
     private struct ComponentsKey: LockKey {}
@@ -76,9 +51,9 @@ extension Application.MistDependency
         let lock = self.application.locks.lock(for: ClientsKey.self)
         return lock.withLock
         {
-            if let existing = storage.clients { return existing }
+            if let existing = _storage.clients { return existing }
             let new = Mist.Clients(components: _components)
-            storage.clients = new
+            _storage.clients = new
             return new
         }
     }
@@ -88,18 +63,19 @@ extension Application.MistDependency
         let lock = self.application.locks.lock(for: ComponentsKey.self)
         return lock.withLock
         {
-            if let existing = storage.components { return existing }
+            if let existing = _storage.components { return existing }
             let new = Mist.Components()
-            storage.components = new
+            _storage.components = new
             return new
         }
     }
 }
 
-extension Application.Leaf {
-    
-    var defaultSource: NIOLeafFiles {
-        NIOLeafFiles(
+extension Application.Leaf 
+{    
+    var defaultSource: NIOLeafFiles 
+    {
+        return NIOLeafFiles(
             fileio: self.application.fileio,
             limits: .default,
             sandboxDirectory: self.configuration.rootDirectory,
