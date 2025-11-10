@@ -43,39 +43,57 @@ extension Application.MistDependency {
     
 }
 
-extension Application.MistDependency {
-    
-    struct Key: StorageKey {
+extension Application.MistDependency
+{
+    private struct Key: StorageKey
+    {
         typealias Value = Storage
     }
     
-    final class Storage: @unchecked Sendable {
+    final class Storage: @unchecked Sendable
+    {
         init() {}
         var clients: Mist.Clients?
         var components: Mist.Components?
     }
     
-    var storage: Storage {
+    var storage: Storage
+    {
         if let existing = self.application.storage[Key.self] { return existing }
         let new = Storage()
         application.storage[Key.self] = new
         return new
     }
+}
+
+extension Application.MistDependency
+{
+    private struct ClientsKey: LockKey {}
+    private struct ComponentsKey: LockKey {}
     
-    var _clients: Mist.Clients {
-        if let existing = storage.clients { return existing }
-        let new = Mist.Clients(components: _components)
-        storage.clients = new
-        return new
+    var _clients: Mist.Clients
+    {
+        let lock = self.application.locks.lock(for: ClientsKey.self)
+        return lock.withLock
+        {
+            if let existing = storage.clients { return existing }
+            let new = Mist.Clients(components: _components)
+            storage.clients = new
+            return new
+        }
     }
     
-    var _components: Mist.Components {
-        if let existing = storage.components { return existing }
-        let new = Mist.Components()
-        storage.components = new
-        return new
+    var _components: Mist.Components
+    {
+        let lock = self.application.locks.lock(for: ComponentsKey.self)
+        return lock.withLock
+        {
+            if let existing = storage.components { return existing }
+            let new = Mist.Components()
+            storage.components = new
+            return new
+        }
     }
-    
 }
 
 extension Application.Leaf {
