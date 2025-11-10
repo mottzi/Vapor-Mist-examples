@@ -1,7 +1,7 @@
 import Vapor
 
-enum Message: Codable {
-    
+enum Message: Codable
+{
     case text(message: String)
     
     case subscribe(component: String)
@@ -11,13 +11,18 @@ enum Message: Codable {
     case action(component: String, id: UUID, action: String)
     
     case actionResult(component: String, id: UUID, action: String, result: Mist.ActionResult, message: String)
-    
 }
 
-extension Clients {
-    
-    func send(_ message: Message.Text, to clientID: UUID) async {
-        
+extension Clients
+{
+    func send(_ message: String, to clientID: UUID) async 
+    {
+        let message = Message.Text(message: message)
+        await send(message, to: clientID)
+    }
+
+    func send(_ message: Message.Text, to clientID: UUID) async
+    {
         guard let client = clients.first(where: { $0.id == clientID }) else { return }
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
@@ -25,8 +30,8 @@ extension Clients {
         try? await client.socket.send(jsonString)
     }
     
-    func send(_ message: Message.ActionResult, to clientID: UUID) async {
-        
+    func send(_ message: Message.ActionResult, to clientID: UUID) async
+    {
         guard let client = clients.first(where: { $0.id == clientID }) else { return }
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
@@ -34,44 +39,34 @@ extension Clients {
         try? await client.socket.send(jsonString)
     }
     
-    func broadcast(_ message: Message.Update) async {
-        
+    func broadcast(_ message: Message.Update) async
+    {
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         
-        for subscriber in subscribers(of: message.component) {
+        for subscriber in subscribers(of: message.component)
+        {
             Task { try? await subscriber.socket.send(jsonString) }
         }
     }
-    
 }
 
-extension Message {
-    
-    struct Text {
-        
+extension Message
+{
+    struct Text
+    {
         let message: String
-        
-        var wireFormat: Message {
-            .text(message: message)
-        }
-        
-        init(_ message: String) {
-            self.message = message
-        }
-        
+        // init(_ message: String) { self.message = message }
+        var wireFormat: Message { .text(message: message) }
     }
     
-    struct Update {
-        
+    struct Update
+    {
         let component: String
         let id: UUID?
         let html: String
         
-        var wireFormat: Message {
-            .update(component: component, id: id, html: html)
-        }
-        
+        var wireFormat: Message { .update(component: component, id: id, html: html) }
     }
     
     struct ActionResult {

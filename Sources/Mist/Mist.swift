@@ -3,19 +3,17 @@ import Fluent
 import Leaf
 import LeafKit
 
-extension Vapor.Application 
-{    
-    public struct Mist 
+extension Application
+{
+    public struct Mist
     {
         public let application: Application   
         public var clients: MistClients { _clients }
         public var components: Components { _components }
+        public var socket: Socket { Socket() }
     }
     
-    public var mist: Mist
-    { 
-        return Mist(application: self) 
-    }
+    public var mist: Mist { Mist(application: self) }
 }
 
 extension Application.Mist
@@ -27,14 +25,11 @@ extension Application.Mist
         var components: Mist.Components?
     }
 
-    private struct Key: StorageKey 
-    {
-        typealias Value = Storage
-    }
+    private struct Key: StorageKey { typealias Value = Storage }
     
     var _storage: Storage
     {
-        if let existing = self.application.storage[Key.self] { return existing }
+        if let existing = application.storage[Key.self] { return existing }
         let new = Storage()
         application.storage[Key.self] = new
         return new
