@@ -15,7 +15,7 @@ struct App
         app.environment.useVariables()
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
         
-        app.databases.use(.sqlite(.file("deploy/github/deployments.db")), as: .sqlite)
+        app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
         app.databases.middleware.use(Deployment.Listener(), on: .sqlite)
         app.migrations.add(
             Deployment.Table(),
