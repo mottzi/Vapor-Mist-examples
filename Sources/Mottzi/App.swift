@@ -24,7 +24,7 @@ struct App
         try await app.autoMigrate()
         
         await app.mist.use(
-            DeploymentComponent(),
+            DeploymentRow(),
             DemoComponentBlue(),
             DemoComponentRed(),
             DemoComponentGreen()

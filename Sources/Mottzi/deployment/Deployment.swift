@@ -2,7 +2,6 @@ import Vapor
 import Fluent
 import Mist
 
-// deployment model
 final class Deployment: Mist.Model, Content, @unchecked Sendable
 {
     static let schema = "deployments"
@@ -23,18 +22,16 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         self.isCurrent = false
     }
     
-    // returns array of all deployments, adjusted for presentation layer
     static func all(on database: Database) async throws -> [Deployment]
     {
         try await Deployment.query(on: database)
             .sort(\.$startedAt, .descending)
             .all()
-            .markStaleDeployments()
-            .markCurrentDeployment()
+            .markStales()
+            .markCurrents()
     }
 }
 
-// database table
 extension Deployment
 {
     struct Table: AsyncMigration
@@ -58,37 +55,25 @@ extension Deployment
     }
 }
 
-// cumputated model properties for presentaion layer
 extension Deployment
 {
-    var durationString: String?
-    {
+    func contextExtras() -> [String: any Encodable] {[
+        "durationString": durationString,
+        "startedAtTimestamp": startedAtTimestamp
+    ]}
+    
+    var durationString: String? {
         guard let finishedAt, let startedAt else { return nil }
-        
         return String(format: "%.1fs", finishedAt.timeIntervalSince(startedAt))
     }
     
-    var startedAtTimestamp: Double?
-    {
-        startedAt?.timeIntervalSince1970
-    }
-    
-    func contextExtras() -> [String: any Encodable]
-    {
-        [
-            "durationString": durationString,
-            "startedAtTimestamp": startedAtTimestamp
-        ]
-    }
+    var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
 }
 
-// functions to handle current deployment management
 extension Deployment
 {
-    // flag this deployment as current
     func setCurrent(on database: Database) async throws
     {
-        // get and clear any existing current deployments (individual saves to trigger Mist listener)
         let currentDeployments = try await Deployment.query(on: database)
             .filter(\.$isCurrent, .equal, true)
             .all()
@@ -98,14 +83,17 @@ extension Deployment
             try await deployment.save(on: database)
         }
         
-        // set this one as current
         self.isCurrent = true
-        
-        // save change to db (triggers Mist listener for this deployment)
         try await self.save(on: database)
     }
     
-    // removes isCurrent flag of all entries that have it
+    static func getCurrent(on database: Database) async throws -> Deployment?
+    {
+        try await Deployment.query(on: database)
+            .filter(\.$isCurrent, .equal, true)
+            .first()
+    }
+    
     static func clearCurrent(on database: Database) async throws
     {
         try await Deployment.query(on: database)
@@ -113,53 +101,34 @@ extension Deployment
             .filter(\.$isCurrent, .equal, true)
             .update()
     }
-    
-    // returns the current deployment
-    static func current(on database: Database) async throws -> Deployment?
+}
+
+extension Deployment
+{
+    @discardableResult
+    func checkStale() -> Deployment
     {
-        try await Deployment.query(on: database)
-            .filter(\.$isCurrent, .equal, true)
-            .first()
+        guard self.status == "running" else { return self }
+        guard let startedAt = self.startedAt else { return self }
+        guard Date.now.timeIntervalSince(startedAt) > 1800 else { return self }
+        
+        self.status = "stale"
+        return self
+    }
+    
+    @discardableResult
+    func checkCurrent() -> Deployment
+    {
+        guard self.isCurrent else { return self }
+        
+        self.status = "deployed"
+        return self
     }
 }
 
-// helper functions to adjust arrays of deployments for usage in presentation layer
 extension Array where Element == Deployment
 {
-    // returns the array with all stale deployments marked as such
-    func markStaleDeployments() -> [Deployment]
-    {
-        self.map()
-        {
-            // abort if deployment is not currently running
-            guard $0.status == "running" else { return $0 }
-            
-            // abort if there is no start time
-            guard let startedAt = $0.startedAt else { return $0 }
-            
-            // abort if minimal duration of deployment has not been reached
-            guard Date().timeIntervalSince(startedAt) > 1800 else { return $0 }
-            
-            // if stale deployment was detected, flag it as such
-            $0.status = "stale"
-            
-            return $0
-        }
-    }
-    
-    // returns the array with the currently deployed deployment marked as such
-    func markCurrentDeployment() -> [Deployment]
-    {
-        self.map()
-        {
-            // abort if deployment is not last in pipe
-            guard $0.isCurrent else { return $0 }
-            
-            // if latest deployment, mark as deployed on system
-            $0.status = "deployed"
-            
-            return $0
-        }
-    }
+    func markStales() -> [Deployment] { self.map { $0.checkStale() } }
+    func markCurrents() -> [Deployment] { self.map { $0.checkCurrent() } }
 }
 
