@@ -88,13 +88,20 @@ extension Deployment
     // flag this deployment as current
     func setCurrent(on database: Database) async throws
     {
-        // clear any existing current deployments
-        try await Deployment.clearCurrent(on: database)
+        // get and clear any existing current deployments (individual saves to trigger Mist listener)
+        let currentDeployments = try await Deployment.query(on: database)
+            .filter(\.$isCurrent, .equal, true)
+            .all()
+        
+        for deployment in currentDeployments {
+            deployment.isCurrent = false
+            try await deployment.save(on: database)
+        }
         
         // set this one as current
         self.isCurrent = true
         
-        // save change to db
+        // save change to db (triggers Mist listener for this deployment)
         try await self.save(on: database)
     }
     
