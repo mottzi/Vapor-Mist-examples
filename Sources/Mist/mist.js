@@ -113,6 +113,16 @@ class MistSocket {
                     
                     console.log(`Server update message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
                 }
+                else if (data.delete) {
+                    const { component, id } = data.delete;
+                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    
+                    elements.forEach(element => {
+                        element.remove();
+                    });
+                    
+                    console.log(`Server delete message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;

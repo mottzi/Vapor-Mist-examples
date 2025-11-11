@@ -1,9 +1,9 @@
-// Move this file (mist.js) to: /Public
+// Move this file (mist.js) to: /Public 
 
 class MistSocket {
     
     constructor() {
-        
+
         this.socket = null;
         
         this.timer = null;
@@ -85,7 +85,7 @@ class MistSocket {
     isConnecting() { return this.socket?.readyState === WebSocket.CONNECTING; }
     
     connect() {
-        
+
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
         
@@ -113,6 +113,16 @@ class MistSocket {
                     
                     console.log(`Server update message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
                 }
+                else if (data.delete) {
+                    const { component, id } = data.delete;
+                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    
+                    elements.forEach(element => {
+                        element.remove();
+                    });
+                    
+                    console.log(`Server delete message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;
@@ -134,10 +144,10 @@ class MistSocket {
         };
         
         this.socket.onclose = () => {
-            
+
             if (this.timer) return
                 
-                console.log("WS: ... closed -> Connect in 1s ...");
+            console.log("WS: ... closed -> Connect in 1s ...");
             
             setTimeout(() => {
                 this.connect();
@@ -145,9 +155,9 @@ class MistSocket {
                 this.timer = setInterval(() => {
                     this.connect();
                 },
-                                         this.interval);
+                this.interval);
             },
-                       this.initialDelay);
+            this.initialDelay);
         };
     }
     

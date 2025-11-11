@@ -1,28 +1,29 @@
 import Vapor
 import Fluent
 
-extension Mist.Model {
-    
-    static func registerListener(with app: Application) {
+extension Mist.Model
+{
+    static func registerListener(with app: Application)
+    {
         let listener = Listener<Self>(app: app)
         app.databases.middleware.use(listener)
     }
-    
 }
 
-struct Listener<M: Model>: AsyncModelMiddleware {
-    
+struct Listener<M: Model>: AsyncModelMiddleware
+{
     let app: Application
     
-    func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws {
-        
+    func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
+    {
         try await next.update(model, on: db)
-        
+
         guard let modelID = model.id else { return }
         
-        for component in await app.mist.components.getComponents(using: M.self) {
-            
+        for component in await app.mist.components.getComponents(using: M.self)
+        {
             guard component.shouldUpdate(for: model) else { continue }
+            
             guard let html = await component.render(
                 id: modelID,
                 on: db,
@@ -34,6 +35,25 @@ struct Listener<M: Model>: AsyncModelMiddleware {
                     component: component.name,
                     id: modelID,
                     html: html
+                )
+            )
+        }
+    }
+    
+    func delete(model: M, force: Bool, on db: any Database, next: any AnyAsyncModelResponder) async throws
+    {
+        try await next.delete(model, force: force, on: db)
+        
+        guard let modelID = model.id else { return }
+        
+        for component in await app.mist.components.getComponents(using: M.self)
+        {
+            guard component.shouldUpdate(for: model) else { continue }
+            
+            await app.mist.clients.broadcast(
+                Message.Delete(
+                    component: component.name,
+                    id: modelID
                 )
             )
         }

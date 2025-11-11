@@ -6,7 +6,9 @@ enum Message: Codable
     
     case subscribe(component: String)
     
-    case update(component: String, id: UUID?, html: String)
+    case update(component: String, id: UUID, html: String)
+    
+    case delete(component: String, id: UUID)
     
     case action(component: String, id: UUID, action: String)
     
@@ -49,6 +51,17 @@ extension Clients
             Task { try? await subscriber.socket.send(jsonString) }
         }
     }
+    
+    func broadcast(_ message: Message.Delete) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: message.component)
+        {
+            Task { try? await subscriber.socket.send(jsonString) }
+        }
+    }
 }
 
 extension Message
@@ -56,21 +69,42 @@ extension Message
     struct Text
     {
         let message: String
-        // init(_ message: String) { self.message = message }
-        var wireFormat: Message { .text(message: message) }
+        
+        var wireFormat: Message {
+            .text(message: message)
+        }
     }
     
     struct Update
     {
         let component: String
-        let id: UUID?
+        let id: UUID
         let html: String
         
-        var wireFormat: Message { .update(component: component, id: id, html: html) }
+        var wireFormat: Message {
+            .update(
+                component: component,
+                id: id,
+                html: html
+            )
+        }
     }
     
-    struct ActionResult {
+    struct Delete
+    {
+        let component: String
+        let id: UUID
         
+        var wireFormat: Message {
+            .delete(
+                component: component,
+                id: id
+            )
+        }
+    }
+    
+    struct ActionResult
+    {
         let component: String
         let id: UUID
         let action: String
@@ -78,9 +112,13 @@ extension Message
         let message: String
         
         var wireFormat: Message {
-            .actionResult(component: component, id: id, action: action, result: result, message: message)
+            .actionResult(
+                component: component,
+                id: id,
+                action: action,
+                result: result,
+                message: message
+            )
         }
-        
     }
-    
 }
