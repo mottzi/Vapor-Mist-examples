@@ -94,12 +94,6 @@ extension Deployment
             deployment.status = "success"
             try await deployment.save(on: database)
         }
-
-        for deployment in currentDeployments {
-            deployment.isCurrent = false
-            deployment.status = "success"
-            try await deployment.save(on: database)
-        }
         
         self.isCurrent = true
         self.status = "deployed"
