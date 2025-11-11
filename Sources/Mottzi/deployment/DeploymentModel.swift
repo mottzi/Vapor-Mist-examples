@@ -22,15 +22,13 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         self.isCurrent = false
     }
     
-    static var findAll: (Database) async -> [any Mist.Model]?
+    static func findAll(on database: Database) async -> [any Mist.Model]?
     {
-        return { db in
-            guard let deployments = try? await Deployment.query(on: db)
-                .sort(\.$startedAt, .descending)
-                .all()
-            else { return nil }
-            return deployments
-        }
+        guard let deployments = try? await Deployment.query(on: database)
+            .sort(\.$startedAt, .descending)
+            .all()
+        else { return nil }
+        return deployments
     }
 }
 

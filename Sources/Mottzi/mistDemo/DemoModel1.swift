@@ -20,15 +20,13 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
 
 extension DemoModel1
 {
-    static var findAll: (Database) async -> [any Mist.Model]?
+    static func findAll(on database: Database) async -> [any Mist.Model]?
     {
-        return { db in
-            guard let models = try? await DemoModel1.query(on: db)
-                .sort(\.$created, .descending)
-                .all()
-            else { return nil }
-            return models
-        }
+        guard let models = try? await DemoModel1.query(on: database)
+            .sort(\.$created, .descending)
+            .all()
+        else { return nil }
+        return models
     }
     
     var shortID: String

@@ -60,7 +60,7 @@ public extension Component
         var modelContainers: [ModelContainer] = []
 
         guard let primaryModelType = models.first else { return .empty }
-        guard let primaryModels = await primaryModelType.findAll(db) else { return .empty }
+        guard let primaryModels = await primaryModelType.findAll(on: db) else { return .empty }
 
         for primaryModel in primaryModels
         {

@@ -5,7 +5,7 @@ import Logging
 public protocol Model: Fluent.Model where IDValue == UUID
 {
     func contextExtras() -> [String: any Encodable]
-    static var findAll: (Database) async -> [any Model]? { get }
+    static func findAll(on database: Database) async -> [any Model]?
 }
 
 public extension Model
@@ -22,11 +22,9 @@ public extension Model
         }
     }
     
-    static var findAll: (Database) async -> [any Model]?
+    static func findAll(on database: Database) async -> [any Model]?
     {
-        return { db in
-            return try? await Self.query(on: db).all()
-        }
+        return try? await Self.query(on: database).all()
     }
 }
 
