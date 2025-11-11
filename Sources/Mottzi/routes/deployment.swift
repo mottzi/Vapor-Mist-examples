@@ -37,13 +37,14 @@ extension Application
             // find current deployment for header display
             let current = try? await Deployment.current(on: request.db)
             
-            // build component contexts manually for each deployment to preserve ordering
+            // build component contexts manually from the already-fetched deployments
+            // (to preserve the in-memory status modifications from Deployment.all())
             var componentContainers: [MistModelContainer] = []
             for deployment in deployments
             {
-                guard let id = deployment.id else { continue }
-                guard let componentContext = await DeploymentComponent().makeContext(of: id, in: request.db) else { continue }
-                componentContainers.append(componentContext.component)
+                var container = MistModelContainer()
+                container.add(deployment, for: "deployment")
+                componentContainers.append(container)
             }
             
             struct DeploymentPanelContext: Encodable
