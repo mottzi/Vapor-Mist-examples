@@ -7,7 +7,7 @@ extension Application
 {
     public func initTestRoute()
     {
-        self.get("test") { _ in "Test response string: 2" }
+        self.get("test") { _ in "Test response string: 1" }
     }
     
     func initPushWebhook()
