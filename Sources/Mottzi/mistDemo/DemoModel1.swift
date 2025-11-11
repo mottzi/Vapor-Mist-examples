@@ -30,11 +30,15 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
 
 extension DemoModel1
 {
-    static func all(on database: Database) async throws -> [DemoModel1]
+    static var findAll: (Database) async -> [any Mist.Model]?
     {
-        try await DemoModel1.query(on: database)
-            .sort(\.$created, .descending)
-            .all()
+        return { db in
+            guard let models = try? await DemoModel1.query(on: db)
+                .sort(\.$created, .descending)
+                .all()
+            else { return nil }
+            return models
+        }
     }
 }
 
