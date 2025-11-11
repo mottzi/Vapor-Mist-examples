@@ -40,7 +40,6 @@ extension DemoModel1
     }
 }
 
-// database table
 extension DemoModel1
 {
     struct Table: AsyncMigration
