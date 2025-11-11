@@ -15,11 +15,9 @@ public extension Model
         return [:]
     }
     
-    static var find: (UUID, Database) async -> (any Model)?
+    static func find(id: UUID, on database: Database) async -> (any Model)?
     {
-        return { id, db in
-            return try? await Self.find(id, on: db)
-        }
+        return try? await Self.find(id, on: database)
     }
     
     static func findAll(on database: Database) async -> [any Model]?

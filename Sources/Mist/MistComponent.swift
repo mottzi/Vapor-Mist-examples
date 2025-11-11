@@ -45,7 +45,7 @@ public extension Component
         var container = ModelContainer()
         
         for model in models {
-            guard let modelData = await model.find(componentID, db) else { continue }
+            guard let modelData = await model.find(id: componentID, on: db) else { continue }
             let modelName = String(describing: model).lowercased()
             container.add(modelData, for: modelName)
         }
