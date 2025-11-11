@@ -16,16 +16,6 @@ final class DemoModel1: Mist.Model, Content, @unchecked Sendable
     {
         self.text = text
     }
-    
-    var shortID: String
-    {
-        String(id?.uuidString.prefix(8) ?? "")
-    }
-    
-    func contextExtras() -> [String: any Encodable]
-    {
-        ["shortID": shortID]
-    }
 }
 
 extension DemoModel1
@@ -39,6 +29,16 @@ extension DemoModel1
             else { return nil }
             return models
         }
+    }
+    
+    var shortID: String
+    {
+        String(id?.uuidString.prefix(8) ?? "")
+    }
+    
+    func contextExtras() -> [String: any Encodable]
+    {
+        ["shortID": shortID]
     }
 }
 

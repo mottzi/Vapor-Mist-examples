@@ -20,21 +20,6 @@ final class DemoModel2: Mist.Model, Content, @unchecked Sendable
 
 extension DemoModel2
 {
-    static var findAll: (Database) async -> [any Mist.Model]?
-    {
-        return { db in
-            guard let models = try? await DemoModel2.query(on: db)
-                .sort(\.$created, .descending)
-                .all()
-            else { return nil }
-            return models
-        }
-    }
-}
-
-// database table
-extension DemoModel2
-{
     struct Table: AsyncMigration
     {
         func prepare(on database: Database) async throws
