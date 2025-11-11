@@ -10,11 +10,7 @@ struct DeploymentRow: Mist.Component
     
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
     {
-        guard var deployment = try? await Deployment.find(id, on: db) else { return nil }
-        
-        deployment
-            .checkStale()
-            .checkCurrent()
+        guard let deployment = try? await Deployment.find(id, on: db) else { return nil }
         
         var container = Mist.ModelContainer()
         container.add(deployment, for: "deployment")

@@ -27,8 +27,6 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         try await Deployment.query(on: database)
             .sort(\.$startedAt, .descending)
             .all()
-            .markStales()
-            .markCurrents()
     }
 }
 
@@ -59,7 +57,8 @@ extension Deployment
 {
     func contextExtras() -> [String: any Encodable] {[
         "durationString": durationString,
-        "startedAtTimestamp": startedAtTimestamp
+        "startedAtTimestamp": startedAtTimestamp,
+        "displayStatus": displayStatus
     ]}
     
     var durationString: String? {
@@ -68,6 +67,23 @@ extension Deployment
     }
     
     var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
+    
+    var displayStatus: String {
+        // If this deployment is current, it's "deployed"
+        if isCurrent {
+            return "deployed"
+        }
+        
+        // If status is "running" but it's been more than 30 minutes, it's "stale"
+        if status == "running",
+           let startedAt = startedAt,
+           Date.now.timeIntervalSince(startedAt) > 1800 {
+            return "stale"
+        }
+        
+        // Otherwise, return the actual status from the database
+        return status
+    }
 }
 
 extension Deployment
@@ -103,32 +119,4 @@ extension Deployment
     }
 }
 
-extension Deployment
-{
-    @discardableResult
-    func checkStale() -> Deployment
-    {
-        guard self.status == "running" else { return self }
-        guard let startedAt = self.startedAt else { return self }
-        guard Date.now.timeIntervalSince(startedAt) > 1800 else { return self }
-        
-        self.status = "stale"
-        return self
-    }
-    
-    @discardableResult
-    func checkCurrent() -> Deployment
-    {
-        guard self.isCurrent else { return self }
-        
-        self.status = "deployed"
-        return self
-    }
-}
-
-extension Array where Element == Deployment
-{
-    func markStales() -> [Deployment] { self.map { $0.checkStale() } }
-    func markCurrents() -> [Deployment] { self.map { $0.checkCurrent() } }
-}
 
