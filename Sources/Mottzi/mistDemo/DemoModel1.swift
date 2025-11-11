@@ -23,7 +23,7 @@ extension DemoModel1
     static func findAll(on database: Database) async -> [any Mist.Model]?
     {
         guard let models = try? await DemoModel1.query(on: database)
-            .sort(\.$created, .descending)
+            .sort(\.$created, .ascending)
             .all()
         else { return nil }
         return models
