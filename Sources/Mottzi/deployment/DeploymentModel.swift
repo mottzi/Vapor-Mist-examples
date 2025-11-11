@@ -69,11 +69,6 @@ extension Deployment
     var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
     
     var displayStatus: String {
-        // If this deployment is current, it's "deployed"
-        if isCurrent {
-            return "deployed"
-        }
-        
         // If status is "running" but it's been more than 30 minutes, it's "stale"
         if status == "running",
            let startedAt = startedAt,
@@ -90,16 +85,14 @@ extension Deployment
 {
     func setCurrent(on database: Database) async throws
     {
-        let currentDeployments = try await Deployment.query(on: database)
-            .filter(\.$isCurrent, .equal, true)
-            .all()
-        
-        for deployment in currentDeployments {
-            deployment.isCurrent = false
-            try await deployment.save(on: database)
-        }
+        try await Deployment.query(on: database)
+            .set(\.$isCurrent, to: false)
+            .set(\.$status, to: "success")
+            .filter(\.$status, .equal, "deployed")
+            .update()
         
         self.isCurrent = true
+        self.status = "deployed"
         try await self.save(on: database)
     }
     
