@@ -17,7 +17,7 @@
             <button
                 onclick="navigator.clipboard.writeText('#(component.demomodel1.id)'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
                 class="px-1.5 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded transition-colors"
-                title="Copy full ID"
+                title="#(component.demomodel1.id)"
             >
                 📋
             </button>
