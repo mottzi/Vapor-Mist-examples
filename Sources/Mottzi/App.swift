@@ -25,9 +25,9 @@ struct App
         try await app.autoMigrate()
         
         await app.mist.use(
+            DemoComponentBlue(),
             DemoComponentRed(),
-            DemoComponentGreen(),
-            DemoComponentBlue()
+            DemoComponentGreen()
         )
         
         app.views.use(.leaf)
