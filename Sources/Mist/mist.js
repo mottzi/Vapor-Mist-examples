@@ -147,7 +147,9 @@ class MistSocket {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
                             
                             if (acceptedComponents.includes(component)) {
-                                container.insertAdjacentHTML('beforeend', html);
+                                // Check for custom insertion position (default: 'beforeend' to append)
+                                const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
+                                container.insertAdjacentHTML(insertPosition, html);
                                 console.log(`Server create message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
                                 break;
                             }

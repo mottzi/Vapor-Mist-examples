@@ -59,7 +59,8 @@
                   </tr>
                 </thead>
                 <tbody 
-                    mist-container="DeploymentComponent" 
+                    mist-container="DeploymentComponent"
+                    mist-insert-position="afterbegin"
                     class="divide-y divide-gray-200 dark:divide-neutral-700"
                 >
                   #for(component in components):
