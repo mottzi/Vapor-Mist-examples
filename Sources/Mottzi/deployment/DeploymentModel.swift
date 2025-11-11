@@ -85,12 +85,21 @@ extension Deployment
 {
     func setCurrent(on database: Database) async throws
     {
-        //
-        try await Deployment.query(on: database)
-            .set(\.$isCurrent, to: false)
-            .set(\.$status, to: "success")
-            .filter(\.$status, .equal, "deployed")
-            .update()
+        let currentDeployments = try await Deployment.query(on: database)
+            .filter(\.$isCurrent, .equal, true)
+            .all()
+
+        for deployment in currentDeployments {
+            deployment.isCurrent = false
+            deployment.status = "success"
+            try await deployment.save(on: database)
+        }
+
+        for deployment in currentDeployments {
+            deployment.isCurrent = false
+            deployment.status = "success"
+            try await deployment.save(on: database)
+        }
         
         self.isCurrent = true
         self.status = "deployed"
