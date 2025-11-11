@@ -1,20 +1,8 @@
 import Vapor
 import LeafKit
+import NIOCore
 
-extension Application.Mist 
-{    
-    public func use(_ components: [any Component]) async
-    {
-        await configure(components: components, on: application)
-    }
-    
-    public func use(_ components: any Component...) async 
-    {
-        await configure(components: components, on: application)
-    }
-}
-
-private func configure(components: [any Component], on application: Application) async
+func configure(components: [any Component], on application: Application) async
 {
     let inlineTemplates = TemplateSource()
     for component in components {
@@ -31,4 +19,40 @@ private func configure(components: [any Component], on application: Application)
 
     let websocket = Socket()
     websocket.register(on: application)
+}
+
+public actor TemplateSource: LeafSource
+{
+    private var templates: [String: String] = [:]
+    
+    public init() {}
+    
+    public func register(name: String, template: String) {
+        self.templates[name] = template
+    }
+    
+    public nonisolated func file(template: String, escape: Bool, on eventLoop: any EventLoop) throws -> EventLoopFuture<ByteBuffer>
+    {
+        return eventLoop.makeFutureWithTask {
+            guard let content = await self.templates[template] else { throw LeafError(.noTemplateExists(template)) }
+            var buffer = ByteBufferAllocator().buffer(capacity: content.utf8.count)
+            buffer.writeString(content)
+            return buffer
+        }
+    }
+    
+}
+
+extension Application.Leaf
+{
+    var defaultSource: NIOLeafFiles
+    {
+        return NIOLeafFiles(
+            fileio: self.application.fileio,
+            limits: .default,
+            sandboxDirectory: self.configuration.rootDirectory,
+            viewDirectory: self.configuration.rootDirectory
+        )
+    }
+    
 }

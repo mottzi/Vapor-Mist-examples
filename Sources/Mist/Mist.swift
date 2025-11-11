@@ -17,6 +17,17 @@ extension Application
 
 extension Application.Mist
 {
+    public func use(_ components: [any Component]) async {
+        await configure(components: components, on: application)
+    }
+    
+    public func use(_ components: any Component...) async {
+        await configure(components: components, on: application)
+    }
+}
+
+extension Application.Mist
+{
     final class Storage: @unchecked Sendable
     {
         init() {}
@@ -63,18 +74,4 @@ extension Application.Mist
             return new
         }
     }
-}
-
-extension Application.Leaf 
-{    
-    var defaultSource: NIOLeafFiles 
-    {
-        return NIOLeafFiles(
-            fileio: self.application.fileio,
-            limits: .default,
-            sandboxDirectory: self.configuration.rootDirectory,
-            viewDirectory: self.configuration.rootDirectory
-        )
-    }
-    
 }
