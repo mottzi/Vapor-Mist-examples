@@ -87,7 +87,7 @@ public struct SingleComponentContext: Encodable
 
 public struct MultipleComponentContext: Encodable
 {
-    let components: [ModelContainer]
+    public let components: [ModelContainer]
     
     public init(components: [ModelContainer])
     {

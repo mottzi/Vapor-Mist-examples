@@ -16,7 +16,6 @@ struct App
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
         
         app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
-        app.databases.middleware.use(Deployment.Listener(), on: .sqlite)
         app.migrations.add(
             Deployment.Table(),
             DemoModel1.Table(),
@@ -25,6 +24,7 @@ struct App
         try await app.autoMigrate()
         
         await app.mist.use(
+            DeploymentComponent(),
             DemoComponentBlue(),
             DemoComponentRed(),
             DemoComponentGreen()

@@ -1,8 +1,9 @@
 import Vapor
 import Fluent
+import Mist
 
 // deployment model
-final class Deployment: Model, Content, @unchecked Sendable
+final class Deployment: Mist.Model, Content, @unchecked Sendable
 {
     static let schema = "deployments"
     
@@ -70,6 +71,14 @@ extension Deployment
     var startedAtTimestamp: Double?
     {
         startedAt?.timeIntervalSince1970
+    }
+    
+    func contextExtras() -> [String: any Encodable]
+    {
+        [
+            "durationString": durationString,
+            "startedAtTimestamp": startedAtTimestamp
+        ]
     }
 }
 
@@ -147,27 +156,3 @@ extension Array where Element == Deployment
     }
 }
 
-// model encoding
-extension Deployment
-{
-    enum CodingKeys: String, CodingKey
-    {
-        case id, status, message, isCurrent, startedAt, finishedAt
-        case durationString, startedAtTimestamp
-    }
-    
-    func encode(to encoder: Encoder) throws
-    {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(id, forKey: .id)
-        try container.encode(status, forKey: .status)
-        try container.encode(message, forKey: .message)
-        try container.encode(isCurrent, forKey: .isCurrent)
-        try container.encode(startedAt, forKey: .startedAt)
-        try container.encode(finishedAt, forKey: .finishedAt)
-        
-        try container.encode(durationString, forKey: .durationString)
-        try container.encode(startedAtTimestamp, forKey: .startedAtTimestamp)
-    }
-}
