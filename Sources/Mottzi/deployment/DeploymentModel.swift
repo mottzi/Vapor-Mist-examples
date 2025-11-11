@@ -85,6 +85,7 @@ extension Deployment
 {
     func setCurrent(on database: Database) async throws
     {
+        //
         try await Deployment.query(on: database)
             .set(\.$isCurrent, to: false)
             .set(\.$status, to: "success")
