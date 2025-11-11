@@ -2,12 +2,12 @@ import Vapor
 import Fluent
 import Mist
 
-struct DeploymentComponent: Mist.Component
+struct DeploymentRow: Mist.Component
 {
 
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]
-    let template: TemplateType = .file(path: "deployment/row")
+    let template: TemplateType = .file(path: "deployment/DeploymentRow")
     
     // Override render to apply status marking transformations
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
