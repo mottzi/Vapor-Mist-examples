@@ -21,12 +21,28 @@ class MistSocket {
         
         const uniqueComponents = new Set();
         
+        // Subscribe to existing components
         document.querySelectorAll('[mist-component]').forEach(element => {
             
             const component = element.getAttribute('mist-component');
             
             if (component) {
                 uniqueComponents.add(component);
+            }
+        });
+        
+        // Subscribe to components that containers accept (even if they don't exist yet)
+        document.querySelectorAll('[mist-container]').forEach(container => {
+            
+            const acceptedComponents = container.getAttribute('mist-container');
+            
+            if (acceptedComponents) {
+                acceptedComponents.split(',').forEach(component => {
+                    const trimmed = component.trim();
+                    if (trimmed) {
+                        uniqueComponents.add(trimmed);
+                    }
+                });
             }
         });
         
