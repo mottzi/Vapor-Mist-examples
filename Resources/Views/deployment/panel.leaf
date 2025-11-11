@@ -59,7 +59,7 @@
                   </tr>
                 </thead>
                 <tbody 
-                    mist-container="DeploymentComponent"
+                    mist-container="DeploymentRow"
                     mist-insert-position="afterbegin"
                     class="divide-y divide-gray-200 dark:divide-neutral-700"
                 >
