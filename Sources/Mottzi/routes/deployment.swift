@@ -47,7 +47,7 @@ extension Application
             let context = DeploymentPanelContext(components: componentsContext.components, current: current)
             
             // render the panel template using data context
-            return try await request.view.render("deployment/DeploymentPanel", context)
+            return try await request.view.render("deployment/panel", context)
         }
     }
 

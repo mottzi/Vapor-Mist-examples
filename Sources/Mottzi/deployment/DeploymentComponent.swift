@@ -7,7 +7,7 @@ struct DeploymentComponent: Mist.Component
 
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]
-    let template: TemplateType = .file(path: "deployment/DeploymentRow")
+    let template: TemplateType = .file(path: "deployment/row")
 
 }
 
