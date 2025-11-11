@@ -13,6 +13,32 @@ extension Mist.Model
 struct Listener<M: Model>: AsyncModelMiddleware
 {
     let app: Application
+
+    func create(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
+    {
+        try await next.create(model, on: db)
+
+        guard let modelID = model.id else { return }
+        
+        for component in await app.mist.components.getComponents(using: M.self)
+        {
+            guard component.shouldUpdate(for: model) else { continue }
+            
+            guard let html = await component.render(
+                id: modelID,
+                on: db,
+                using: app.leaf.renderer)
+            else { continue }
+            
+            await app.mist.clients.broadcast(
+                Message.Create(
+                    component: component.name,
+                    id: modelID,
+                    html: html
+                )
+            )
+        }
+    }
     
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {

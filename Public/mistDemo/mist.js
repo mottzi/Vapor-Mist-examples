@@ -113,6 +113,31 @@ class MistSocket {
                     
                     console.log(`Server update message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
                 }
+                else if (data.create) {
+                    const { component, id, html } = data.create;
+                    const existingElements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    
+                    // If component already exists, treat as update
+                    if (existingElements.length > 0) {
+                        existingElements.forEach(element => {
+                            element.outerHTML = html;
+                        });
+                        console.log(`Server create message (treated as update): '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                    } else {
+                        // Find container that accepts this component
+                        const containers = document.querySelectorAll('[mist-container]');
+                        
+                        for (const container of containers) {
+                            const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            
+                            if (acceptedComponents.includes(component)) {
+                                container.insertAdjacentHTML('beforeend', html);
+                                console.log(`Server create message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                                break;
+                            }
+                        }
+                    }
+                }
                 else if (data.delete) {
                     const { component, id } = data.delete;
                     const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
