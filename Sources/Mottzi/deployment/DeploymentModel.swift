@@ -25,7 +25,7 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
     static func findAll(on database: Database) async -> [any Mist.Model]?
     {
         guard let deployments = try? await Deployment.query(on: database)
-            .sort(\.$startedAt, .ascending)
+            .sort(\.$startedAt, .descending)
             .all()
         else { return nil }
         return deployments
