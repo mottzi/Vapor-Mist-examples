@@ -5,21 +5,21 @@ public protocol Component: Sendable
 {
     var name: String { get }
     var template: TemplateType { get }
-    var models: [any Mist.Model.Type] { get }
+    var models: [any Model.Type] { get }
     var actions: [any Action] { get }
     
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
-    func shouldUpdate<M: Mist.Model>(for model: M) -> Bool
+    func shouldUpdate<M: Model>(for model: M) -> Bool
 }
 
-public extension Mist.Component
+public extension Component
 {
     var name: String { String(describing: Self.self) }
     var template: TemplateType { .file(path: name) }
     var actions: [any Action] { [] }
 }
 
-public extension Mist.Component
+public extension Component
 {
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
     {
@@ -32,34 +32,32 @@ public extension Mist.Component
         return String(buffer: buffer)
     }
     
-    func shouldUpdate<M: Mist.Model>(for model: M) -> Bool
-    {
+    func shouldUpdate<M: Model>(for model: M) -> Bool {
         return models.contains { $0 == M.self }
     }
     
 }
 
-public extension Mist.Component {
-    
+public extension Component
+{
     func makeContext(of componentID: UUID, in db: Database) async -> SingleComponentContext?
     {
-        var container = Mist.ModelContainer()
+        var container = ModelContainer()
         
-        for model in models
-        {
+        for model in models {
             guard let modelData = await model.find(componentID, db) else { continue }
             let modelName = String(describing: model).lowercased()
             container.add(modelData, for: modelName)
         }
         
-        guard container.isEmpty == false else { return nil }
+        guard container.hasElements else { return nil }
         
         return SingleComponentContext(component: container)
     }
     
     func makeContext(ofAll db: Database) async -> MultipleComponentContext
     {
-        var modelContainers: [Mist.ModelContainer] = []
+        var modelContainers: [ModelContainer] = []
 
         guard let primaryModelType = models.first else { return .empty }
         guard let primaryModels = await primaryModelType.findAll(db) else { return .empty }
@@ -74,7 +72,7 @@ public extension Mist.Component {
 
         guard modelContainers.isEmpty == false else { return .empty }
 
-        return Mist.MultipleComponentContext(components: modelContainers)
+        return MultipleComponentContext(components: modelContainers)
     }
     
 }

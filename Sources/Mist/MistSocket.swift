@@ -32,7 +32,7 @@ extension Socket.Connection
     func onText(_ text: String) async
     {
         guard let data = text.data(using: .utf8) else { return }
-        guard let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else { return }
+        guard let message = try? JSONDecoder().decode(Message.self, from: data) else { return }
 
         switch message
         {

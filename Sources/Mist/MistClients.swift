@@ -7,10 +7,10 @@ public actor Clients
 {
     var clients: [Client] = []
     var componentToClients: [String: Set<UUID>] = [:]
-    let components: Mist.Components
     
-    init(components: Mist.Components)
-    {
+    let components: Components
+    
+    init(components: Components) {
         self.components = components
     }
 }
@@ -24,17 +24,14 @@ extension Clients
         var subscriptions: Set<String> = []
     }
     
-    func addClient(id: UUID, socket: WebSocket)
-    {
+    func addClient(id: UUID, socket: WebSocket) {
         return clients.append(Client(id: id, socket: socket))
     }
     
     func removeClient(id: UUID)
     {
-        // abort if client not found in registry
         guard let clientIndex = clients.firstIndex(where: { $0.id == id }) else { return }
         
-        // remove client from lookup dictionary
         let clientSubscriptions = clients[clientIndex].subscriptions
         for component in clientSubscriptions {
             guard var subscribers = componentToClients[component] else { continue }
@@ -42,12 +39,10 @@ extension Clients
             componentToClients[component] = subscribers.isEmpty ? nil : subscribers
         }
         
-        // remove client from registry
         clients.remove(at: clientIndex)
     }
     
     func subscribers(of component: String) -> [Client] {
-        // lookup subscriber IDs from lookup dictionary
         guard let subscriberIDs = componentToClients[component] else { return [] }
         return clients.filter { subscriberIDs.contains($0.id) }
     }

@@ -31,7 +31,11 @@ public actor TemplateSource: LeafSource
         self.templates[name] = template
     }
     
-    public nonisolated func file(template: String, escape: Bool, on eventLoop: any EventLoop) throws -> EventLoopFuture<ByteBuffer>
+    public nonisolated func file(
+        template: String,
+        escape: Bool,
+        on eventLoop: any EventLoop)
+    throws -> EventLoopFuture<ByteBuffer>
     {
         return eventLoop.makeFutureWithTask {
             guard let content = await self.templates[template] else { throw LeafError(.noTemplateExists(template)) }

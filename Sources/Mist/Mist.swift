@@ -53,9 +53,7 @@ extension Application.Mist
     
     var _clients: Mist.Clients
     {
-        let lock = self.application.locks.lock(for: ClientsKey.self)
-        return lock.withLock
-        {
+        return application.locks.lock(for: ClientsKey.self).withLock {
             if let existing = _storage.clients { return existing }
             let new = Mist.Clients(components: _components)
             _storage.clients = new
@@ -65,9 +63,7 @@ extension Application.Mist
     
     var _components: Mist.Components
     {
-        let lock = self.application.locks.lock(for: ComponentsKey.self)
-        return lock.withLock
-        {
+        return application.locks.lock(for: ComponentsKey.self).withLock {
             if let existing = _storage.components { return existing }
             let new = Mist.Components()
             _storage.components = new

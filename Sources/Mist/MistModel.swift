@@ -7,7 +7,7 @@ public protocol Model: Fluent.Model where IDValue == UUID
     func contextExtras() -> [String: any Encodable]
 }
 
-public extension Mist.Model
+public extension Model
 {
     func contextExtras() -> [String: any Encodable]
     {
@@ -15,16 +15,16 @@ public extension Mist.Model
     }
 }
 
-public extension Mist.Model
+public extension Model
 {
-    static var find: (UUID, Database) async -> (any Mist.Model)?
+    static var find: (UUID, Database) async -> (any Model)?
     {
         return { id, db in
             return try? await Self.find(id, on: db)
         }
     }
     
-    static var findAll: (Database) async -> [any Mist.Model]?
+    static var findAll: (Database) async -> [any Model]?
     {
         return { db in
             return try? await Self.query(on: db).all()
@@ -34,15 +34,13 @@ public extension Mist.Model
 
 public struct ModelContainer: Encodable
 {
-    private var models: [String: any Mist.Model] = [:]
+    private var models: [String: any Model] = [:]
     
-    var isEmpty: Bool
-    {
-        return models.isEmpty
+    var hasElements: Bool {
+        return !models.isEmpty
     }
 
-    public mutating func add<M: Mist.Model>(_ model: M, for key: String)
-    {
+    public mutating func add<M: Model>(_ model: M, for key: String) {
         models[key] = model
     }
     
