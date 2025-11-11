@@ -1,5 +1,5 @@
 <tr 
-    mist-component="DeploymentComponent"
+    mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
     data-started-at="#(component.deployment.startedAtTimestamp)" 
     class="hover:bg-gray-50 dark:hover:bg-neutral-750 transition-colors duration-150"
