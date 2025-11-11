@@ -31,11 +31,20 @@ extension Application
         // deployment panel route
         self.get("deployment")
         { request async throws -> View in
-            // get component context using Mist
-            let componentsContext = await DeploymentComponent().makeContext(ofAll: request.db)
+            // get all deployments with proper sorting and status marking
+            let deployments = try await Deployment.all(on: request.db)
             
             // find current deployment for header display
             let current = try? await Deployment.current(on: request.db)
+            
+            // build component contexts manually for each deployment to preserve ordering
+            var componentContainers: [MistModelContainer] = []
+            for deployment in deployments
+            {
+                guard let id = deployment.id else { continue }
+                guard let componentContext = await DeploymentComponent().makeContext(of: id, in: request.db) else { continue }
+                componentContainers.append(componentContext.component)
+            }
             
             struct DeploymentPanelContext: Encodable
             {
@@ -44,7 +53,7 @@ extension Application
             }
             
             // create encoded data context for templating
-            let context = DeploymentPanelContext(components: componentsContext.components, current: current)
+            let context = DeploymentPanelContext(components: componentContainers, current: current)
             
             // render the panel template using data context
             return try await request.view.render("deployment/panel", context)

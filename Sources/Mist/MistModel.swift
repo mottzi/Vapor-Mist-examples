@@ -77,7 +77,7 @@ public struct ModelContainer: Encodable
 
 public struct SingleComponentContext: Encodable
 {
-    let component: ModelContainer
+    public let component: ModelContainer
     
     public init(component: ModelContainer)
     {
