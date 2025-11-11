@@ -64,7 +64,7 @@
                     class="divide-y divide-gray-200 dark:divide-neutral-700"
                 >
                   #for(component in components):
-                    #extend("deployment/row")
+                    #extend("deployment/DeploymentRow")
                   #endfor
                 </tbody>
               </table>
