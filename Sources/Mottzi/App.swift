@@ -25,6 +25,7 @@ struct App
         
         await app.mist.use(
             DeploymentRow(),
+            DeploymentStatusComponent(),
             MistDemoComponent()
         )
         
