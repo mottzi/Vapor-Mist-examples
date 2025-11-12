@@ -7,9 +7,9 @@ public protocol Component: Sendable
     var template: TemplateType { get }
     var models: [any Model.Type] { get }
     var actions: [any Action] { get }
-    
-    func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
+
     func shouldUpdate<M: Model>(for model: M) -> Bool
+    func allModels(on db: Database) async -> [any Model]?
 }
 
 public extension Component
@@ -17,6 +17,20 @@ public extension Component
     var name: String { String(describing: Self.self) }
     var template: TemplateType { .file(path: name) }
     var actions: [any Action] { [] }
+}
+
+public extension Component
+{    
+    func shouldUpdate<M: Model>(for model: M) -> Bool 
+    {
+        return models.contains { $0 == M.self }
+    }
+
+    func allModels(on db: Database) async -> [any Model]?
+    {
+        guard let primaryModelType = models.first else { return nil }
+        return await primaryModelType.findAll(on: db)
+    }
 }
 
 public extension Component
@@ -31,11 +45,6 @@ public extension Component
         guard let buffer = try? await renderer.render(templateName, context).data else { return nil }
         return String(buffer: buffer)
     }
-    
-    func shouldUpdate<M: Model>(for model: M) -> Bool {
-        return models.contains { $0 == M.self }
-    }
-    
 }
 
 public extension Component
@@ -59,8 +68,7 @@ public extension Component
     {
         var modelContainers: [ModelContainer] = []
 
-        guard let primaryModelType = models.first else { return .empty }
-        guard let primaryModels = await primaryModelType.findAll(on: db) else { return .empty }
+        guard let primaryModels = await allModels(on: db) else { return .empty }
 
         for primaryModel in primaryModels
         {

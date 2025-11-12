@@ -5,7 +5,6 @@ import Logging
 public protocol Model: Fluent.Model where IDValue == UUID
 {
     func contextExtras() -> [String: any Encodable]
-    static func findAll(on database: Database) async -> [any Model]?
 }
 
 public extension Model

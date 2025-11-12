@@ -21,15 +21,6 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         self.message = message
         self.isCurrent = false
     }
-    
-    static func findAll(on database: Database) async -> [any Mist.Model]?
-    {
-        guard let deployments = try? await Deployment.query(on: database)
-            .sort(\.$startedAt, .descending)
-            .all()
-        else { return nil }
-        return deployments
-    }
 }
 
 extension Deployment
@@ -70,16 +61,13 @@ extension Deployment
     
     var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
     
-    var displayStatus: String {
-        // If status is "running" but it's been more than 30 minutes, it's "stale"
-        if status == "running",
-           let startedAt = startedAt,
-           Date.now.timeIntervalSince(startedAt) > 1800 {
-            return "stale"
-        }
-        
-        // Otherwise, return the actual status from the database
-        return status
+    var displayStatus: String
+    {
+        guard status == "running",
+              let startedAt = startedAt,
+              Date.now.timeIntervalSince(startedAt) > 1800
+        else { return status }
+        return "stale"
     }
 }
 
