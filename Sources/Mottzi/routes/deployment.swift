@@ -25,25 +25,17 @@ extension Application
         { request async throws -> View in
             
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
-            let currentDeployment = try? await Deployment.getCurrent(on: request.db)
-            
-            // Build the status component context (matching Mist's structure)
-            var statusComponent: MistModelContainer?
-            if let deployment = currentDeployment {
-                var container = MistModelContainer()
-                container.add(deployment, for: "deployment")
-                statusComponent = container
-            }
+            let currentDeployment = try? await Deployment.getCurrent(on: request.db)            
         
             struct DeploymentPanelContext: Encodable
             {
                 let components: [MistModelContainer]
-                let component: MistModelContainer?
+                let current: Deployment?
             }
             
             let context = DeploymentPanelContext(
                 components: componentsContext.components,
-                component: statusComponent
+                current: currentDeployment
             )
             
             return try await request.view.render("deployment/DeploymentPanel", context)
