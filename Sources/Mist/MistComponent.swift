@@ -4,7 +4,7 @@ import Fluent
 public protocol Component: Sendable
 {
     var name: String { get }
-    var template: TemplateType { get }
+    var template: Template { get }
     var models: [any Model.Type] { get }
     var actions: [any Action] { get }
 
@@ -15,7 +15,7 @@ public protocol Component: Sendable
 public extension Component
 {
     var name: String { String(describing: Self.self) }
-    var template: TemplateType { .file(path: name) }
+    var template: Template { .file(path: name) }
     var actions: [any Action] { [] }
 }
 
@@ -85,7 +85,7 @@ public extension Component
     
 }
 
-public enum TemplateType: Sendable
+public enum Template: Sendable
 {
     case file(path: String)
     case inline(template: String)

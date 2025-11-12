@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mist DemoComponent</title>
+  <title>MistDemoComponent</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
   <style>
@@ -20,7 +20,7 @@
         <div class="py-4 flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <h1 class="text-xl font-semibold text-gray-900 dark:text-neutral-100">
-              DemoComponent local mist
+              MistDemoComponent
             </h1>
           </div>
         </div>
@@ -43,13 +43,11 @@
                   </tr>
                 </thead>
                 <tbody 
-                    mist-container="DemoComponentBlue,DemoComponentRed,DemoComponentGreen" 
+                    mist-container="MistDemoComponent"
                     class="divide-y divide-gray-200 dark:divide-neutral-700"
                 >
                   #for(component in components):
-                    #extend("DemoComponentBlue")
-                    #extend("/mistDemo/DemoComponentRed")
-                    #extend("DemoComponentGreen")
+                    #extend("MistDemoComponent")
                   #endfor
                 </tbody>
               </table>
@@ -59,6 +57,6 @@
       </div>
     </div>
   </div>
-  <script src="/mistDemo/mist.js"></script>
+  <script src="/mist/mist.js"></script>
 </body>
 </html>

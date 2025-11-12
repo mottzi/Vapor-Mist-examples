@@ -6,7 +6,7 @@ struct DeploymentRow: Mist.Component
 {
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]
-    let template: TemplateType = .file(path: "deployment/DeploymentRow")
+    let template: Template = .file(path: "deployment/DeploymentRow")
 
     func allModels(on db: Database) async -> [any Mist.Model]?
     {

@@ -273,7 +273,7 @@ struct TestComponent: Mist.Component
 
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
 
-    let template: TemplateType = .inline(template:
+    let template: Template = .inline(template:
         """
         <div mist-component="TestComponent" mist-id="#(component.dummymodel1.id)">
             <span>#(component.dummymodel1.id)</span>

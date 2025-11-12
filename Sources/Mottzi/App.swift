@@ -25,9 +25,7 @@ struct App
         
         await app.mist.use(
             DeploymentRow(),
-            DemoComponentBlue(),
-            DemoComponentRed(),
-            DemoComponentGreen()
+            MistDemoComponent()
         )
         
         app.views.use(.leaf)
