@@ -12,7 +12,7 @@ struct DeploymentStatusComponent: QueryComponent
     let models: [any Mist.Model.Type] = [Deployment.self]
     let template: Template = .file(path: "deployment/DeploymentStatus")
     
-    func queryModel(on db: Database) async -> (any Model)?
+    func queryModel(on db: Database) async -> (any Mist.Model)?
     {
         return try? await Deployment.getCurrent(on: db)
     }
