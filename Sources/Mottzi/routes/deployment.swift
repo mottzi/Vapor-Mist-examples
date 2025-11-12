@@ -38,7 +38,7 @@ extension Application
                 current: currentDeployment
             )
             
-            return try await request.view.render("deployment/panel", context)
+            return try await request.view.render("deployment/DeploymentPanel", context)
         }
     }
 

@@ -7,22 +7,6 @@ struct DeploymentRow: Mist.Component
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]
     let template: TemplateType = .file(path: "deployment/DeploymentRow")
-    
-    func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
-    {
-        guard let deployment = try? await Deployment.find(id, on: db) else { return nil }
-        
-        var container = Mist.ModelContainer()
-        container.add(deployment, for: "deployment")
-        let context = Mist.SingleComponentContext(component: container)
-        
-        let templateName = switch template {
-            case .file(let path): path
-            case .inline: name
-        }
-        guard let buffer = try? await renderer.render(templateName, context).data else { return nil }
-        return String(buffer: buffer)
-    }
 }
 
 struct DeleteDeploymentAction: Mist.Action
