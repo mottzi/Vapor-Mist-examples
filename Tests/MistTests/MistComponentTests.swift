@@ -153,7 +153,7 @@ final class MistComponentTests: XCTestCase
         
         // Optional: Print rendered HTML for inspection
         print("Rendered HTML:\n\(html)")
-        
+
         try await app.asyncShutdown()
     }
 }
