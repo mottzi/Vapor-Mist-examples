@@ -6,7 +6,7 @@ struct MistDemoComponent: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
     let actions: [any Mist.Action] = [DeleteAction(), RandomizeAction()]
-    let template: Mist.Template = .file(path: "/mistDemo/MistDemoComponent")
+    let template: Mist.Template = .file(path: "mistDemo/MistDemoComponent")
 }
 
 struct DeleteAction: Mist.Action
