@@ -8,7 +8,7 @@ extension Application
         { request async throws -> View in
             let context = await MistDemoComponent().makeContext(ofAll: request.db)
             
-            return try await request.view.render("/mistDemo/MistDemoPanel", context)
+            return try await request.view.render("mistDemo/MistDemoPanel", context)
         }
         
         self.get("DemoModel1", "update", ":id", ":text")
