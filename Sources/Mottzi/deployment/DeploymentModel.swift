@@ -75,19 +75,22 @@ extension Deployment
 {
     func setCurrent(on database: Database) async throws
     {
-        let currentDeployments = try await Deployment.query(on: database)
+        // Set the new deployment as current FIRST
+        self.isCurrent = true
+        self.status = "deployed"
+        try await self.save(on: database)
+        
+        // Then unset the old ones
+        let oldCurrentDeployments = try await Deployment.query(on: database)
             .filter(\.$isCurrent, .equal, true)
+            .filter(\.$id, .notEqual, self.id!)
             .all()
 
-        for deployment in currentDeployments {
+        for deployment in oldCurrentDeployments {
             deployment.isCurrent = false
             deployment.status = "success"
             try await deployment.save(on: database)
         }
-        
-        self.isCurrent = true
-        self.status = "deployed"
-        try await self.save(on: database)
     }
     
     static func getCurrent(on database: Database) async throws -> Deployment?
