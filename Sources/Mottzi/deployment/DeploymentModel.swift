@@ -51,7 +51,8 @@ extension Deployment
     func contextExtras() -> [String: any Encodable] {[
         "durationString": durationString,
         "startedAtTimestamp": startedAtTimestamp,
-        "displayStatus": displayStatus
+        "displayStatus": displayStatus,
+        "shortID": shortID
     ]}
     
     var durationString: String? {
@@ -60,7 +61,12 @@ extension Deployment
     }
     
     var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
-    
+
+    var shortID: String
+    {
+        String(id?.uuidString.prefix(8) ?? "")
+    }
+
     var displayStatus: String
     {
         guard status == "running",

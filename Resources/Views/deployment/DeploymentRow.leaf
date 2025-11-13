@@ -12,7 +12,7 @@
     
     <!-- deployment ID -->
     <td class="hidden sm:table-cell px-6 py-4">
-        <a href="/admin/deployments/#(component.deployment.id)" class="font-mono text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm hover:underline" title="#(component.deployment.id)">#(component.deployment.id)</a>
+        <a href="/admin/deployments/#(component.deployment.id)" class="font-mono text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm hover:underline" title="#(component.deployment.id)">#(component.deployment.shortID)</a>
     </td>
     
     <!-- deployment status badge -->
