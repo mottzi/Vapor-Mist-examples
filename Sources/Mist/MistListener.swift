@@ -47,9 +47,9 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     using: app.leaf.renderer
                 ) else { continue }
                 
-                // Broadcast update (or create) using the static ID
+                // Broadcast create (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Update(
+                    Message.Create(
                         component: queryComponent.name,
                         id: queryComponent.staticID,
                         html: html
@@ -109,9 +109,9 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     using: app.leaf.renderer
                 ) else { continue }
                 
-                // Broadcast update using the static ID
+                // Broadcast create (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Update(
+                    Message.Create(
                         component: queryComponent.name,
                         id: queryComponent.staticID,
                         html: html
@@ -171,8 +171,9 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     using: app.leaf.renderer
                 ) else { continue }
                 
+                // Broadcast create (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Update(
+                    Message.Create(
                         component: queryComponent.name,
                         id: queryComponent.staticID,
                         html: html

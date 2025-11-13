@@ -27,11 +27,13 @@
             </h1>
           </div>
           
-          <div class="flex items-center">
+          <div
+              class="flex items-center"
+              mist-container="DeploymentStatusComponent"
+              mist-insert-position="beforeend"
+          >
             #if(component):
                 #extend("deployment/DeploymentStatus")
-            #else:
-                <div mist-component="DeploymentStatusComponent" mist-id="A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D"></div>
             #endif
           </div>
         </div>
