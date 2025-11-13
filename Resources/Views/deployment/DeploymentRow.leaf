@@ -12,7 +12,18 @@
     
     <!-- deployment ID -->
     <td class="hidden sm:table-cell px-6 py-4">
-        <a href="/admin/deployments/#(component.deployment.id)" class="font-mono text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm hover:underline" title="#(component.deployment.id)">#(component.deployment.shortID)</a>
+        <div class="flex items-center gap-2">
+            <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
+                #(component.deployment.shortID)
+            </span>
+            <button
+                onclick="navigator.clipboard.writeText('#(component.deployment.id)'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
+                class="px-1.5 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded transition-colors"
+                title="#(component.deployment.id)"
+            >
+                📋
+            </button>
+        </div>
     </td>
     
     <!-- deployment status badge -->
