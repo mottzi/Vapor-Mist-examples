@@ -29,9 +29,10 @@ extension Application
             
             // Build the status component context (matching Mist's structure)
             var statusComponent: MistModelContainer?
-            if let deployment = currentDeployment {
+            
+            if let currentDeployment {
                 var container = MistModelContainer()
-                container.add(deployment, for: "deployment")
+                container.add(currentDeployment, for: "deployment")
                 statusComponent = container
             }
         
