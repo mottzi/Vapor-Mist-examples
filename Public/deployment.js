@@ -6,10 +6,10 @@ class DeploymentManager {
     }
 
     startLiveDurationUpdates() {
-        // Update live duration displays every second
+        // Update live duration displays every 100ms (0.1 seconds)
         setInterval(() => {
             this.updateLiveDurations();
-        }, 1000);
+        }, 100);
 
         // Also update immediately on page load
         this.updateLiveDurations();
