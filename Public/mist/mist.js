@@ -121,7 +121,7 @@ class MistSocket {
                 
                 if (data.update) {
                     const { component, id, html } = data.update;
-                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
                         element.outerHTML = html;
@@ -131,7 +131,7 @@ class MistSocket {
                 }
                 else if (data.create) {
                     const { component, id, html } = data.create;
-                    const existingElements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     // If component already exists, treat as update
                     if (existingElements.length > 0) {
@@ -158,7 +158,7 @@ class MistSocket {
                 }
                 else if (data.delete) {
                     const { component, id } = data.delete;
-                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
                         element.remove();
@@ -204,6 +204,15 @@ class MistSocket {
         };
     }
     
+    // Helper function to build component selector
+    buildComponentSelector(component, id) {
+        if (id) {
+            return `[mist-component="${component}"][mist-id="${id}"]`;
+        } else {
+            return `[mist-component="${component}"]`;
+        }
+    }
+
     visibilityChange() {
         if (document.visibilityState === "visible") {
             console.log('visibilityState === "visible" -> calling connect()')

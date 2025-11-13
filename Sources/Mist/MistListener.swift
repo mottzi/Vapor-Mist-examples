@@ -34,7 +34,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     await app.mist.clients.broadcast(
                         Message.Delete(
                             component: queryComponent.name,
-                            id: queryComponent.staticID
+                            id: nil
                         )
                     )
                     continue
@@ -51,7 +51,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 await app.mist.clients.broadcast(
                     Message.Create(
                         component: queryComponent.name,
-                        id: queryComponent.staticID,
+                        id: nil,
                         html: html
                     )
                 )
@@ -96,7 +96,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     await app.mist.clients.broadcast(
                         Message.Delete(
                             component: queryComponent.name,
-                            id: queryComponent.staticID
+                            id: nil
                         )
                     )
                     continue
@@ -113,7 +113,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 await app.mist.clients.broadcast(
                     Message.Create(
                         component: queryComponent.name,
-                        id: queryComponent.staticID,
+                        id: nil,
                         html: html
                     )
                 )
@@ -158,7 +158,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     await app.mist.clients.broadcast(
                         Message.Delete(
                             component: queryComponent.name,
-                            id: queryComponent.staticID
+                            id: nil
                         )
                     )
                     continue
@@ -175,7 +175,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 await app.mist.clients.broadcast(
                     Message.Create(
                         component: queryComponent.name,
-                        id: queryComponent.staticID,
+                        id: nil,
                         html: html
                     )
                 )

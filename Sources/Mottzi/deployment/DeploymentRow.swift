@@ -20,7 +20,7 @@ struct DeleteDeploymentAction: Mist.Action
 {
     let name: String = "delete"
     
-    func perform(id: UUID, on db: Database) async -> ActionResult
+    func perform(id: UUID?, on db: Database) async -> ActionResult
     {
         guard let deployment = try? await Deployment.find(id, on: db)
         else { return .failure(message: "Deployment not found") }

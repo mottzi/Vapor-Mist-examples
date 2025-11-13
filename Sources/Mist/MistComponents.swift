@@ -51,7 +51,7 @@ extension Components
         return modelToComponents[key] != nil
     }
     
-    func performAction(component: String, action: String, id: UUID, on db: Database) async -> ActionResult
+    func performAction(component: String, action: String, id: UUID?, on db: Database) async -> ActionResult
     {
         guard let componentActions = componentActions[component] else { return .failure(message: "Component '\(component)' not found") }
         guard let action = componentActions[action] else { return .failure(message: "Action '\(action)' not found") }

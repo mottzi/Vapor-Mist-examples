@@ -3,18 +3,18 @@ import Vapor
 enum Message: Codable
 {
     case text(message: String)
-    
+
     case subscribe(component: String)
 
-    case create(component: String, id: UUID, html: String)
-    
-    case update(component: String, id: UUID, html: String)
-    
-    case delete(component: String, id: UUID)
-    
-    case action(component: String, id: UUID, action: String)
-    
-    case actionResult(component: String, id: UUID, action: String, result: Mist.ActionResult, message: String)
+    case create(component: String, id: UUID?, html: String)
+
+    case update(component: String, id: UUID?, html: String)
+
+    case delete(component: String, id: UUID?)
+
+    case action(component: String, id: UUID?, action: String)
+
+    case actionResult(component: String, id: UUID?, action: String, result: Mist.ActionResult, message: String)
 }
 
 extension Clients
@@ -91,24 +91,24 @@ extension Message
     struct Create
     {
         let component: String
-        let id: UUID
+        let id: UUID?
         let html: String
-        
+
         var wireFormat: Message {
             .create(
-                component: component, 
-                id: id, 
+                component: component,
+                id: id,
                 html: html
             )
         }
     }
-    
+
     struct Update
     {
         let component: String
-        let id: UUID
+        let id: UUID?
         let html: String
-        
+
         var wireFormat: Message {
             .update(
                 component: component,
@@ -117,12 +117,12 @@ extension Message
             )
         }
     }
-    
+
     struct Delete
     {
         let component: String
-        let id: UUID
-        
+        let id: UUID?
+
         var wireFormat: Message {
             .delete(
                 component: component,
@@ -130,15 +130,15 @@ extension Message
             )
         }
     }
-    
+
     struct ActionResult
     {
         let component: String
-        let id: UUID
+        let id: UUID?
         let action: String
         let result: Mist.ActionResult
         let message: String
-        
+
         var wireFormat: Message {
             .actionResult(
                 component: component,

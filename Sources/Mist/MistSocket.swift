@@ -55,7 +55,7 @@ extension Socket.Connection
         await app.mist.clients.send(response, to: clientID)
     }
 
-    func handleAction(_ component: String, _ id: UUID, _ action: String) async
+    func handleAction(_ component: String, _ id: UUID?, _ action: String) async
     {
         let result = await app.mist.components.performAction(
             component: component,
