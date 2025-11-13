@@ -14,7 +14,7 @@ class MistSocket {
         window.addEventListener('online', () => this.connect());
         document.addEventListener('click', (event) => this.handleAction(event));
     }
-    
+
     subscribeToPageComponents() {
         
         console.log("subscribing to server components...");

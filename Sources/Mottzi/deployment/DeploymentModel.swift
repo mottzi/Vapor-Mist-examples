@@ -50,7 +50,6 @@ extension Deployment
 {
     func contextExtras() -> [String: any Encodable] {[
         "durationString": durationString,
-        "startedAtTimestamp": startedAtTimestamp,
         "displayStatus": displayStatus,
         "shortID": shortID
     ]}
@@ -60,8 +59,6 @@ extension Deployment
         return String(format: "%.1fs", finishedAt.timeIntervalSince(startedAt))
     }
     
-    var startedAtTimestamp: Double? { startedAt?.timeIntervalSince1970 }
-
     var shortID: String
     {
         String(id?.uuidString.prefix(8) ?? "")
