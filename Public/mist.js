@@ -72,16 +72,11 @@ class MistSocket {
         if (!target) return;
         
         const actionName = target.getAttribute('mist-action');
-        console.log(`[DEBUG] Action clicked: '${actionName}'`);
         
         // 1. Find component, but ID is now optional
         const componentElement = target.closest('[mist-component]');
-        console.log(`[DEBUG] Component element:`, componentElement);
         
-        if (!componentElement || !actionName) {
-            console.log(`[DEBUG] Early return - componentElement:`, componentElement, 'actionName:', actionName);
-            return;
-        }
+        if (!componentElement || !actionName) return;
         
         const componentName = componentElement.getAttribute('mist-component');
         // 2. ID can now be null, which is valid
@@ -181,8 +176,9 @@ class MistSocket {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;
                     const resultType = isSuccess ? 'SUCCESS' : 'FAILURE';
+                    const idLog = id ? id.substring(0, 8) : 'null';
                     
-                    console.log(`Action result [${resultType}]: '${action}' on '${component}' (${id.substring(0, 8)}) - ${message}`);
+                    console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);
                 }
                 else if (data.text) {
                     const { message } = data.text;
