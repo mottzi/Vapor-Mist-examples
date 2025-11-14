@@ -3,15 +3,15 @@ import Fluent
 
 public actor Components
 {
-    var components: [any Component] = []
-    var modelToComponents: [ObjectIdentifier: [any Component]] = [:]
+    var components: [any InstanceComponent] = []
+    var modelToComponents: [ObjectIdentifier: [any InstanceComponent]] = [:]
     var componentActions: [String: [String: any Action]] = [:]
     init() {}
 }
 
 extension Components
 {
-    func registerComponents(_ components: [any Component], with app: Application)
+    func registerComponents(_ components: [any InstanceComponent], with app: Application)
     {
         for component in components
         {
@@ -34,7 +34,7 @@ extension Components
         }
     }
     
-    func getComponents<M: Model>(using model: M.Type) -> [any Component] 
+    func getComponents<M: Model>(using model: M.Type) -> [any InstanceComponent] 
     {
         let key = ObjectIdentifier(M.self)
         return modelToComponents[key] ?? []

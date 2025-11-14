@@ -263,12 +263,12 @@ final class MistIntegrationTests: XCTestCase
     }
 }
     
-struct DumbComp4133: Mist.Component
+struct DumbComp4133: Mist.InstanceComponent
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
 }
 
-struct TestComponent: Mist.Component
+struct TestComponent: Mist.InstanceComponent
 {
 
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]

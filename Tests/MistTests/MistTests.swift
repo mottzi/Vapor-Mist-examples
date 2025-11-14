@@ -8,7 +8,7 @@ import LeafKit
 #if DEBUG
 extension Components
 {
-    func registerWOListenerForTesting(_ component: any Mist.Component) 
+    func registerWOListenerForTesting(_ component: any Mist.InstanceComponent) 
     {
         guard !components.contains(where: { $0.name == component.name }) else { return }
         components.append(component)
