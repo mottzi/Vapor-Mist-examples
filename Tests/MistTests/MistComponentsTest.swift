@@ -395,17 +395,17 @@ final class MistComponentsTest: XCTestCase
     }
 }
 
-struct DummyRow1: Mist.InstanceComponent
+struct DummyRow1: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
 }
 
-struct DummyRow2: Mist.InstanceComponent
+struct DummyRow2: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self]
 }
 
-struct DummyRowWithActions: Mist.InstanceComponent
+struct DummyRowWithActions: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self]
     

@@ -122,107 +122,62 @@ class MistSocket {
         
         this.socket.onmessage = (event) => {
             try {
-
+                
                 const data = JSON.parse(event.data);
-
-                if (data.instanceComponent) {
-                    const componentData = data.instanceComponent;
-
-                    if (componentData.create) {
-                        const { component, id, html } = componentData.create;
-                        const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
-
-                        // If component already exists, treat as update
-                        if (existingElements.length > 0) {
-                            existingElements.forEach(element => {
-                                element.outerHTML = html;
-                            });
-                            console.log(`Server component create message (treated as update): '${component}' (${id.substring(0, 8)})`);
-                        } else {
-                            // Find container that accepts this component
-                            const containers = document.querySelectorAll('[mist-container]');
-
-                            for (const container of containers) {
-                                const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
-
-                                if (acceptedComponents.includes(component)) {
-                                    // Check for custom insertion position (default: 'beforeend' to append)
-                                    const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
-                                    container.insertAdjacentHTML(insertPosition, html);
-                                    console.log(`Server component create message: '${component}' (${id.substring(0, 8)})`);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else if (componentData.update) {
-                        const { component, id, html } = componentData.update;
-                        const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-
-                        elements.forEach(element => {
+                
+                if (data.update) {
+                    const { component, id, html } = data.update;
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
+                    
+                    elements.forEach(element => {
+                        element.outerHTML = html;
+                    });
+                    
+                    console.log(`Server update message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                }
+                else if (data.create) {
+                    const { component, id, html } = data.create;
+                    const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
+                    
+                    // If component already exists, treat as update
+                    if (existingElements.length > 0) {
+                        existingElements.forEach(element => {
                             element.outerHTML = html;
                         });
-
-                        console.log(`Server component update message: '${component}' (${id.substring(0, 8)})`);
-                    }
-                    else if (componentData.delete) {
-                        const { component, id } = componentData.delete;
-                        const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-
-                        elements.forEach(element => {
-                            element.remove();
-                        });
-
-                        console.log(`Server component delete message: '${component}' (${id.substring(0, 8)})`);
-                    }
-                }
-                else if (data.queryComponent) {
-                    const queryData = data.queryComponent;
-
-                    if (queryData.upsert) {
-                        const { component, html } = queryData.upsert;
-                        const existingElements = document.querySelectorAll(this.buildComponentSelector(component, null));
-
-                        // If component already exists, update it; otherwise insert into container
-                        if (existingElements.length > 0) {
-                            existingElements.forEach(element => {
-                                element.outerHTML = html;
-                            });
-                            console.log(`Server query upsert message (update): '${component}'`);
-                        } else {
-                            // Find container that accepts this component
-                            const containers = document.querySelectorAll('[mist-container]');
-
-                            for (const container of containers) {
-                                const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
-
-                                if (acceptedComponents.includes(component)) {
-                                    // Check for custom insertion position (default: 'beforeend' to append)
-                                    const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
-                                    container.insertAdjacentHTML(insertPosition, html);
-                                    console.log(`Server query upsert message (create): '${component}'`);
-                                    break;
-                                }
+                        console.log(`Server create message (treated as update): '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                    } else {
+                        // Find container that accepts this component
+                        const containers = document.querySelectorAll('[mist-container]');
+                        
+                        for (const container of containers) {
+                            const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            
+                            if (acceptedComponents.includes(component)) {
+                                // Check for custom insertion position (default: 'beforeend' to append)
+                                const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
+                                container.insertAdjacentHTML(insertPosition, html);
+                                console.log(`Server create message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                                break;
                             }
                         }
                     }
-                    else if (queryData.delete) {
-                        const { component } = queryData.delete;
-                        const elements = document.querySelectorAll(this.buildComponentSelector(component, null));
-
-                        elements.forEach(element => {
-                            element.remove();
-                        });
-
-                        console.log(`Server query delete message: '${component}'`);
-                    }
+                }
+                else if (data.delete) {
+                    const { component, id } = data.delete;
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
+                    
+                    elements.forEach(element => {
+                        element.remove();
+                    });
+                    
+                    console.log(`Server delete message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
                 }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;
                     const resultType = isSuccess ? 'SUCCESS' : 'FAILURE';
                     const idLog = id ? id.substring(0, 8) : 'null';
-
+                    
                     console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);
                 }
                 else if (data.text) {

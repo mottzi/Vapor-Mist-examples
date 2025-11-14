@@ -1,165 +1,152 @@
 import Vapor
 
-enum ClientMessage: Codable 
+enum Message: Codable
 {
-    case subscribe(component: String)
-    case action(component: String, id: UUID?, action: String)
-}
-
-enum ServerMessage: Codable 
-{
-    case actionResult(component: String, id: UUID?, action: String, result: Mist.ActionResult, message: String)
     case text(message: String)
-}
 
-enum ServerBroadcast: Codable 
-{
-    case instanceComponent(ComponentMessage)
-    case queryComponent(QueryComponentMessage)
-}
+    case subscribe(component: String)
 
-enum ComponentMessage: Codable {
-    case create(component: String, id: UUID, html: String)
-    case update(component: String, id: UUID, html: String)
-    case delete(component: String, id: UUID)
-    
-    enum CodingKeys: String, CodingKey {
-        case create, update, delete
-    }
-    
-    struct ComponentPayload: Codable {
-        let component: String
-        let id: UUID
-        let html: String
-    }
-    
-    struct DeletePayload: Codable {
-        let component: String
-        let id: UUID
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .create(let component, let id, let html):
-            try container.encode(ComponentPayload(component: component, id: id, html: html), forKey: .create)
-        case .update(let component, let id, let html):
-            try container.encode(ComponentPayload(component: component, id: id, html: html), forKey: .update)
-        case .delete(let component, let id):
-            try container.encode(DeletePayload(component: component, id: id), forKey: .delete)
-        }
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let value = try? container.decode(ComponentPayload.self, forKey: .create) {
-            self = .create(component: value.component, id: value.id, html: value.html)
-        } else if let value = try? container.decode(ComponentPayload.self, forKey: .update) {
-            self = .update(component: value.component, id: value.id, html: value.html)
-        } else if let value = try? container.decode(DeletePayload.self, forKey: .delete) {
-            self = .delete(component: value.component, id: value.id)
-        } else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unknown case"))
-        }
-    }
-}
+    case create(component: String, id: UUID?, html: String)
 
-enum QueryComponentMessage: Codable {
-    case upsert(component: String, html: String)
-    case delete(component: String)
-    
-    enum CodingKeys: String, CodingKey {
-        case upsert, delete
-    }
-    
-    struct UpsertPayload: Codable {
-        let component: String
-        let html: String
-    }
-    
-    struct DeletePayload: Codable {
-        let component: String
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .upsert(let component, let html):
-            try container.encode(UpsertPayload(component: component, html: html), forKey: .upsert)
-        case .delete(let component):
-            try container.encode(DeletePayload(component: component), forKey: .delete)
-        }
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let value = try? container.decode(UpsertPayload.self, forKey: .upsert) {
-            self = .upsert(component: value.component, html: value.html)
-        } else if let value = try? container.decode(DeletePayload.self, forKey: .delete) {
-            self = .delete(component: value.component)
-        } else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unknown case"))
-        }
-    }
+    case update(component: String, id: UUID?, html: String)
+
+    case delete(component: String, id: UUID?)
+
+    case action(component: String, id: UUID?, action: String)
+
+    case actionResult(component: String, id: UUID?, action: String, result: Mist.ActionResult, message: String)
 }
 
 extension Clients
 {
-    func send(_ message: String, to clientID: UUID) async
+    func send(_ message: String, to clientID: UUID) async 
     {
-        let event = ServerMessage.text(message: message)
-        await send(event, to: clientID)
+        let message = Message.Text(message: message)
+        await send(message, to: clientID)
     }
 
-    func send(_ event: ServerMessage, to clientID: UUID) async
+    func send(_ message: Message.Text, to clientID: UUID) async
     {
         guard let client = clients.first(where: { $0.id == clientID }) else { return }
-        guard let jsonData = try? JSONEncoder().encode(event) else { return }
+        guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
         try? await client.socket.send(jsonString)
     }
-
-    func broadcast(_ message: ComponentMessage) async
+    
+    func send(_ actionResult: Message.ActionResult, to clientID: UUID) async
     {
-        await broadcast(.instanceComponent(message))
-    }
-
-    func broadcast(_ message: QueryComponentMessage) async
-    {
-        await broadcast(.queryComponent(message))
-    }
-
-    private func broadcast(_ message: ServerBroadcast) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(message) else { return }
+        guard let client = clients.first(where: { $0.id == clientID }) else { return }
+        guard let jsonData = try? JSONEncoder().encode(actionResult.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        try? await client.socket.send(jsonString)
+    }
+    
+    func broadcast(_ update: Message.Update) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(update.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: update.component)
+        {
+            Task { try? await subscriber.socket.send(jsonString) }
+        }
+    }
+    
+    func broadcast(_ deletion: Message.Delete) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(deletion.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: deletion.component)
+        {
+            Task { try? await subscriber.socket.send(jsonString) }
+        }
+    }
 
-        let componentName = message.componentName
-
-        for subscriber in subscribers(of: componentName)
+    func broadcast(_ creation: Message.Create) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(creation.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: creation.component)
         {
             Task { try? await subscriber.socket.send(jsonString) }
         }
     }
 }
 
-extension ServerBroadcast 
+extension Message
 {
-    var componentName: String 
+    struct Text
     {
-        switch self 
-        {
-            case .instanceComponent(let message): return switch message 
-            {
-                case .create(let component, _, _): component
-                case .update(let component, _, _): component
-                case .delete(let component, _): component
-            }
-            case .queryComponent(let message): return switch message
-            {
-                case .upsert(let component, _): component
-                case .delete(let component): component
-            }
+        let message: String
+        
+        var wireFormat: Message {
+            .text(message: message)
+        }
+    }
+
+    struct Create
+    {
+        let component: String
+        let id: UUID?
+        let html: String
+
+        var wireFormat: Message {
+            .create(
+                component: component,
+                id: id,
+                html: html
+            )
+        }
+    }
+
+    struct Update
+    {
+        let component: String
+        let id: UUID?
+        let html: String
+
+        var wireFormat: Message {
+            .update(
+                component: component,
+                id: id,
+                html: html
+            )
+        }
+    }
+
+    struct Delete
+    {
+        let component: String
+        let id: UUID?
+
+        var wireFormat: Message {
+            .delete(
+                component: component,
+                id: id
+            )
+        }
+    }
+
+    struct ActionResult
+    {
+        let component: String
+        let id: UUID?
+        let action: String
+        let result: Mist.ActionResult
+        let message: String
+
+        var wireFormat: Message {
+            .actionResult(
+                component: component,
+                id: id,
+                action: action,
+                result: result,
+                message: message
+            )
         }
     }
 }

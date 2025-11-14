@@ -32,7 +32,7 @@ extension Socket.Connection
     func onText(_ text: String) async
     {
         guard let data = text.data(using: .utf8) else { return }
-        guard let message = try? JSONDecoder().decode(ClientMessage.self, from: data) else { return }
+        guard let message = try? JSONDecoder().decode(Message.self, from: data) else { return }
 
         switch message
         {
@@ -41,6 +41,8 @@ extension Socket.Connection
 
             case .action(let component, let id, let action):
                 await handleAction(component, id, action)
+
+            default: break
         }
     }
 
@@ -67,8 +69,8 @@ extension Socket.Connection
             case .failure(let message): message ?? "Failure"
         }
 
-        let event = ServerMessage.actionResult(component: component, id: id, action: action, result: result, message: resultMessage)
-        await app.mist.clients.send(event, to: clientID)
+        let message = Message.ActionResult(component: component, id: id, action: action, result: result, message: resultMessage)
+        await app.mist.clients.send(message, to: clientID)
     }
 
 }

@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-struct DeploymentRow: Mist.InstanceComponent
+struct DeploymentRow: Mist.Component
 {
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]

@@ -1,7 +1,7 @@
 import Vapor
 import Fluent
 
-public protocol InstanceComponent: Sendable
+public protocol Component: Sendable
 {
     var name: String { get }
     var template: Template { get }
@@ -12,14 +12,14 @@ public protocol InstanceComponent: Sendable
     func allModels(on db: Database) async -> [any Model]?
 }
 
-public extension InstanceComponent
+public extension Component
 {
     var name: String { String(describing: Self.self) }
     var template: Template { .file(path: name) }
     var actions: [any Action] { [] }
 }
 
-public extension InstanceComponent
+public extension Component
 {    
     func shouldUpdate<M: Model>(for model: M) -> Bool 
     {
@@ -33,7 +33,7 @@ public extension InstanceComponent
     }
 }
 
-public extension InstanceComponent
+public extension Component
 {
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
     {
@@ -47,7 +47,7 @@ public extension InstanceComponent
     }
 }
 
-public extension InstanceComponent
+public extension Component
 {
     func makeContext(of componentID: UUID, in db: Database) async -> SingleComponentContext?
     {
@@ -89,22 +89,4 @@ public enum Template: Sendable
 {
     case file(path: String)
     case inline(template: String)
-}
-
-public protocol QueryComponent: InstanceComponent
-{    
-    func queryModel(on db: Database) async -> (any Model)?
-}
-
-public extension QueryComponent
-{
-    func shouldUpdate<M: Model>(for model: M) -> Bool
-    {
-        return models.contains { $0 == M.self }
-    }
-    
-    func allModels(on db: Database) async -> [any Model]?
-    {
-        return nil
-    }
 }

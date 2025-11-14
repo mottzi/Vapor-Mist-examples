@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-struct MistDemoComponent: Mist.InstanceComponent
+struct MistDemoComponent: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DemoModel1.self, DemoModel2.self]
     let actions: [any Mist.Action] = [DeleteAction(), RandomizeAction()]

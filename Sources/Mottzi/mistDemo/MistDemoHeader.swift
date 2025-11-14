@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-struct MistDemoHeader: Mist.InstanceComponent
+struct MistDemoHeader: Mist.Component
 {
     let models: [any Mist.Model.Type] = []
     let actions: [any Mist.Action] = [AddDemoModelAction()]

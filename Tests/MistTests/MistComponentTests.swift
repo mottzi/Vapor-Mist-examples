@@ -6,7 +6,7 @@ import Leaf
 import FluentSQLiteDriver
 @testable import Mist
 
-struct MyComponent: Mist.InstanceComponent
+struct MyComponent: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
 }

@@ -51,7 +51,7 @@ final class MistIntegrationTests: XCTestCase
                 
                 // try to decode json message to typed mist message
                 guard let data = text.data(using: .utf8) else { return XCTFail("Failed to convert JSON string to data") }
-                guard let message = try? JSONDecoder().decode(ClientMessage.self, from: data) else { return XCTFail("Failed to decode data to ClientMessage") }
+                guard let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else { return XCTFail("Failed to decode data to Mist message") }
                 
                 switch message
                 {
@@ -159,7 +159,7 @@ final class MistIntegrationTests: XCTestCase
                 
                 // decode subscription message
                 guard let data = text.data(using: .utf8),
-                      let message = try? JSONDecoder().decode(ClientMessage.self, from: data) else
+                      let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else
                 {
                     return await test.fail("Failed to decode client message")
                 }
@@ -206,13 +206,12 @@ final class MistIntegrationTests: XCTestCase
             { ws, text async in
                 print("*** Client received server message...")
                 
-                // decode to BroadcastMessage
+                // decode to Mist.Message
                 guard let data = text.data(using: .utf8) else { return await test.fail("Error decoding") }
-                guard let message = try? JSONDecoder().decode(ServerBroadcast.self, from: data) else { return await test.fail("Error decoding") }
-
-                // verify component update message
-                guard case .instanceComponent(let componentMessage) = message,
-                      case .update(let component, let id, let html) = componentMessage else { return await test.fail("Wrong BroadcastMessage received") }
+                guard let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else { return await test.fail("Error decoding") }
+  
+                // verify update message
+                guard case .update(let component, /*_,*/ let id, let html) = message else { return await test.fail("Wrong Mist.Message received") }
                 guard component == "TestComponent" else { return await test.fail("Wrong Component received") }
                 guard id == modelID else { return await test.fail("Wrong model ID received") }
                 
@@ -264,12 +263,12 @@ final class MistIntegrationTests: XCTestCase
     }
 }
     
-struct DumbComp4133: Mist.InstanceComponent
+struct DumbComp4133: Mist.Component
 {
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
 }
 
-struct TestComponent: Mist.InstanceComponent
+struct TestComponent: Mist.Component
 {
 
     let models: [any Mist.Model.Type] = [DummyModel1.self, DummyModel2.self]
