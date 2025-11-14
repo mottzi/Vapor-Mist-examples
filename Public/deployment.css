@@ -151,6 +151,8 @@ body {
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  width: 1%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -197,10 +199,13 @@ body {
 /* Table cells */
 .deployment-td {
   padding: 1rem 1.5rem;
+  white-space: nowrap;
+  width: 1%;
 }
 
 .deployment-td-message {
-  max-width: 160px;
+  width: auto;
+  white-space: nowrap;
 }
 
 .deployment-td-hidden-sm {
