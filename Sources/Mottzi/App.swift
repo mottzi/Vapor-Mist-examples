@@ -31,10 +31,10 @@ struct App
         
         app.views.use(.leaf)
         
-        app.initMistDemo()
-        app.initTestRoute()
-        app.initPushWebhook()
-        app.initDeployPanel()
+        app.useMistDemo()
+        app.useTestRoute()
+        app.useWebhook()
+        app.useDeployPanel()
         
         try await app.execute()
         try await app.asyncShutdown()

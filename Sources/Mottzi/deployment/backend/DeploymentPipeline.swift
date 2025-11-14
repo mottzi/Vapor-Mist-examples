@@ -215,7 +215,7 @@ extension Deployment.Pipeline
         
         guard let bodyString = request.body.string,
               let jsonData = bodyString.data(using: .utf8),
-              let payload = try? decoder.decode(DeploymentWebhook.Payload.self, from: jsonData)
+              let payload = try? decoder.decode(Deployment.Webhook.Payload.self, from: jsonData)
         else { return nil }
         
         return payload.headCommit.message

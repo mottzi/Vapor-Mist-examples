@@ -5,21 +5,12 @@ typealias MistModelContainer = Mist.ModelContainer
 
 extension Application
 {
-    public func initTestRoute()
+    func useTestRoute()
     {
         self.get("test") { _ in "Test response 1" }
     }
     
-    func initPushWebhook()
-    {
-        self.push("pushevent")
-        { request async in
-            let commitMessage = Deployment.Pipeline.getCommitMessage(inside: request)
-            await Deployment.Pipeline.initiateDeployment(message: commitMessage, on: request.db)
-        }
-    }
-    
-    func initDeployPanel()
+    func useDeployPanel()
     {
         self.get("deployment")
         { request async throws -> View in
