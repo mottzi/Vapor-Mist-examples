@@ -1,5 +1,5 @@
 <div
-    mist-component="DeploymentStatusComponent"
+    mist-component="DeploymentStatus"
     class="deployment-status-component"
 >
     <div class="deployment-status-dot"></div>

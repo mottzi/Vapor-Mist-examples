@@ -29,7 +29,7 @@
 
         <div
             class="deployment-status-container"
-            mist-container="DeploymentStatusComponent"
+            mist-container="DeploymentStatus"
             mist-insert-position="beforeend"
         >
           #if(component):
