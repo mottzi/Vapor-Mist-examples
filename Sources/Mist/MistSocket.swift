@@ -18,7 +18,7 @@ extension Socket.Connection
     func onUpgrade() async
     {
         await app.mist.clients.addClient(id: clientID, socket: ws)
-        await app.mist.clients.send("Client connected and was added to registry.", to: clientID)
+        await app.mist.clients.send("Client (\(clientID.short)) was registered.", to: clientID)
 
         ws.onText() { ws, text async in
             Task { await onText(text) }
@@ -50,8 +50,8 @@ extension Socket.Connection
     {
         let success = await app.mist.clients.addSubscription(component, to: clientID)
         let response = success
-            ? "Client subscribed to component '\(component)'."
-            : "Client didn't subscribe to component '\(component)'."
+            ? "Client (\(clientID.short)) subscribed to component '\(component)'."
+            : "Client (\(clientID.short)) didn't subscribe to component '\(component)'."
         await app.mist.clients.send(response, to: clientID)
     }
 
@@ -91,4 +91,9 @@ extension Socket
             self.clientID = UUID()
         }
     }   
+}
+
+extension UUID
+{
+    var short: String { return String(uuidString.prefix(8)) }
 }
