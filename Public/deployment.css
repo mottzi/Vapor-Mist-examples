@@ -204,7 +204,10 @@ body {
 }
 
 .deployment-td-message {
-  width: auto;
+  width: 100%;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
