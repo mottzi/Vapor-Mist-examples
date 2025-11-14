@@ -1,55 +1,13 @@
-<tr
-    class="hover:bg-green-500 dark:hover:bg-neutral-700 transition-colors duration-150"
-    mist-component="MistDemoComponent"
-    mist-id="#(component.demomodel1.id)"
->
-    <td class="px-6 py-4">
-        <span class="text-sm font-semibold text-green-600 dark:text-green-400">
-            MistDemoComponent
-        </span>
+<tr mist-component="MistDemoComponent" mist-id="#(component.demomodel1.id)">
+    <td>MistDemoComponent</td>
+    <td>
+        #(component.demomodel1.shortID)
+        <button onclick="navigator.clipboard.writeText('#(component.demomodel1.id)')">Copy ID</button>
     </td>
-
-    <td class="px-6 py-4">
-        <div class="flex items-center gap-2">
-            <span class="font-mono text-indigo-600 dark:text-indigo-400 text-sm">
-                #(component.demomodel1.shortID)
-            </span>
-            <button
-                onclick="navigator.clipboard.writeText('#(component.demomodel1.id)'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000)"
-                class="px-1.5 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded transition-colors"
-                title="#(component.demomodel1.id)"
-            >
-                📋
-            </button>
-        </div>
-    </td>
-
-    <td class="px-6 py-4 max-w-[160px]">
-        <span class="block text-sm text-gray-700 dark:text-neutral-300 truncate font-medium">
-            #(component.demomodel1.text)
-        </span>
-    </td>
-
-    <td class="px-6 py-4">
-        <span class="text-sm text-gray-700 dark:text-neutral-300 font-medium">
-            #(component.demomodel2.text)
-        </span>
-    </td>
-
-    <td class="px-6 py-4">
-        <div class="flex gap-2">
-            <button
-                mist-action="RandomizeAction"
-                class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
-            >
-                Randomize
-            </button>
-            <button
-                mist-action="delete"
-                class="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
-            >
-                Delete
-            </button>
-        </div>
+    <td>#(component.demomodel1.text)</td>
+    <td>#(component.demomodel2.text)</td>
+    <td>
+        <button mist-action="RandomizeAction">Randomize</button>
+        <button mist-action="delete">Delete</button>
     </td>
 </tr>
