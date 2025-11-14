@@ -131,6 +131,8 @@ body {
 
 .deployment-table {
   width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 .deployment-thead {
@@ -151,8 +153,6 @@ body {
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  white-space: nowrap;
-  width: 1%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -173,11 +173,15 @@ body {
 
 /* Table body */
 .deployment-tbody {
+  /* Row separators using divide-y pattern */
+}
+
+.deployment-tbody > tr + tr {
   border-top: 1px solid #e5e7eb;
 }
 
 @media (prefers-color-scheme: dark) {
-  .deployment-tbody {
+  .deployment-tbody > tr + tr {
     border-top-color: #404040;
   }
 }
@@ -199,16 +203,10 @@ body {
 /* Table cells */
 .deployment-td {
   padding: 1rem 1.5rem;
-  white-space: nowrap;
-  width: 1%;
 }
 
 .deployment-td-message {
-  width: 100%;
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 160px;
 }
 
 .deployment-td-hidden-sm {
