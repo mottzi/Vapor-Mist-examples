@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deployment Dashboard</title>
   <link rel="icon" type="image/png" href="/mottzi.png">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/deployment.css">
   <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
   <style>
     html { font-family: 'Inter', sans-serif; }
@@ -14,53 +14,51 @@
     }
   </style>
 </head>
-<body class="h-full bg-gray-50 dark:bg-neutral-900">
-  <div class="min-h-full flex flex-col">
+<body>
+  <div class="deployment-container">
     
     <!-- header -->
-    <header class="bg-white dark:bg-neutral-800 border-b border-gray-200 dark:border-neutral-700 shadow-sm flex-none">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="py-4 flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-neutral-100">
-              Deployments
-            </h1>
-          </div>
-          
-          <div
-              class="flex items-center"
-              mist-container="DeploymentStatusComponent"
-              mist-insert-position="beforeend"
-          >
-            #if(component):
-                #extend("deployment/DeploymentStatus")
-            #endif
-          </div>
+    <header class="deployment-header">
+      <div class="deployment-header-inner">
+        <div class="deployment-title-container">
+          <h1 class="deployment-title">
+            Deployments
+          </h1>
+        </div>
+
+        <div
+            class="deployment-status-container"
+            mist-container="DeploymentStatusComponent"
+            mist-insert-position="beforeend"
+        >
+          #if(component):
+              #extend("deployment/DeploymentStatus")
+          #endif
         </div>
       </div>
     </header>
     
     <!-- table -->
-    <div class="flex-1 overflow-hidden">
-      <div class="h-full overflow-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden">
-            <div class="overflow-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50 dark:bg-neutral-800">
+    <div class="deployment-content">
+      <div class="deployment-content-scroll">
+        <div class="deployment-content-inner">
+          <div class="deployment-table-container">
+            <div class="deployment-table-wrapper">
+              <table class="deployment-table">
+                <thead class="deployment-thead">
                   <tr>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Message</th>
-                    <th class="hidden sm:table-cell px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Status</th>
-                    <th class="hidden sm:table-cell px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Started</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Duration</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Actions</th>
+                    <th class="deployment-th">Message</th>
+                    <th class="deployment-th deployment-th-hidden-sm">ID</th>
+                    <th class="deployment-th">Status</th>
+                    <th class="deployment-th deployment-th-hidden-sm">Started</th>
+                    <th class="deployment-th">Duration</th>
+                    <th class="deployment-th">Actions</th>
                   </tr>
                 </thead>
-                <tbody 
+                <tbody
                     mist-container="DeploymentRow"
                     mist-insert-position="afterbegin"
-                    class="divide-y divide-gray-200 dark:divide-neutral-700"
+                    class="deployment-tbody"
                 >
                   #for(component in components):
                     #extend("deployment/DeploymentRow")

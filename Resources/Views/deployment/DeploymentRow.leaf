@@ -1,91 +1,91 @@
 <tr
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
-    class="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-150"
+    class="deployment-row"
 >
-    
+
     <!-- deployment commit message -->
-    <td class="px-6 py-4 max-w-[160px]">
-        <span class="block text-sm text-gray-700 dark:text-neutral-300 truncate font-medium">#(component.deployment.message)</span>
+    <td class="deployment-td deployment-td-message">
+        <span class="deployment-text-message">#(component.deployment.message)</span>
     </td>
-    
+
     <!-- deployment ID -->
-    <td class="hidden sm:table-cell px-6 py-4">
-        <a onclick="navigator.clipboard.writeText('#(component.deployment.id)'); return false;" href="#" class="font-mono text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm hover:underline cursor-pointer" title="#(component.deployment.id)">
+    <td class="deployment-td deployment-td-hidden-sm">
+        <a onclick="navigator.clipboard.writeText('#(component.deployment.id)'); return false;" href="#" class="deployment-text-id" title="#(component.deployment.id)">
             #(component.deployment.shortID)
         </a>
     </td>
     
-    <!-- deployment status badge -->
-    <td class="px-6 py-4">
+    <!-- deployment status -->
+    <td class="deployment-td">
         #if(component.deployment.displayStatus == "success"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 dark:bg-neutral-700 dark:text-emerald-300 ring-1 ring-inset ring-emerald-600/20 dark:ring-emerald-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mr-2"></span>
+            <span class="status-badge status-badge-success">
+                <span class="status-badge-success-dot"></span>
                 Success
             </span>
         #elseif(component.deployment.displayStatus == "failed"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-rose-50 text-rose-700 dark:bg-neutral-700 dark:text-rose-300 ring-1 ring-inset ring-rose-600/20 dark:ring-rose-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 mr-2"></span>
+            <span class="status-badge status-badge-failed">
+                <span class="status-badge-failed-dot"></span>
                 Failed
             </span>
         #elseif(component.deployment.displayStatus == "stale"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700 dark:bg-neutral-700 dark:text-amber-300 ring-1 ring-inset ring-amber-600/20 dark:ring-amber-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 mr-2"></span>
+            <span class="status-badge status-badge-stale">
+                <span class="status-badge-stale-dot"></span>
                 Stale
             </span>
         #elseif(component.deployment.displayStatus == "canceled"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-50 text-gray-700 dark:bg-neutral-700 dark:text-neutral-300 ring-1 ring-inset ring-gray-600/20 dark:ring-neutral-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-neutral-400 mr-2"></span>
+            <span class="status-badge status-badge-canceled">
+                <span class="status-badge-canceled-dot"></span>
                 Canceled
             </span>
         #elseif(component.deployment.displayStatus == "deployed"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700 dark:bg-neutral-700 dark:text-indigo-300 ring-1 ring-inset ring-indigo-600/20 dark:ring-indigo-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400 mr-2"></span>
+            <span class="status-badge status-badge-deployed">
+                <span class="status-badge-deployed-dot"></span>
                 Deployed
             </span>
         #elseif(component.deployment.displayStatus == "running"):
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-sky-50 text-sky-700 dark:bg-neutral-700 dark:text-sky-300 ring-1 ring-inset ring-sky-600/20 dark:ring-sky-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse dark:bg-sky-400 mr-2"></span>
+            <span class="status-badge status-badge-running">
+                <span class="status-badge-running-dot"></span>
                 Running
             </span>
         #else:
-            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-sky-50 text-sky-700 dark:bg-neutral-700 dark:text-sky-300 ring-1 ring-inset ring-sky-600/20 dark:ring-sky-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-sky-500 dark:bg-sky-400 mr-2"></span>
+            <span class="status-badge status-badge-running">
+                <span class="status-badge-running-dot"></span>
                 #(component.deployment.displayStatus)
             </span>
         #endif
     </td>
     
     <!-- deployment started at -->
-    <td class="hidden sm:table-cell px-6 py-4">
-        <span class="text-sm text-gray-700 dark:text-neutral-300">
-            <span class="font-mono">#date(component.deployment.startedAt, "HH:mm:ss")</span>
-            <span class="text-gray-500 dark:text-neutral-400">(#date(component.deployment.startedAt, "dd.MM."))</span>
+    <td class="deployment-td deployment-td-hidden-sm">
+        <span class="deployment-text-started">
+            <span class="deployment-text-started-time">#date(component.deployment.startedAt, "HH:mm:ss")</span>
+            <span class="deployment-text-started-date">(#date(component.deployment.startedAt, "dd.MM."))</span>
         </span>
     </td>
-    
+
     <!-- deployment duration -->
-    <td class="px-6 py-4">
+    <td class="deployment-td">
         #if(component.deployment.durationString):
-            <span class="font-mono text-sm text-gray-700 dark:text-neutral-300">#(component.deployment.durationString)</span>
+            <span class="deployment-text-duration">#(component.deployment.durationString)</span>
         #elseif(component.deployment.displayStatus == "stale"):
-            <span class="font-mono text-sm text-gray-500 dark:text-neutral-400">—</span>
+            <span class="deployment-text-duration-dash">—</span>
         #elseif(component.deployment.displayStatus == "canceled"):
-            <span class="font-mono text-sm text-gray-500 dark:text-neutral-400">—</span>
+            <span class="deployment-text-duration-dash">—</span>
         #else:
-            <div class="flex items-center text-gray-700 dark:text-neutral-300">
-                <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <div class="deployment-duration-running">
+                <svg class="deployment-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span class="live-duration font-mono text-sm">0.0s</span>
+                <span class="deployment-live-duration">0.0s</span>
             </div>
         #endif
     </td>
     
     <!-- deployment delete button -->
-    <td class="px-6 py-4">
-        <button mist-action="delete" class="inline-flex items-center text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 delete-button hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 dark:focus:ring-offset-neutral-800">
+    <td class="deployment-td">
+        <button mist-action="delete" class="delete-button">
             Delete
         </button>
     </td>
