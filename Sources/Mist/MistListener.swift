@@ -19,11 +19,11 @@ struct Listener<M: Model>: AsyncModelMiddleware
         try await next.create(model, on: db)
 
         guard let modelID = model.id else { return }
-        
+
         for component in await app.mist.components.getComponents(using: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
-            
+
             if let queryComponent = component as? QueryComponent
             {
                 // Query-based component: re-run query and render result
@@ -32,26 +32,22 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 else {
                     // No result - broadcast delete to hide the component
                     await app.mist.clients.broadcast(
-                        Message.Delete(
-                            component: queryComponent.name,
-                            id: nil
-                        )
+                        QueryComponentBroadcast.delete(component: queryComponent.name)
                     )
                     continue
                 }
-                
+
                 // Render using the queried model's ID
                 guard let html = await queryComponent.render(
                     id: queriedID,
                     on: db,
                     using: app.leaf.renderer
                 ) else { continue }
-                
-                // Broadcast create (handles both create and update via mist.js logic)
+
+                // Broadcast upsert (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Create(
+                    QueryComponentBroadcast.upsert(
                         component: queryComponent.name,
-                        id: nil,
                         html: html
                     )
                 )
@@ -64,9 +60,9 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     on: db,
                     using: app.leaf.renderer)
                 else { continue }
-                
+
                 await app.mist.clients.broadcast(
-                    Message.Create(
+                    ComponentBroadcast.create(
                         component: component.name,
                         id: modelID,
                         html: html
@@ -81,11 +77,11 @@ struct Listener<M: Model>: AsyncModelMiddleware
         try await next.update(model, on: db)
 
         guard let modelID = model.id else { return }
-        
+
         for component in await app.mist.components.getComponents(using: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
-            
+
             if let queryComponent = component as? QueryComponent
             {
                 // Query-based component: re-run query and render result
@@ -94,26 +90,22 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 else {
                     // No result - broadcast delete to hide the component
                     await app.mist.clients.broadcast(
-                        Message.Delete(
-                            component: queryComponent.name,
-                            id: nil
-                        )
+                        QueryComponentBroadcast.delete(component: queryComponent.name)
                     )
                     continue
                 }
-                
+
                 // Render using the queried model's ID
                 guard let html = await queryComponent.render(
                     id: queriedID,
                     on: db,
                     using: app.leaf.renderer
                 ) else { continue }
-                
-                // Broadcast create (handles both create and update via mist.js logic)
+
+                // Broadcast upsert (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Create(
+                    QueryComponentBroadcast.upsert(
                         component: queryComponent.name,
-                        id: nil,
                         html: html
                     )
                 )
@@ -126,9 +118,9 @@ struct Listener<M: Model>: AsyncModelMiddleware
                     on: db,
                     using: app.leaf.renderer)
                 else { continue }
-                
+
                 await app.mist.clients.broadcast(
-                    Message.Update(
+                    ComponentBroadcast.update(
                         component: component.name,
                         id: modelID,
                         html: html
@@ -141,13 +133,13 @@ struct Listener<M: Model>: AsyncModelMiddleware
     func delete(model: M, force: Bool, on db: any Database, next: any AnyAsyncModelResponder) async throws
     {
         try await next.delete(model, force: force, on: db)
-        
+
         guard let modelID = model.id else { return }
-        
+
         for component in await app.mist.components.getComponents(using: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
-            
+
             if let queryComponent = component as? QueryComponent
             {
                 // Query-based component: re-run query after deletion
@@ -156,26 +148,22 @@ struct Listener<M: Model>: AsyncModelMiddleware
                 else {
                     // No result after deletion - hide the component
                     await app.mist.clients.broadcast(
-                        Message.Delete(
-                            component: queryComponent.name,
-                            id: nil
-                        )
+                        QueryComponentBroadcast.delete(component: queryComponent.name)
                     )
                     continue
                 }
-                
+
                 // Another model now satisfies the query - update to show it
                 guard let html = await queryComponent.render(
                     id: queriedID,
                     on: db,
                     using: app.leaf.renderer
                 ) else { continue }
-                
-                // Broadcast create (handles both create and update via mist.js logic)
+
+                // Broadcast upsert (handles both create and update via mist.js logic)
                 await app.mist.clients.broadcast(
-                    Message.Create(
+                    QueryComponentBroadcast.upsert(
                         component: queryComponent.name,
-                        id: nil,
                         html: html
                     )
                 )
@@ -184,7 +172,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
             {
                 // Regular instance component - delete the specific instance
                 await app.mist.clients.broadcast(
-                    Message.Delete(
+                    ComponentBroadcast.delete(
                         component: component.name,
                         id: modelID
                     )
