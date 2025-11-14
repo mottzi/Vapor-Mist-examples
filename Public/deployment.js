@@ -16,7 +16,7 @@ class DeploymentManager {
     }
 
     updateLiveDurations() {
-        document.querySelectorAll('.live-duration').forEach(element => {
+        document.querySelectorAll('.deployment-live-duration').forEach(element => {
             // Find the deployment row
             const row = element.closest('tr[mist-component="DeploymentRow"]');
             if (row) {

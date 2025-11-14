@@ -518,7 +518,7 @@ body {
   animation: spin 1s linear infinite;
 }
 
-.live-duration {
+.deployment-live-duration {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.875rem;
 }
