@@ -2,22 +2,16 @@ import Vapor
 
 enum Message: Codable
 {
-    case text(message: String)
-
     case subscribe(component: String)
-
-    // Instance-based components (with specific model IDs)
-    case instanceCreate(component: String, id: UUID, html: String)
-    case instanceUpdate(component: String, id: UUID, html: String)
-    case instanceDelete(component: String, id: UUID)
-    
-    // Query-based components (singleton, no ID)
-    case queryUpdate(component: String, html: String)
-    case queryDelete(component: String)
-
     case action(component: String, id: UUID?, action: String)
-
+    
+    case text(message: String)
     case actionResult(component: String, id: UUID?, action: String, result: Mist.ActionResult, message: String)
+    case createInstanceComponent(component: String, id: UUID, html: String)
+    case updateInstanceComponent(component: String, id: UUID, html: String)
+    case deleteInstanceComponent(component: String, id: UUID)
+    case updateQueryComponent(component: String, html: String)
+    case deleteQueryComponent(component: String)
 }
 
 extension Clients
@@ -123,7 +117,7 @@ extension Message
         let html: String
 
         var wireFormat: Message {
-            .instanceCreate(
+            .createInstanceComponent(
                 component: component,
                 id: id,
                 html: html
@@ -138,7 +132,7 @@ extension Message
         let html: String
 
         var wireFormat: Message {
-            .instanceUpdate(
+            .updateInstanceComponent(
                 component: component,
                 id: id,
                 html: html
@@ -152,7 +146,7 @@ extension Message
         let id: UUID
 
         var wireFormat: Message {
-            .instanceDelete(
+            .deleteInstanceComponent(
                 component: component,
                 id: id
             )
@@ -166,7 +160,7 @@ extension Message
         let html: String
 
         var wireFormat: Message {
-            .queryUpdate(
+            .updateQueryComponent(
                 component: component,
                 html: html
             )
@@ -178,7 +172,7 @@ extension Message
         let component: String
 
         var wireFormat: Message {
-            .queryDelete(
+            .deleteQueryComponent(
                 component: component
             )
         }

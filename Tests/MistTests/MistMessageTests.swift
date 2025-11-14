@@ -48,7 +48,7 @@ final class MistMessageTests: XCTestCase
         let text =
         """
         {
-            "instanceUpdate": {
+            "updateInstanceComponent": {
                 "component": "TestComponent",
                 "id": "\(testUUID)",
                 "html": "<div>Updated content</div>"
@@ -61,7 +61,7 @@ final class MistMessageTests: XCTestCase
         guard let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else { return XCTFail("Failed to decode data to Mist message") }
         
         // Verify the message is of correct type
-        guard case .instanceUpdate(let component, let id, let html) = message else { return XCTFail("Valid but non-instanceUpdate message") }
+        guard case .updateInstanceComponent(let component, let id, let html) = message else { return XCTFail("Valid but non-updateInstanceComponent message") }
         
         // Verify all fields match expected values
         XCTAssertEqual(component, "TestComponent", "Component name should match expected value")
@@ -76,7 +76,7 @@ final class MistMessageTests: XCTestCase
         let testUUID = UUID()
         
         // Create an instance update message
-        let updateMessage = Mist.Message.instanceUpdate(
+        let updateMessage = Mist.Message.updateInstanceComponent(
             component: "TestComponent",
             id: testUUID,
             html: "<div>Updated content</div>"
@@ -89,9 +89,9 @@ final class MistMessageTests: XCTestCase
         guard let dict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else { return XCTFail("Failed to convert json to dictionary") }
         
         // Verify JSON structure and values
-        XCTAssertNotNil(dict["instanceUpdate"], "Should have 'instanceUpdate' key")
-        guard let updateDict = dict["instanceUpdate"] as? [String: Any] else {
-            return XCTFail("InstanceUpdate should be a dictionary")
+        XCTAssertNotNil(dict["updateInstanceComponent"], "Should have 'updateInstanceComponent' key")
+        guard let updateDict = dict["updateInstanceComponent"] as? [String: Any] else {
+            return XCTFail("updateInstanceComponent should be a dictionary")
         }
         XCTAssertEqual(updateDict["component"] as? String, "TestComponent", "Component should match")
         XCTAssertEqual(updateDict["id"] as? String, testUUID.uuidString, "UUID should match")
@@ -106,7 +106,7 @@ final class MistMessageTests: XCTestCase
         let text =
         """
         {
-            "queryUpdate": {
+            "updateQueryComponent": {
                 "component": "TestQueryComponent",
                 "html": "<div>Query result content</div>"
             }
@@ -118,7 +118,7 @@ final class MistMessageTests: XCTestCase
         guard let message = try? JSONDecoder().decode(Mist.Message.self, from: data) else { return XCTFail("Failed to decode data to Mist message") }
         
         // Verify the message is of correct type
-        guard case .queryUpdate(let component, let html) = message else { return XCTFail("Valid but non-queryUpdate message") }
+        guard case .updateQueryComponent(let component, let html) = message else { return XCTFail("Valid but non-updateQueryComponent message") }
         
         // Verify all fields match expected values
         XCTAssertEqual(component, "TestQueryComponent", "Component name should match expected value")
@@ -129,7 +129,7 @@ final class MistMessageTests: XCTestCase
     func testQueryUpdateEncoding() async
     {
         // Create a query update message
-        let updateMessage = Mist.Message.queryUpdate(
+        let updateMessage = Mist.Message.updateQueryComponent(
             component: "TestQueryComponent",
             html: "<div>Query result content</div>"
         )
@@ -141,9 +141,9 @@ final class MistMessageTests: XCTestCase
         guard let dict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else { return XCTFail("Failed to convert json to dictionary") }
         
         // Verify JSON structure and values
-        XCTAssertNotNil(dict["queryUpdate"], "Should have 'queryUpdate' key")
-        guard let updateDict = dict["queryUpdate"] as? [String: Any] else {
-            return XCTFail("QueryUpdate should be a dictionary")
+        XCTAssertNotNil(dict["updateQueryComponent"], "Should have 'updateQueryComponent' key")
+        guard let updateDict = dict["updateQueryComponent"] as? [String: Any] else {
+            return XCTFail("updateQueryComponent should be a dictionary")
         }
         XCTAssertEqual(updateDict["component"] as? String, "TestQueryComponent", "Component should match")
         XCTAssertEqual(updateDict["html"] as? String, "<div>Query result content</div>", "HTML should match")

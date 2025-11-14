@@ -126,8 +126,8 @@ class MistSocket {
                 const data = JSON.parse(event.data);
                 
                 // Instance-based component messages (with ID)
-                if (data.instanceCreate) {
-                    const { component, id, html } = data.instanceCreate;
+                if (data.createInstanceComponent) {
+                    const { component, id, html } = data.createInstanceComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     // If component already exists, treat as update
@@ -153,8 +153,8 @@ class MistSocket {
                         }
                     }
                 }
-                else if (data.instanceUpdate) {
-                    const { component, id, html } = data.instanceUpdate;
+                else if (data.updateInstanceComponent) {
+                    const { component, id, html } = data.updateInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
@@ -163,8 +163,8 @@ class MistSocket {
                     
                     console.log(`Instance update: '${component}' (${id.substring(0, 8)})`);
                 }
-                else if (data.instanceDelete) {
-                    const { component, id } = data.instanceDelete;
+                else if (data.deleteInstanceComponent) {
+                    const { component, id } = data.deleteInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
@@ -174,8 +174,8 @@ class MistSocket {
                     console.log(`Instance delete: '${component}' (${id.substring(0, 8)})`);
                 }
                 // Query-based component messages (no ID)
-                else if (data.queryUpdate) {
-                    const { component, html } = data.queryUpdate;
+                else if (data.updateQueryComponent) {
+                    const { component, html } = data.updateQueryComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, null));
                     
                     // If component already exists, replace it
@@ -201,8 +201,8 @@ class MistSocket {
                         }
                     }
                 }
-                else if (data.queryDelete) {
-                    const { component } = data.queryDelete;
+                else if (data.deleteQueryComponent) {
+                    const { component } = data.deleteQueryComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, null));
                     
                     elements.forEach(element => {
