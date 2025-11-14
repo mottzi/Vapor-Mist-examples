@@ -22,12 +22,9 @@ struct AddDemoModelAction: Mist.Action
             "route", "middleware", "protocol", "actor", "request", "response"
         ]
         
-        let model1 = DemoModel1(text: words.randomElement()!)
-        // let model2 = DemoModel2(text: words.randomElement()!)
-        // model2.id = model1.id
-        
         do
         {
+            let model1 = DemoModel1(text: words.randomElement()!)
             try await model1.save(on: db)
             let model2 = DemoModel2(text: words.randomElement()!)
             model2.id = model1.id
