@@ -23,12 +23,14 @@ struct AddDemoModelAction: Mist.Action
         ]
         
         let model1 = DemoModel1(text: words.randomElement()!)
-        let model2 = DemoModel2(text: words.randomElement()!)
-        model2.id = model1.id
+        // let model2 = DemoModel2(text: words.randomElement()!)
+        // model2.id = model1.id
         
         do
         {
             try await model1.save(on: db)
+            let model2 = DemoModel2(text: words.randomElement()!)
+            model2.id = model1.id
             try await model2.save(on: db)
             
             return .success(message: "New model pair added: ('\(model1.text)', '\(model2.text)')")
