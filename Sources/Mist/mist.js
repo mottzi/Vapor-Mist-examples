@@ -14,7 +14,7 @@ class MistSocket {
         window.addEventListener('online', () => this.connect());
         document.addEventListener('click', (event) => this.handleAction(event));
     }
-    
+
     subscribeToPageComponents() {
         
         console.log("subscribing to server components...");
@@ -125,26 +125,17 @@ class MistSocket {
                 
                 const data = JSON.parse(event.data);
                 
-                if (data.update) {
-                    const { component, id, html } = data.update;
-                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
-                    
-                    elements.forEach(element => {
-                        element.outerHTML = html;
-                    });
-                    
-                    console.log(`Server update message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
-                }
-                else if (data.create) {
-                    const { component, id, html } = data.create;
-                    const existingElements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                // Instance-based component messages (with ID)
+                if (data.instanceCreate) {
+                    const { component, id, html } = data.instanceCreate;
+                    const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     // If component already exists, treat as update
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
                             element.outerHTML = html;
                         });
-                        console.log(`Server create message (treated as update): '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                        console.log(`Instance create (treated as update): '${component}' (${id.substring(0, 8)})`);
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
@@ -156,21 +147,69 @@ class MistSocket {
                                 // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
-                                console.log(`Server create message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                                console.log(`Instance create: '${component}' (${id.substring(0, 8)})`);
                                 break;
                             }
                         }
                     }
                 }
-                else if (data.delete) {
-                    const { component, id } = data.delete;
-                    const elements = document.querySelectorAll(`[mist-component="${component}"][mist-id="${id}"]`);
+                else if (data.instanceUpdate) {
+                    const { component, id, html } = data.instanceUpdate;
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
+                    
+                    elements.forEach(element => {
+                        element.outerHTML = html;
+                    });
+                    
+                    console.log(`Instance update: '${component}' (${id.substring(0, 8)})`);
+                }
+                else if (data.instanceDelete) {
+                    const { component, id } = data.instanceDelete;
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
                         element.remove();
                     });
                     
-                    console.log(`Server delete message: '${component}' (${id ? id.substring(0, 8) : 'null'})`);
+                    console.log(`Instance delete: '${component}' (${id.substring(0, 8)})`);
+                }
+                // Query-based component messages (no ID)
+                else if (data.queryUpdate) {
+                    const { component, html } = data.queryUpdate;
+                    const existingElements = document.querySelectorAll(this.buildComponentSelector(component, null));
+                    
+                    // If component already exists, replace it
+                    if (existingElements.length > 0) {
+                        existingElements.forEach(element => {
+                            element.outerHTML = html;
+                        });
+                        console.log(`Query update (replaced): '${component}'`);
+                    } else {
+                        // Find container that accepts this component
+                        const containers = document.querySelectorAll('[mist-container]');
+                        
+                        for (const container of containers) {
+                            const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            
+                            if (acceptedComponents.includes(component)) {
+                                // Check for custom insertion position (default: 'beforeend' to append)
+                                const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
+                                container.insertAdjacentHTML(insertPosition, html);
+                                console.log(`Query update (created): '${component}'`);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (data.queryDelete) {
+                    const { component } = data.queryDelete;
+                    const elements = document.querySelectorAll(this.buildComponentSelector(component, null));
+                    
+                    elements.forEach(element => {
+                        element.remove();
+                    });
+                    
+                    console.log(`Query delete: '${component}'`);
                 }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
@@ -211,6 +250,15 @@ class MistSocket {
         };
     }
     
+    // Helper function to build component selector
+    buildComponentSelector(component, id) {
+        if (id) {
+            return `[mist-component="${component}"][mist-id="${id}"]`;
+        } else {
+            return `[mist-component="${component}"]`;
+        }
+    }
+
     visibilityChange() {
         if (document.visibilityState === "visible") {
             console.log('visibilityState === "visible" -> calling connect()')

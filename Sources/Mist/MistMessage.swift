@@ -6,11 +6,14 @@ enum Message: Codable
 
     case subscribe(component: String)
 
-    case create(component: String, id: UUID?, html: String)
-
-    case update(component: String, id: UUID?, html: String)
-
-    case delete(component: String, id: UUID?)
+    // Instance-based components (with specific model IDs)
+    case instanceCreate(component: String, id: UUID, html: String)
+    case instanceUpdate(component: String, id: UUID, html: String)
+    case instanceDelete(component: String, id: UUID)
+    
+    // Query-based components (singleton, no ID)
+    case queryUpdate(component: String, html: String)
+    case queryDelete(component: String)
 
     case action(component: String, id: UUID?, action: String)
 
@@ -43,7 +46,19 @@ extension Clients
         try? await client.socket.send(jsonString)
     }
     
-    func broadcast(_ update: Message.Update) async
+    // Instance-based component broadcasts
+    func broadcast(_ create: Message.InstanceCreate) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(create.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: create.component)
+        {
+            Task { try? await subscriber.socket.send(jsonString) }
+        }
+    }
+    
+    func broadcast(_ update: Message.InstanceUpdate) async
     {
         guard let jsonData = try? JSONEncoder().encode(update.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
@@ -54,23 +69,35 @@ extension Clients
         }
     }
     
-    func broadcast(_ deletion: Message.Delete) async
+    func broadcast(_ delete: Message.InstanceDelete) async
     {
-        guard let jsonData = try? JSONEncoder().encode(deletion.wireFormat) else { return }
+        guard let jsonData = try? JSONEncoder().encode(delete.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         
-        for subscriber in subscribers(of: deletion.component)
+        for subscriber in subscribers(of: delete.component)
         {
             Task { try? await subscriber.socket.send(jsonString) }
         }
     }
-
-    func broadcast(_ creation: Message.Create) async
+    
+    // Query-based component broadcasts
+    func broadcast(_ update: Message.QueryUpdate) async
     {
-        guard let jsonData = try? JSONEncoder().encode(creation.wireFormat) else { return }
+        guard let jsonData = try? JSONEncoder().encode(update.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         
-        for subscriber in subscribers(of: creation.component)
+        for subscriber in subscribers(of: update.component)
+        {
+            Task { try? await subscriber.socket.send(jsonString) }
+        }
+    }
+    
+    func broadcast(_ delete: Message.QueryDelete) async
+    {
+        guard let jsonData = try? JSONEncoder().encode(delete.wireFormat) else { return }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        for subscriber in subscribers(of: delete.component)
         {
             Task { try? await subscriber.socket.send(jsonString) }
         }
@@ -88,14 +115,15 @@ extension Message
         }
     }
 
-    struct Create
+    // Instance-based component message structs
+    struct InstanceCreate
     {
         let component: String
-        let id: UUID?
+        let id: UUID
         let html: String
 
         var wireFormat: Message {
-            .create(
+            .instanceCreate(
                 component: component,
                 id: id,
                 html: html
@@ -103,14 +131,14 @@ extension Message
         }
     }
 
-    struct Update
+    struct InstanceUpdate
     {
         let component: String
-        let id: UUID?
+        let id: UUID
         let html: String
 
         var wireFormat: Message {
-            .update(
+            .instanceUpdate(
                 component: component,
                 id: id,
                 html: html
@@ -118,15 +146,40 @@ extension Message
         }
     }
 
-    struct Delete
+    struct InstanceDelete
     {
         let component: String
-        let id: UUID?
+        let id: UUID
 
         var wireFormat: Message {
-            .delete(
+            .instanceDelete(
                 component: component,
                 id: id
+            )
+        }
+    }
+
+    // Query-based component message structs
+    struct QueryUpdate
+    {
+        let component: String
+        let html: String
+
+        var wireFormat: Message {
+            .queryUpdate(
+                component: component,
+                html: html
+            )
+        }
+    }
+
+    struct QueryDelete
+    {
+        let component: String
+
+        var wireFormat: Message {
+            .queryDelete(
+                component: component
             )
         }
     }
