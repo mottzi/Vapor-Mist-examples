@@ -16,13 +16,7 @@ enum Message: Codable
 
 extension Clients
 {
-    func send(_ message: String, to clientID: UUID) async 
-    {
-        let message = Message.Text(message: message)
-        await send(message, to: clientID)
-    }
-
-    func send(_ message: Message.Text, to clientID: UUID) async
+    private func send<T: SendableMessage>(message: T, to clientID: UUID) async
     {
         guard let client = clients.first(where: { $0.id == clientID }) else { return }
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
@@ -31,154 +25,47 @@ extension Clients
         try? await client.socket.send(jsonString)
     }
     
-    func send(_ actionResult: Message.ActionResult, to clientID: UUID) async
+    func send(_ message: String, to clientID: UUID) async { await send(Message.Text(message: message), to: clientID) }
+    func send(_ message: Message.Text, to clientID: UUID) async { await send(message: message, to: clientID) }
+    func send(_ actionResult: Message.ActionResult, to clientID: UUID) async { await send(message: actionResult, to: clientID) }
+}
+
+extension Clients
+{
+    private func broadcast<T: BroadcastableMessage>(message: T) async
     {
-        guard let client = clients.first(where: { $0.id == clientID }) else { return }
-        guard let jsonData = try? JSONEncoder().encode(actionResult.wireFormat) else { return }
+        guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         
-        try? await client.socket.send(jsonString)
-    }
-    
-    // Instance-based component broadcasts
-    func broadcast(_ create: Message.InstanceCreate) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(create.wireFormat) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: create.component)
+        for subscriber in subscribers(of: message.component)
         {
             Task { try? await subscriber.socket.send(jsonString) }
         }
     }
-    
-    func broadcast(_ update: Message.InstanceUpdate) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(update.wireFormat) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: update.component)
-        {
-            Task { try? await subscriber.socket.send(jsonString) }
-        }
-    }
-    
-    func broadcast(_ delete: Message.InstanceDelete) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(delete.wireFormat) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: delete.component)
-        {
-            Task { try? await subscriber.socket.send(jsonString) }
-        }
-    }
-    
-    // Query-based component broadcasts
-    func broadcast(_ update: Message.QueryUpdate) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(update.wireFormat) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: update.component)
-        {
-            Task { try? await subscriber.socket.send(jsonString) }
-        }
-    }
-    
-    func broadcast(_ delete: Message.QueryDelete) async
-    {
-        guard let jsonData = try? JSONEncoder().encode(delete.wireFormat) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: delete.component)
-        {
-            Task { try? await subscriber.socket.send(jsonString) }
-        }
-    }
+
+    func broadcast(_ create: Message.InstanceCreate) async { await broadcast(message: create) }
+    func broadcast(_ update: Message.InstanceUpdate) async { await broadcast(message: update) }
+    func broadcast(_ delete: Message.InstanceDelete) async { await broadcast(message: delete) }
+    func broadcast(_ update: Message.QueryUpdate) async { await broadcast(message: update) }
+    func broadcast(_ delete: Message.QueryDelete) async { await broadcast(message: delete) }
+}
+
+
+protocol SendableMessage
+{
+    var wireFormat: Message { get }
 }
 
 extension Message
 {
-    struct Text
+    struct Text: SendableMessage
     {
         let message: String
-        
-        var wireFormat: Message {
-            .text(message: message)
-        }
+
+        var wireFormat: Message { .text(message: message) }
     }
 
-    // Instance-based component message structs
-    struct InstanceCreate
-    {
-        let component: String
-        let id: UUID
-        let html: String
-
-        var wireFormat: Message {
-            .createInstanceComponent(
-                component: component,
-                id: id,
-                html: html
-            )
-        }
-    }
-
-    struct InstanceUpdate
-    {
-        let component: String
-        let id: UUID
-        let html: String
-
-        var wireFormat: Message {
-            .updateInstanceComponent(
-                component: component,
-                id: id,
-                html: html
-            )
-        }
-    }
-
-    struct InstanceDelete
-    {
-        let component: String
-        let id: UUID
-
-        var wireFormat: Message {
-            .deleteInstanceComponent(
-                component: component,
-                id: id
-            )
-        }
-    }
-
-    // Query-based component message structs
-    struct QueryUpdate
-    {
-        let component: String
-        let html: String
-
-        var wireFormat: Message {
-            .updateQueryComponent(
-                component: component,
-                html: html
-            )
-        }
-    }
-
-    struct QueryDelete
-    {
-        let component: String
-
-        var wireFormat: Message {
-            .deleteQueryComponent(
-                component: component
-            )
-        }
-    }
-
-    struct ActionResult
+    struct ActionResult: SendableMessage
     {
         let component: String
         let id: UUID?
@@ -186,14 +73,45 @@ extension Message
         let result: Mist.ActionResult
         let message: String
 
-        var wireFormat: Message {
-            .actionResult(
-                component: component,
-                id: id,
-                action: action,
-                result: result,
-                message: message
-            )
-        }
+        var wireFormat: Message { .actionResult(component: component, id: id, action: action, result: result, message: message) }
+    }
+}
+
+protocol BroadcastableMessage
+{
+    var component: String { get }
+    var wireFormat: Message { get }
+}
+
+extension Message
+{
+    struct InstanceCreate: BroadcastableMessage
+    {
+        let component: String; let id: UUID; let html: String
+        var wireFormat: Message { .createInstanceComponent(component: component, id: id, html: html) }
+    }
+
+    struct InstanceUpdate: BroadcastableMessage
+    {
+        let component: String; let id: UUID; let html: String
+        var wireFormat: Message { .updateInstanceComponent(component: component, id: id, html: html) }
+    }
+
+    struct InstanceDelete: BroadcastableMessage
+    {
+        let component: String; let id: UUID
+        var wireFormat: Message { .deleteInstanceComponent(component: component, id: id) }
+    }
+
+    struct QueryUpdate: BroadcastableMessage
+    {
+        let component: String; let html: String
+        var wireFormat: Message { .updateQueryComponent(component: component, html: html) }
+    }
+
+    struct QueryDelete: BroadcastableMessage
+    {
+        let component: String
+        var wireFormat: Message { .deleteQueryComponent(component: component) }
     }
 }
