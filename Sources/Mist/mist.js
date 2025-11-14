@@ -72,10 +72,16 @@ class MistSocket {
         if (!target) return;
         
         const actionName = target.getAttribute('mist-action');
+        console.log(`[DEBUG] Action clicked: '${actionName}'`);
+        
         // 1. Find component, but ID is now optional
         const componentElement = target.closest('[mist-component]');
+        console.log(`[DEBUG] Component element:`, componentElement);
         
-        if (!componentElement || !actionName) return;
+        if (!componentElement || !actionName) {
+            console.log(`[DEBUG] Early return - componentElement:`, componentElement, 'actionName:', actionName);
+            return;
+        }
         
         const componentName = componentElement.getAttribute('mist-component');
         // 2. ID can now be null, which is valid
