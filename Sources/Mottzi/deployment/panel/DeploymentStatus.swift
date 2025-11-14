@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-struct DeploymentStatusComponent: QueryComponent
+struct DeploymentStatus: QueryComponent
 {
 
     // Static UUID for this singleton component (generated once)
