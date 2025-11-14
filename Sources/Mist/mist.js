@@ -72,28 +72,33 @@ class MistSocket {
         if (!target) return;
         
         const actionName = target.getAttribute('mist-action');
-        const componentElement = target.closest('[mist-component][mist-id]');
+        // 1. Find component, but ID is now optional
+        const componentElement = target.closest('[mist-component]');
         
         if (!componentElement || !actionName) return;
         
         const componentName = componentElement.getAttribute('mist-component');
+        // 2. ID can now be null, which is valid
         const componentId = componentElement.getAttribute('mist-id');
         
-        if (!componentName || !componentId) return;
+        // 3. Only require componentName. componentId is optional.
+        if (!componentName) return;
         
         if (this.isConnected()) {
             
             const message = {
                 action: {
                     component: componentName,
-                    id: componentId,
+                    id: componentId, // Will correctly send `id: null` if not found
                     action: actionName
                 }
             };
             
             this.socket.send(JSON.stringify(message));
             
-            console.log(`Client action sent: '${actionName}' on '${componentName}' (${componentId.substring(0, 8)})`);
+            // 4. Update log message to handle null ID
+            const idLog = componentId ? componentId.substring(0, 8) : 'null';
+            console.log(`Client action sent: '${actionName}' on '${componentName}' (${idLog})`);
         }
     }
     

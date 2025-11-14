@@ -5,6 +5,7 @@
 </head>
 <body>
     <h1>Mist Demo</h1>
+    #extend("mistDemo/MistDemoHeader")
     <table>
         <thead>
             <tr>

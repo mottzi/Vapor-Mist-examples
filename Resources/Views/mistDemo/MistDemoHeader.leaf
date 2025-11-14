@@ -1,0 +1,6 @@
+<div mist-component="MistDemoHeader" style="margin-bottom: 1rem;">
+    <button mist-action="AddDemoModelAction" style="background: #22c55e; color: white; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px;">
+        Add new model pair
+    </button>
+</div>
+
