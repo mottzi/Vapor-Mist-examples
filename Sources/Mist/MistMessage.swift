@@ -14,17 +14,17 @@ enum ServerMessage: Codable
 
 enum ServerBroadcast: Codable 
 {
-    case instanceComponent(ComponentBroadcast)
-    case queryComponent(QueryComponentBroadcast)
+    case instanceComponent(ComponentMessage)
+    case queryComponent(QueryComponentMessage)
 }
 
-enum ComponentBroadcast: Codable {
+enum ComponentMessage: Codable {
     case create(component: String, id: UUID, html: String)
     case update(component: String, id: UUID, html: String)
     case delete(component: String, id: UUID)
 }
 
-enum QueryComponentBroadcast: Codable {
+enum QueryComponentMessage: Codable {
     case upsert(component: String, html: String) // Renamed from 'create' for clarity
     case delete(component: String)
 }
@@ -45,12 +45,12 @@ extension Clients
         try? await client.socket.send(jsonString)
     }
 
-    func broadcast(_ message: ComponentBroadcast) async
+    func broadcast(_ message: ComponentMessage) async
     {
         await broadcast(.instanceComponent(message))
     }
 
-    func broadcast(_ message: QueryComponentBroadcast) async
+    func broadcast(_ message: QueryComponentMessage) async
     {
         await broadcast(.queryComponent(message))
     }
