@@ -18,8 +18,8 @@ struct App
         app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
         app.migrations.add(
             Deployment.Table(),
-            DemoModel1.Table(),
-            DemoModel2.Table()
+            MistDemoModel1.Table(),
+            MistDemoModel2.Table()
         )
         try await app.autoMigrate()
         
