@@ -56,6 +56,12 @@ protocol SendableMessage
     var wireFormat: Message { get }
 }
 
+protocol BroadcastableMessage
+{
+    var component: String { get }
+    var wireFormat: Message { get }
+}
+
 extension Message
 {
     struct Text: SendableMessage
@@ -75,12 +81,6 @@ extension Message
 
         var wireFormat: Message { .actionResult(component: component, id: id, action: action, result: result, message: message) }
     }
-}
-
-protocol BroadcastableMessage
-{
-    var component: String { get }
-    var wireFormat: Message { get }
 }
 
 extension Message

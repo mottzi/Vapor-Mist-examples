@@ -17,11 +17,11 @@ extension Application
 
 extension Application.Mist
 {
-    public func use(_ components: [any InstanceComponent]) async {
+    public func use(_ components: [any Component]) async {
         await configure(components: components, on: application)
     }
     
-    public func use(_ components: any InstanceComponent...) async {
+    public func use(_ components: any Component...) async {
         await configure(components: components, on: application)
     }
 }

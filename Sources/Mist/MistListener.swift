@@ -52,15 +52,15 @@ extension Listener
             {
                 await queryComponent.handleQueryUpdate(app: app)
             }
-            else
+            else if let instanceComponent = component as? InstanceComponent
             {
                 guard let modelID = model.id else { continue }
 
                 switch event
                 {
-                    case .create: await component.handleCreate(id: modelID, app: app)
-                    case .update: await component.handleUpdate(id: modelID, app: app)
-                    case .delete: await component.handleDelete(id: modelID, app: app)
+                    case .create: await instanceComponent.handleCreate(id: modelID, app: app)
+                    case .update: await instanceComponent.handleUpdate(id: modelID, app: app)
+                    case .delete: await instanceComponent.handleDelete(id: modelID, app: app)
                 }
             }
         }

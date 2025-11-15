@@ -3,18 +3,28 @@ import Fluent
 
 public actor Components
 {
-    var components: [any InstanceComponent] = []
-    var modelToComponents: [ObjectIdentifier: [any InstanceComponent]] = [:]
+    var components: [any Component] = []
+    var modelToComponents: [ObjectIdentifier: [any Component]] = [:]
     var componentActions: [String: [String: any Action]] = [:]
     init() {}
 }
 
 extension Components
 {
-    func registerComponents(_ components: [any InstanceComponent], with app: Application)
+    func registerComponents(_ components: [any Component], with app: Application)
     {
         for component in components
         {
+            switch component 
+            {
+                case is InstanceComponent: break
+                case is QueryComponent: break
+
+                default: 
+                    app.logger.warning("Component '\(component.name)' does not conform to InstanceComponent or QueryComponent. It will not respond to database changes. Only use InstanceComponent or QueryComponent types.")
+                    continue
+            }
+
             guard !hasComponent(usingName: component.name) else { continue }
             
             for model in component.models {
@@ -34,7 +44,7 @@ extension Components
         }
     }
     
-    func getComponents<M: Model>(using model: M.Type) -> [any InstanceComponent] 
+    func getComponents<M: Model>(using model: M.Type) -> [any Component] 
     {
         let key = ObjectIdentifier(M.self)
         return modelToComponents[key] ?? []
