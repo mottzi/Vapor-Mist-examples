@@ -20,7 +20,7 @@ extension Application
             guard let text = req.parameters.get("text")
             else { throw Abort(.badRequest, reason: "Valid text parameter is required") }
             
-            guard let demoModel1 = try await DemoModel1.find(id, on: req.db)
+            guard let demoModel1 = try await MistDemoModel1.find(id, on: req.db)
             else { throw Abort(.notFound, reason: "DemoModel1 with specified ID not found") }
             
             demoModel1.text = text
@@ -38,7 +38,7 @@ extension Application
             guard let text = req.parameters.get("text")
             else { throw Abort(.badRequest, reason: "Valid text parameter is required") }
             
-            guard let demoModel2 = try await DemoModel2.find(id, on: req.db)
+            guard let demoModel2 = try await MistDemoModel2.find(id, on: req.db)
             else { throw Abort(.notFound, reason: "DemoModel2 with specified ID not found") }
             
             demoModel2.text = text
@@ -53,10 +53,10 @@ extension Application
                   let id = UUID(uuidString: idString)
             else { throw Abort(.badRequest, reason: "Valid UUID parameter is required") }
             
-            guard let demoModel1 = try await DemoModel1.find(id, on: req.db)
+            guard let demoModel1 = try await MistDemoModel1.find(id, on: req.db)
             else { throw Abort(.notFound, reason: "DemoModel1 with specified ID not found") }
             
-            guard let demoModel2 = try await DemoModel2.find(id, on: req.db)
+            guard let demoModel2 = try await MistDemoModel2.find(id, on: req.db)
             else { throw Abort(.notFound, reason: "DemoModel2 with specified ID not found") }
             
             try await demoModel1.delete(on: req.db)
@@ -67,13 +67,13 @@ extension Application
         
         self.get("DemoModels", "deleteAll")
         { req async throws -> HTTPStatus in
-            try await DemoModel1.query(on: req.db).delete()
-            try await DemoModel2.query(on: req.db).delete()
+            try await MistDemoModel1.query(on: req.db).delete()
+            try await MistDemoModel2.query(on: req.db).delete()
             return .ok
         }
         
         self.get("DemoModels", "create")
-        { req async throws -> DemoModel1 in
+        { req async throws -> MistDemoModel1 in
             let words =
             [
                 "swift", "vapor", "fluent", "leaf", "websocket", "async",
@@ -81,10 +81,10 @@ extension Application
                 "route", "middleware", "protocol", "actor", "request", "response"
             ]
             
-            let demoModel1 = DemoModel1(text: words.randomElement() ?? "error")
+            let demoModel1 = MistDemoModel1(text: words.randomElement() ?? "error")
             try await demoModel1.save(on: req.db)
             
-            let demoModel2 = DemoModel2(text: words.randomElement() ?? "error")
+            let demoModel2 = MistDemoModel2(text: words.randomElement() ?? "error")
             demoModel2.id = demoModel1.id
             try await demoModel2.save(on: req.db)
             

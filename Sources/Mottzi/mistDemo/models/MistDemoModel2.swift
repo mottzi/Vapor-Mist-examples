@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Mist
 
-final class DemoModel2: Mist.Model, Content, @unchecked Sendable
+final class MistDemoModel2: Mist.Model, Content, @unchecked Sendable
 {
     static let schema = "DemoModel2"
     
@@ -18,13 +18,13 @@ final class DemoModel2: Mist.Model, Content, @unchecked Sendable
     }
 }
 
-extension DemoModel2
+extension MistDemoModel2
 {
     struct Table: AsyncMigration
     {
         func prepare(on database: Database) async throws
         {
-            try await database.schema(DemoModel2.schema)
+            try await database.schema(MistDemoModel2.schema)
                 .id()
                 .field("text", .string, .required)
                 .field("created", .datetime)
@@ -33,7 +33,7 @@ extension DemoModel2
         
         func revert(on database: Database) async throws
         {
-            try await database.schema(DemoModel2.schema).delete()
+            try await database.schema(MistDemoModel2.schema).delete()
         }
     }
 }
