@@ -1,30 +1,28 @@
 import Vapor
 import Fluent
 
+enum MistError: Error
+{
+    case encoding(String)
+}
+
 struct MergingEncoder: Encodable
 {
     private static let jsonEncoder = JSONEncoder()
+    let logger = Logger(label: "Mist.MergingEncoder")
     
     let base: any Encodable
     let extras: [String: any Encodable]
-
-    let logger = Logger(label: "Mist.MergedModelContainer")
 
     func encode(to encoder: Encoder) throws
     {
         let json = try Self.jsonEncoder.encode(base)
         guard var dict = try JSONSerialization.jsonObject(with: json) as? [String: Any] 
-        else { throw EncodingError.invalidValue(base, EncodingError.Context(
-                    codingPath: encoder.codingPath,
-                    debugDescription: "Base model did not encode to JSON dictionary"
-                )
-            )
-        }
-
+        else { throw MistError.encoding("Base model did not encode to JSON dictionary") }
+        
         logger.warning("📝 Base properties: \(dict.keys.sorted())")
 
-        // add extra properties to dictionary
-        for (key, value) in extras 
+        for (key, value) in extras
         {
             logger.warning("🔄 Processing extra '\(key)' (type: \(type(of: value)))")
             
@@ -40,11 +38,8 @@ struct MergingEncoder: Encodable
         
         logger.warning("📋 Final properties: \(dict.keys.sorted())")
 
-        // encode dictionary back to parent encoder
         var container = encoder.container(keyedBy: StringCodingKey.self)
-        for (key, value) in dict {
-            try container.encode(AnyEncodable(value), forKey: StringCodingKey(key))
-        }
+        for (key, value) in dict { try container.encode(AnyEncodable(value), forKey: StringCodingKey(key)) }
     }
 
     func encodePrimitive(key: String, value: Any, into dict: inout [String: Any])
@@ -81,11 +76,7 @@ struct AnyEncodable: Encodable
             case let value as [String: Any]: try encodeDictionary(value, to: encoder)
             case let value as any Encodable: try value.encode(to: encoder)
 
-            default: throw EncodingError.invalidValue(value, EncodingError.Context(
-                    codingPath: encoder.codingPath, 
-                    debugDescription: "Unsupported value type: \(type(of: value))"
-                )
-            )
+            default: throw MistError.encoding("Unsupported value type: \(type(of: value))")
         }
     }
 
@@ -149,5 +140,3 @@ struct StringCodingKey: CodingKey
         self.intValue = intValue
     }
 }
-
-

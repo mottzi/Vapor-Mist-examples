@@ -2,7 +2,7 @@ import Vapor
 import LeafKit
 import NIOCore
 
-func configure(components: [any Component], on application: Application) async
+func configure(_ components: [any Component], on application: Application) async
 {
     let inlineTemplates = TemplateSource()
     for component in components {

@@ -7,23 +7,15 @@ extension Application
 {
     public struct Mist
     {
-        public let application: Application   
+        public let app: Application
         public var clients: MistClients { _clients }
         public var components: Components { _components }
+        
+        public func use(_ components: [any Component]) async { await configure(components, on: app) }
+        public func use(_ components: any Component...) async { await configure(components, on: app) }
     }
     
-    public var mist: Mist { Mist(application: self) }
-}
-
-extension Application.Mist
-{
-    public func use(_ components: [any Component]) async {
-        await configure(components: components, on: application)
-    }
-    
-    public func use(_ components: any Component...) async {
-        await configure(components: components, on: application)
-    }
+    public var mist: Mist { Mist(app: self) }
 }
 
 extension Application.Mist
@@ -39,9 +31,9 @@ extension Application.Mist
     
     var _storage: Storage
     {
-        if let existing = application.storage[Key.self] { return existing }
+        if let existing = app.storage[Key.self] { return existing }
         let new = Storage()
-        application.storage[Key.self] = new
+        app.storage[Key.self] = new
         return new
     }
 }
@@ -53,7 +45,8 @@ extension Application.Mist
     
     var _clients: Mist.Clients
     {
-        return application.locks.lock(for: ClientsKey.self).withLock {
+        return app.locks.lock(for: ClientsKey.self).withLock()
+        {
             if let existing = _storage.clients { return existing }
             let new = Mist.Clients(components: _components)
             _storage.clients = new
@@ -63,7 +56,8 @@ extension Application.Mist
     
     var _components: Mist.Components
     {
-        return application.locks.lock(for: ComponentsKey.self).withLock {
+        return app.locks.lock(for: ComponentsKey.self).withLock()
+        {
             if let existing = _storage.components { return existing }
             let new = Mist.Components()
             _storage.components = new

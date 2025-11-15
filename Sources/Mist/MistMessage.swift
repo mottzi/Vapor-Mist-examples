@@ -7,9 +7,11 @@ enum Message: Codable
     
     case text(message: String)
     case actionResult(component: String, id: UUID?, action: String, result: Mist.ActionResult, message: String)
+    
     case createInstanceComponent(component: String, id: UUID, html: String)
     case updateInstanceComponent(component: String, id: UUID, html: String)
     case deleteInstanceComponent(component: String, id: UUID)
+    
     case updateQueryComponent(component: String, html: String)
     case deleteQueryComponent(component: String)
 }

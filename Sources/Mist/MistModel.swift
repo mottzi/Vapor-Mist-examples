@@ -27,37 +27,35 @@ public extension Model
 
 public struct ModelContainer: Encodable
 {
+    let logger = Logger(label: "Mist.ModelContainer")
+    
     private var models: [String: any Model] = [:]
     
-    var hasElements: Bool {
-        return !models.isEmpty
+    var hasElements: Bool
+    {
+        !models.isEmpty
     }
 
-    public mutating func add<M: Model>(_ model: M, for key: String) {
+    public mutating func add<M: Model>(_ model: M, for key: String)
+    {
         models[key] = model
     }
     
-    // flattens the models dictionary when encoding, making properties directly accessible in template
     public func encode(to encoder: Encoder) throws
     {
-        let logger = Logger(label: "Mist.ModelContainer")
-        
         var container = encoder.container(keyedBy: StringCodingKey.self)
         
         for (key, value) in models
         {
-            // Get extras from the model via protocol method
             let extras = value.contextExtras()
             
             if extras.isEmpty
             {
-                // direct encoding
                 logger.warning("Encoding model '\(key)' (type: \(type(of: value))) without extras")
                 try container.encode(value, forKey: StringCodingKey(key))
             }
             else
             {
-                // merge extras
                 logger.warning("Encoding model '\(key)' (type: \(type(of: value))) with \(extras.count) extras: \(extras.keys.sorted())")
                 let wrapper = MergingEncoder(base: value, extras: extras)
                 try container.encode(wrapper, forKey: StringCodingKey(key))

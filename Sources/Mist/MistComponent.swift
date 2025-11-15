@@ -18,8 +18,8 @@ public extension Component
     var actions: [any Action] { [] }
 }
 
-public extension Component
-{    
+public extension Component // overridable
+{
     func shouldUpdate<M: Model>(for model: M) -> Bool 
     {
         return models.contains { $0 == M.self }
@@ -32,7 +32,7 @@ public enum Template: Sendable
     case inline(template: String)
 }
 
-public extension Component
+public extension Component // not-overridable
 {
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
     {
@@ -46,7 +46,7 @@ public extension Component
     }
 }
 
-public extension Component
+public extension Component // not-overridable
 {
     func makeContext(of componentID: UUID, in db: Database) async -> SingleComponentContext?
     {

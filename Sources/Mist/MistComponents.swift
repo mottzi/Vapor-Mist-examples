@@ -19,22 +19,24 @@ extension Components
             {
                 case is InstanceComponent: break
                 case is QueryComponent: break
-
-                default: 
-                    app.logger.warning("Component '\(component.name)' does not conform to InstanceComponent or QueryComponent. It will not respond to database changes. Only use InstanceComponent or QueryComponent types.")
+                    
+                default:
+                    app.logger.warning("Invalid Component '\(component.name)' attempted registration: ignored.")
                     continue
             }
 
             guard !hasComponent(usingName: component.name) else { continue }
             
-            for model in component.models {
+            for model in component.models
+            {
                 guard !hasComponent(usingModel: model) else { continue }
                 model.registerListener(with: app)
             }
             
             self.components.append(component)
             
-            for model in component.models {
+            for model in component.models
+            {
                 let key = ObjectIdentifier(model)
                 modelToComponents[key, default: []].append(component)
             }

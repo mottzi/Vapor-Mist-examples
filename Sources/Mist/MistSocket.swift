@@ -7,7 +7,8 @@ public struct Socket
 {
     func register(on app: Application)
     {
-        app.webSocket("mist", "ws") { request, ws async in
+        app.webSocket("mist", "ws")
+        { request, ws async in
             await Connection(app: request.application, ws: ws).onUpgrade()
         }
     }
@@ -20,11 +21,13 @@ extension Socket.Connection
         await app.mist.clients.addClient(id: clientID, socket: ws)
         await app.mist.clients.send("Client (\(clientID.short)) was registered.", to: clientID)
 
-        ws.onText() { ws, text async in
+        ws.onText()
+        { ws, text async in
             Task { await onText(text) }
         }
 
-        ws.onClose.whenComplete() { _ in
+        ws.onClose.whenComplete()
+        { _ in
             Task { await app.mist.clients.removeClient(id: clientID) }
         }
     }
@@ -38,10 +41,10 @@ extension Socket.Connection
         {
             case .subscribe(let component):
                 await handleSubscribe(component)
-
+                
             case .action(let component, let id, let action):
                 await handleAction(component, id, action)
-
+                
             default: break
         }
     }
