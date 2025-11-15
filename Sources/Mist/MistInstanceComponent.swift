@@ -33,6 +33,12 @@ public extension InstanceComponent
     }
 }
 
+public enum Template: Sendable
+{
+    case file(path: String)
+    case inline(template: String)
+}
+
 public extension InstanceComponent
 {
     func render(id: UUID, on db: Database, using renderer: ViewRenderer) async -> String?
@@ -85,26 +91,23 @@ public extension InstanceComponent
     
 }
 
-public enum Template: Sendable
+public extension InstanceComponent
 {
-    case file(path: String)
-    case inline(template: String)
-}
-
-public protocol QueryComponent: InstanceComponent
-{
-    func queryModel(on db: Database) async -> (any Model)?
-}
-
-public extension QueryComponent
-{
-    func shouldUpdate<M: Model>(for model: M) -> Bool
+    func handleCreate(id: UUID, app: Application) async
     {
-        return models.contains { $0 == M.self }
+        guard let html = await render(id: id, on: app.db, using: app.leaf.renderer) else { return }
+        await app.mist.clients.broadcast(Message.InstanceCreate(component: name, id: id, html: html))
     }
-    
-    func allModels(on db: Database) async -> [any Model]?
+
+    func handleUpdate(id: UUID, app: Application) async
     {
-        return nil
+        guard let html = await render(id: id, on: app.db, using: app.leaf.renderer) else { return }
+        await app.mist.clients.broadcast(Message.InstanceUpdate(component: name, id: id, html: html))
+    }
+
+    func handleDelete(id: UUID, app: Application) async
+    {
+        await app.mist.clients.broadcast(Message.InstanceDelete(component: name, id: id))
     }
 }
+
