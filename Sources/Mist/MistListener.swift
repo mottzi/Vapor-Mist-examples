@@ -17,174 +17,89 @@ struct Listener<M: Model>: AsyncModelMiddleware
     func create(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.create(model, on: db)
-
-        guard let modelID = model.id else { return }
-        
-        for component in await app.mist.components.getComponents(using: M.self)
-        {
-            guard component.shouldUpdate(for: model) else { continue }
-            
-            if let queryComponent = component as? QueryComponent
-            {
-                // Query-based component: re-run query and render result
-                guard let queriedModel = await queryComponent.queryModel(on: db),
-                      let queriedID = queriedModel.id
-                else {
-                    // No result - broadcast delete to hide the component
-                    await app.mist.clients.broadcast(
-                        Message.QueryDelete(
-                            component: queryComponent.name
-                        )
-                    )
-                    continue
-                }
-                
-                // Render using the queried model's ID
-                guard let html = await queryComponent.render(
-                    id: queriedID,
-                    on: db,
-                    using: app.leaf.renderer
-                ) else { continue }
-                
-                // Broadcast update (query components are singleton-like)
-                await app.mist.clients.broadcast(
-                    Message.QueryUpdate(
-                        component: queryComponent.name,
-                        html: html
-                    )
-                )
-            }
-            else
-            {
-                // Regular instance component
-                guard let html = await component.render(
-                    id: modelID,
-                    on: db,
-                    using: app.leaf.renderer)
-                else { continue }
-                
-                await app.mist.clients.broadcast(
-                    Message.InstanceCreate(
-                        component: component.name,
-                        id: modelID,
-                        html: html
-                    )
-                )
-            }
-        }
+        await self.handle(event: .create, model: model, db: db)
     }
-    
+
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.update(model, on: db)
-
-        guard let modelID = model.id else { return }
-        
-        for component in await app.mist.components.getComponents(using: M.self)
-        {
-            guard component.shouldUpdate(for: model) else { continue }
-            
-            if let queryComponent = component as? QueryComponent
-            {
-                // Query-based component: re-run query and render result
-                guard let queriedModel = await queryComponent.queryModel(on: db),
-                      let queriedID = queriedModel.id
-                else {
-                    // No result - broadcast delete to hide the component
-                    await app.mist.clients.broadcast(
-                        Message.QueryDelete(
-                            component: queryComponent.name
-                        )
-                    )
-                    continue
-                }
-                
-                // Render using the queried model's ID
-                guard let html = await queryComponent.render(
-                    id: queriedID,
-                    on: db,
-                    using: app.leaf.renderer
-                ) else { continue }
-                
-                // Broadcast update (query components are singleton-like)
-                await app.mist.clients.broadcast(
-                    Message.QueryUpdate(
-                        component: queryComponent.name,
-                        html: html
-                    )
-                )
-            }
-            else
-            {
-                // Regular instance component
-                guard let html = await component.render(
-                    id: modelID,
-                    on: db,
-                    using: app.leaf.renderer)
-                else { continue }
-                
-                await app.mist.clients.broadcast(
-                    Message.InstanceUpdate(
-                        component: component.name,
-                        id: modelID,
-                        html: html
-                    )
-                )
-            }
-        }
+        await self.handle(event: .update, model: model, db: db)
     }
-    
+
     func delete(model: M, force: Bool, on db: any Database, next: any AnyAsyncModelResponder) async throws
     {
         try await next.delete(model, force: force, on: db)
-        
-        guard let modelID = model.id else { return }
-        
+        await self.handle(event: .delete, model: model, db: db)
+    }
+}
+
+extension Listener
+{
+    enum ModelEvent
+    {
+        case create
+        case update
+        case delete
+    }
+    
+    func handle(event: ModelEvent, model: M, db: Database) async
+    {
         for component in await app.mist.components.getComponents(using: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
-            
+
             if let queryComponent = component as? QueryComponent
             {
-                // Query-based component: re-run query after deletion
-                guard let queriedModel = await queryComponent.queryModel(on: db),
-                      let queriedID = queriedModel.id
-                else {
-                    // No result after deletion - hide the component
-                    await app.mist.clients.broadcast(
-                        Message.QueryDelete(
-                            component: queryComponent.name
-                        )
-                    )
-                    continue
-                }
-                
-                // Another model now satisfies the query - update to show it
-                guard let html = await queryComponent.render(
-                    id: queriedID,
-                    on: db,
-                    using: app.leaf.renderer
-                ) else { continue }
-                
-                // Broadcast update (query components are singleton-like)
-                await app.mist.clients.broadcast(
-                    Message.QueryUpdate(
-                        component: queryComponent.name,
-                        html: html
-                    )
-                )
+                await self.handleQueryComponent(component: queryComponent, on: db)
             }
             else
             {
-                // Regular instance component - delete the specific instance
-                await app.mist.clients.broadcast(
-                    Message.InstanceDelete(
-                        component: component.name,
-                        id: modelID
-                    )
-                )
+                guard let modelID = model.id else { continue }
+
+                switch event
+                {
+                    case .create: await self.handleInstanceCreate(id: modelID, component: component, on: db)
+                    case .update: await self.handleInstanceUpdate(id: modelID, component: component, on: db)
+                    case .delete: await self.handleInstanceDelete(id: modelID, component: component)
+                }
             }
         }
     }
-    
+}
+
+extension Listener
+{
+    func handleInstanceCreate(id: M.IDValue, component: any InstanceComponent, on db: Database) async
+    {
+        guard let html = await component.render(id: id, on: db, using: app.leaf.renderer) else { return }
+        await app.mist.clients.broadcast(Message.InstanceCreate(component: component.name, id: id, html: html))
+    }
+
+    func handleInstanceUpdate(id: M.IDValue, component: any InstanceComponent, on db: Database) async
+    {
+        guard let html = await component.render(id: id, on: db, using: app.leaf.renderer) else { return }
+        await app.mist.clients.broadcast(Message.InstanceUpdate(component: component.name, id: id, html: html))
+    }
+
+    func handleInstanceDelete(id: M.IDValue, component: any InstanceComponent) async
+    {
+        await app.mist.clients.broadcast(Message.InstanceDelete(component: component.name, id: id))
+    }
+}
+
+extension Listener
+{
+    func handleQueryComponent(component: QueryComponent, on db: Database) async
+    {
+        if let model = await component.queryModel(on: db),
+           let modelID = model.id,
+           let html = await component.render(id: modelID, on: db, using: app.leaf.renderer)
+        {
+            await app.mist.clients.broadcast(Message.QueryUpdate(component: component.name, html: html))
+        }
+        else
+        {
+            await app.mist.clients.broadcast(Message.QueryDelete(component: component.name))
+        }
+    }
 }
