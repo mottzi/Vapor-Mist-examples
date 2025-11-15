@@ -23,7 +23,7 @@ extension Socket.Connection
 
         ws.onText()
         { ws, text async in
-            Task { await onText(text) }
+            await onText(text)
         }
 
         ws.onClose.whenComplete()

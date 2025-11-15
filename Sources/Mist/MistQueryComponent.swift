@@ -14,11 +14,11 @@ public extension QueryComponent
            let modelID = model.id,
            let html = await render(id: modelID, on: app.db, using: app.leaf.renderer)
         {
-            Task { await app.mist.clients.broadcast(Message.QueryUpdate(component: name, html: html)) }
+            await app.mist.clients.broadcast(Message.QueryUpdate(component: name, html: html))
         }
         else
         {
-            Task { await app.mist.clients.broadcast(Message.QueryDelete(component: name)) }
+            await app.mist.clients.broadcast(Message.QueryDelete(component: name))
         }
     }
 }
