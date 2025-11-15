@@ -47,13 +47,21 @@ extension Listener
         for component in await app.mist.components.getComponents(using: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
-            guard let modelID = model.id else { continue }
 
-            switch event
+            if let queryComponent = component as? QueryComponent
             {
-                case .create: await component.handleCreate(id: modelID, app: app)
-                case .update: await component.handleUpdate(id: modelID, app: app)
-                case .delete: await component.handleDelete(id: modelID, app: app)
+                await queryComponent.handleQueryUpdate(app: app)
+            }
+            else
+            {
+                guard let modelID = model.id else { continue }
+
+                switch event
+                {
+                    case .create: await component.handleCreate(id: modelID, app: app)
+                    case .update: await component.handleUpdate(id: modelID, app: app)
+                    case .delete: await component.handleDelete(id: modelID, app: app)
+                }
             }
         }
     }

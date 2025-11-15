@@ -21,17 +21,17 @@ public extension QueryComponent
 
 public extension QueryComponent
 {
-    func handleQueryUpdate(clients: Clients, db: Database, renderer: ViewRenderer) async
+    func handleQueryUpdate(app: Application) async
     {
-        if let model = await queryModel(on: db),
+        if let model = await queryModel(on: app.db),
            let modelID = model.id,
-           let html = await render(id: modelID, on: db, using: renderer)
+           let html = await render(id: modelID, on: app.db, using: app.leaf.renderer)
         {
-            await clients.broadcast(Message.QueryUpdate(component: name, html: html))
+            await app.mist.clients.broadcast(Message.QueryUpdate(component: name, html: html))
         }
         else
         {
-            await clients.broadcast(Message.QueryDelete(component: name))
+            await app.mist.clients.broadcast(Message.QueryDelete(component: name))
         }
     }
 }
