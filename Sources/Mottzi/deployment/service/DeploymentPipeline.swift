@@ -88,7 +88,7 @@ extension Deployment
                 deployment.finishedAt = .now
                 try? await deployment.save(on: database)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
-                Logger(label: "mottzi").error("\(error.localizedDescription)")
+                Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")
             }
         }
     }
@@ -106,10 +106,10 @@ extension Deployment.Pipeline
             switch self
             {
                 case .initiateError(let message):
-                    "[Mottzi] Pipeline initiate error: \(message)"
+                    "Pipeline initiate error: \(message)"
                     
                 case .executeError(let message):
-                    "[Mottzi] Pipeline execute error: \(message)"
+                    "Pipeline execute error: \(message)"
             }
         }
     }
@@ -164,9 +164,8 @@ extension Deployment.Pipeline
             } 
             catch 
             {
-                continuation.resume(throwing:
-                    PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
-                )
+                let error = PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
+                continuation.resume(throwing: error)
             }
         }
     }
