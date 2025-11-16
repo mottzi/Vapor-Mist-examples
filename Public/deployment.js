@@ -37,14 +37,28 @@ class DeploymentManager {
     }
 
     setupErrorToggleListeners() {
-        // Add click listeners to all expandable failed badges
-        document.querySelectorAll('.status-badge-failed-expandable').forEach(button => {
-            // Remove any existing listener to avoid duplicates
-            button.replaceWith(button.cloneNode(true));
+        // Process all deployment rows that have error messages
+        document.querySelectorAll('tr.deployment-row[data-has-error="true"]').forEach(deploymentRow => {
+            // Check if error row already exists
+            const nextRow = deploymentRow.nextElementSibling;
+            const hasErrorRow = nextRow && nextRow.classList.contains('deployment-error-row');
+            
+            if (!hasErrorRow) {
+                // Create the error row
+                const errorMessage = deploymentRow.dataset.errorMessage;
+                if (errorMessage) {
+                    const errorRow = this.createErrorRow(errorMessage);
+                    deploymentRow.after(errorRow);
+                }
+            }
         });
 
-        // Now add fresh listeners
+        // Add click listeners to all expandable failed badges
         document.querySelectorAll('.status-badge-failed-expandable').forEach(button => {
+            // Create a unique identifier to track if listener is already attached
+            if (button.dataset.listenerAttached) return;
+            button.dataset.listenerAttached = 'true';
+
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 const deploymentRow = button.closest('tr.deployment-row');
@@ -57,17 +71,57 @@ class DeploymentManager {
         });
     }
 
+    createErrorRow(errorMessage) {
+        const tr = document.createElement('tr');
+        tr.className = 'deployment-error-row';
+        tr.innerHTML = `
+            <td colspan="6" class="deployment-error-cell">
+                <div class="deployment-error-container">
+                    <div class="deployment-error-label">Error Details:</div>
+                    <pre class="deployment-error-message"></pre>
+                </div>
+            </td>
+        `;
+        // Set text content separately to avoid XSS issues
+        tr.querySelector('.deployment-error-message').textContent = errorMessage;
+        return tr;
+    }
+
     observeNewDeployments() {
-        // Watch for new deployment rows being added by Mist
-        const observer = new MutationObserver(() => {
-            this.setupErrorToggleListeners();
+        // Watch for new deployment rows being added/removed by Mist
+        const observer = new MutationObserver((mutations) => {
+            let shouldUpdate = false;
+            
+            mutations.forEach(mutation => {
+                // Handle added nodes
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.classList?.contains('deployment-row')) {
+                        shouldUpdate = true;
+                    }
+                });
+                
+                // Handle removed nodes - clean up orphaned error rows
+                mutation.removedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.classList?.contains('deployment-row')) {
+                        // If this was a deployment row with an error, remove its error row too
+                        const nextSibling = mutation.nextSibling;
+                        if (nextSibling && nextSibling.classList?.contains('deployment-error-row')) {
+                            nextSibling.remove();
+                        }
+                    }
+                });
+            });
+            
+            if (shouldUpdate) {
+                this.setupErrorToggleListeners();
+            }
         });
 
         const tbody = document.querySelector('.deployment-tbody');
         if (tbody) {
             observer.observe(tbody, {
                 childList: true,
-                subtree: true
+                subtree: false
             });
         }
     }

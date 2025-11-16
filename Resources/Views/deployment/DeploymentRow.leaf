@@ -2,6 +2,7 @@
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
     class="deployment-row"
+    #if(component.deployment.errorMessage):data-has-error="true" data-error-message="#(component.deployment.errorMessage)"#endif
 >
 
     <!-- deployment commit message -->
@@ -103,15 +104,3 @@
         </button>
     </td>
 </tr>
-
-<!-- Error message row (initially hidden) -->
-#if(component.deployment.errorMessage):
-<tr class="deployment-error-row">
-    <td colspan="6" class="deployment-error-cell">
-        <div class="deployment-error-container">
-            <div class="deployment-error-label">Error Details:</div>
-            <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
-        </div>
-    </td>
-</tr>
-#endif
