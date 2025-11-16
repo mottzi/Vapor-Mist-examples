@@ -96,26 +96,65 @@ extension Deployment
 
 extension Deployment.Pipeline
 {
+    private enum PipelineError: Error
+    {
+        case executeError(String)
+    }
+    
+//    private static func execute(_ command: String, step: Int) async throws
+//    {
+//        let process = Process()
+//        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+//        process.arguments = ["bash", "-c", command]
+//        process.currentDirectoryURL = URL(fileURLWithPath: "/var/www/mottzi")
+//        
+//        let outputPipe = Pipe()
+//        process.standardOutput = outputPipe
+//        process.standardError = outputPipe
+//        
+//        try process.run()
+//        process.waitUntilExit()
+//        
+//        if process.terminationStatus != 0
+//        {
+//            let output = try outputPipe.fileHandleForReading.readToEnd()
+//            let str = String(data: output ?? Data(), encoding: .utf8)
+//            
+//            throw PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
+//        }
+//    }
+    
     private static func execute(_ command: String, step: Int) async throws
     {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["bash", "-c", command]
-        process.currentDirectoryURL = URL(fileURLWithPath: "/var/www/mottzi")
-        
-        let outputPipe = Pipe()
-        process.standardOutput = outputPipe
-        process.standardError = outputPipe
-        
-        try process.run()
-        process.waitUntilExit()
-        
-        if process.terminationStatus != 0
-        {
-            let output = try outputPipe.fileHandleForReading.readToEnd()
-            let str = String(data: output ?? Data(), encoding: .utf8)
+        try await withCheckedThrowingContinuation()
+        { (continuation: CheckedContinuation<Void, Error>) in
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.arguments = ["bash", "-c", command]
+            process.currentDirectoryURL = URL(fileURLWithPath: "/var/www/mottzi")
             
-            throw NSError(domain: "DeploymentError", code: step, userInfo: [NSLocalizedDescriptionKey: "Command failed: \(command), Output: \(str ?? "")"])
+            let pipe = Pipe()
+            process.standardOutput = pipe
+            process.standardError = pipe
+            
+            process.terminationHandler = 
+            { [pipe, process] _ in
+                if process.terminationStatus != 0 
+                {
+                    let output = try? pipe.fileHandleForReading.readToEnd()
+                    let str = String(data: output ?? Data(), encoding: .utf8)
+                    let error = PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+            
+            do {
+                try process.run()
+            } catch {
+                continuation.resume(throwing: error)
+            }
         }
     }
     
