@@ -2,12 +2,12 @@ import Vapor
 import Mist
 
 typealias MistModelContainer = Mist.ModelContainer
-
+123
 extension Application
 {
     func useTestRoute()
     {
-        self.get("test") { _ in "Test response 3" }
+        self.get("test") { _ in "Test response 123" }
     }
     
     func useDeployPanel()
