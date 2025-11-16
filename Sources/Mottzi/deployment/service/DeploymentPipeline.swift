@@ -137,24 +137,17 @@ extension Deployment.Pipeline
             process.standardOutput = pipe
             process.standardError = pipe
             
-            process.terminationHandler = 
+            process.terminationHandler =
             { [pipe, process] _ in
-                if process.terminationStatus != 0 
-                {
-                    let output = try? pipe.fileHandleForReading.readToEnd()
-                    let str = String(data: output ?? Data(), encoding: .utf8)
-                    let error = PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: ())
-                }
+                guard process.terminationStatus != 0 else { return continuation.resume(returning: ()) }
+                let output = try? pipe.fileHandleForReading.readToEnd()
+                let str = String(data: output ?? Data(), encoding: .utf8)
+                let error = PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
+                return continuation.resume(throwing: error)
             }
             
-            do {
-                try process.run()
-            } catch {
-                continuation.resume(throwing: error)
-            }
+            do { try process.run() } 
+            catch { continuation.resume(throwing: error) }
         }
     }
     
