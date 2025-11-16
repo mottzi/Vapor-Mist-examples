@@ -99,7 +99,7 @@ class MistSocket {
             
             // 4. Update log message to handle null ID
             const idLog = componentId ? componentId.substring(0, 8) : 'null';
-            console.log(`Client action sent: '${actionName}' on '${componentName}' (${idLog})`);
+            console.log(`Action sent: '${actionName}' on '${componentName}' (${idLog})`);
         }
     }
     
@@ -214,7 +214,7 @@ class MistSocket {
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;
-                    const resultType = isSuccess ? 'SUCCESS' : 'FAILURE';
+                    const resultType = isSuccess ? '✅' : '❌';
                     const idLog = id ? id.substring(0, 8) : 'null';
                     
                     console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);

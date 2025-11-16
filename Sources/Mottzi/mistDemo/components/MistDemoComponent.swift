@@ -37,6 +37,6 @@ struct RandomizeAction: Mist.Action
         guard let _ = try? await model1.save(on: db) else { return .failure(message: "Failed to save Model1") }
         guard let _ = try? await model2.save(on: db) else { return .failure(message: "Failed to save Model2") }
         
-        return .success(message: "Randomized successfully")
+        return .success()
     }
 }
