@@ -27,7 +27,7 @@
             #if(component.deployment.errorMessage):
                 <button 
                     class="status-badge status-badge-failed status-badge-failed-expandable"
-                    onclick="this.closest('tr').nextElementSibling?.classList.toggle('deployment-error-expanded')"
+                    type="button"
                 >
                     <span class="status-badge-failed-dot"></span>
                     Failed

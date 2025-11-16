@@ -3,6 +3,8 @@
 class DeploymentManager {
     constructor() {
         this.startLiveDurationUpdates();
+        this.setupErrorToggleListeners();
+        this.observeNewDeployments();
     }
 
     startLiveDurationUpdates() {
@@ -32,6 +34,42 @@ class DeploymentManager {
                 element.textContent = elapsed.toFixed(1) + 's';
             }
         });
+    }
+
+    setupErrorToggleListeners() {
+        // Add click listeners to all expandable failed badges
+        document.querySelectorAll('.status-badge-failed-expandable').forEach(button => {
+            // Remove any existing listener to avoid duplicates
+            button.replaceWith(button.cloneNode(true));
+        });
+
+        // Now add fresh listeners
+        document.querySelectorAll('.status-badge-failed-expandable').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const deploymentRow = button.closest('tr.deployment-row');
+                const errorRow = deploymentRow?.nextElementSibling;
+                
+                if (errorRow && errorRow.classList.contains('deployment-error-row')) {
+                    errorRow.classList.toggle('deployment-error-expanded');
+                }
+            });
+        });
+    }
+
+    observeNewDeployments() {
+        // Watch for new deployment rows being added by Mist
+        const observer = new MutationObserver(() => {
+            this.setupErrorToggleListeners();
+        });
+
+        const tbody = document.querySelector('.deployment-tbody');
+        if (tbody) {
+            observer.observe(tbody, {
+                childList: true,
+                subtree: true
+            });
+        }
     }
 }
 
