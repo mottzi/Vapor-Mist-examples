@@ -12,18 +12,18 @@ extension Deployment
         ///
         /// - Parameter message: The commit message of this deployment
         /// - Note: This is called when a valid GitHub pushevent is received.
-        public static func start(message: String?, on database: Database) async
+        public static func start(message: String?, on database: Database, app: Application) async
         {
-            await deploy(message: message, on: database)
+            await deploy(message: message, on: database, app: app)
         }
         
         /// Re-runs an existing `Deployment`.
         ///
         /// - Parameter deployment: Deployment to re-run
         /// - Note: This is called on the latest cancelled deployment whenever any deployment finishes successfully.
-        private static func resume(existingDeployment: Deployment, on database: Database) async
+        private static func resume(existingDeployment: Deployment, on database: Database, app: Application) async
         {
-            await deploy(existingDeployment: existingDeployment, on: database)
+            await deploy(existingDeployment: existingDeployment, on: database, app: app)
         }
         
         /// Internal recursive deployment pipeline. It can re-process exisiting deployments or create and process new deployments.
@@ -31,7 +31,7 @@ extension Deployment
         /// - Parameters:
         ///   - existingDeployment: Pass a deployment to re-run it.
         ///   - message: Pass a commit message for newly created deployments.
-        private static func deploy(existingDeployment: Deployment? = nil, message: String? = nil, on database: Database) async
+        private static func deploy(existingDeployment: Deployment? = nil, message: String? = nil, on database: Database, app: Application) async
         {
             let canDeploy = await Manager.shared.requestPipeline()
             
@@ -59,7 +59,7 @@ extension Deployment
             {
                 try await pull()
                 try await build()
-                try await move()
+                try await move(using: app)
                 
                 deployment.status = "success"
                 deployment.finishedAt = .now
@@ -74,7 +74,7 @@ extension Deployment
                 
                 if let canceledDeployment
                 {
-                    await resume(existingDeployment: canceledDeployment, on: database)
+                    await resume(existingDeployment: canceledDeployment, on: database, app: app)
                 }
                 else
                 {
@@ -113,29 +113,6 @@ extension Deployment.Pipeline
             }
         }
     }
-    
-//    private static func execute(_ command: String, step: Int) async throws
-//    {
-//        let process = Process()
-//        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-//        process.arguments = ["bash", "-c", command]
-//        process.currentDirectoryURL = URL(fileURLWithPath: "/var/www/mottzi")
-//        
-//        let outputPipe = Pipe()
-//        process.standardOutput = outputPipe
-//        process.standardError = outputPipe
-//        
-//        try process.run()
-//        process.waitUntilExit()
-//        
-//        if process.terminationStatus != 0
-//        {
-//            let output = try outputPipe.fileHandleForReading.readToEnd()
-//            let str = String(data: output ?? Data(), encoding: .utf8)
-//            
-//            throw PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
-//        }
-//    }
     
     private static func execute(_ command: String, step: Int) async throws
     {
@@ -185,27 +162,35 @@ extension Deployment.Pipeline
         try await execute("supervisorctl restart mottzi", step: 4)
     }
     
-    private static func move() async throws
+    private static func move(using app: Application) async throws
     {
-        let fileManager = FileManager.default
+        let eventLoop = app.eventLoopGroup.any()
+        let threadPool = app.threadPool
+        
         let buildPath = "/var/www/mottzi/.build/debug/Mottzi"
         let deployPath = "/var/www/mottzi/deploy/Mottzi"
+        let deployDir = "/var/www/mottzi/deploy"
         
-        do
+        try await threadPool.runIfActive(eventLoop: eventLoop)
         {
-            try fileManager.createDirectory(atPath: "/var/www/mottzi/deploy", withIntermediateDirectories: true)
+            let fileManager = FileManager.default
             
+            // Create deploy directory if it doesn't exist
+            try fileManager.createDirectory(
+                atPath: deployDir,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            
+            // Remove old binary if it exists
             if fileManager.fileExists(atPath: deployPath)
             {
                 try fileManager.removeItem(atPath: deployPath)
             }
             
+            // Move new binary to deploy location
             try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
-        }
-        catch
-        {
-            throw error
-        }
+        }.get()
     }
     
     public static func getCommitMessage(of request: Request) -> String?
