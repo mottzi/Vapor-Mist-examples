@@ -24,10 +24,23 @@
                 Success
             </span>
         #elseif(component.deployment.displayStatus == "failed"):
-            <span class="status-badge status-badge-failed">
-                <span class="status-badge-failed-dot"></span>
-                Failed
-            </span>
+            #if(component.deployment.errorMessage):
+                <button 
+                    class="status-badge status-badge-failed status-badge-failed-expandable"
+                    onclick="this.closest('tr').nextElementSibling?.classList.toggle('deployment-error-expanded')"
+                >
+                    <span class="status-badge-failed-dot"></span>
+                    Failed
+                    <svg class="status-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            #else:
+                <span class="status-badge status-badge-failed">
+                    <span class="status-badge-failed-dot"></span>
+                    Failed
+                </span>
+            #endif
         #elseif(component.deployment.displayStatus == "stale"):
             <span class="status-badge status-badge-stale">
                 <span class="status-badge-stale-dot"></span>
@@ -91,3 +104,14 @@
     </td>
 </tr>
 
+<!-- Error message row (initially hidden) -->
+#if(component.deployment.errorMessage):
+<tr class="deployment-error-row">
+    <td colspan="6" class="deployment-error-cell">
+        <div class="deployment-error-container">
+            <div class="deployment-error-label">Error Details:</div>
+            <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
+        </div>
+    </td>
+</tr>
+#endif

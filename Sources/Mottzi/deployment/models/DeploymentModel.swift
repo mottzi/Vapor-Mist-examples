@@ -10,6 +10,7 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
     @Field(key: "status") var status: String
     @Field(key: "message") var message: String
     @Field(key: "is_current") var isCurrent: Bool
+    @Field(key: "error_message") var errorMessage: String?
     @Timestamp(key: "started_at", on: .create) var startedAt: Date?
     @Timestamp(key: "finished_at", on: .none) var finishedAt: Date?
     
@@ -20,6 +21,7 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         self.status = status
         self.message = message
         self.isCurrent = false
+        self.errorMessage = nil
     }
 }
 
@@ -34,6 +36,7 @@ extension Deployment
                 .field("status", .string, .required)
                 .field("message", .string, .required)
                 .field("is_current", .bool, .required, .sql(.default(false)))
+                .field("error_message", .string)
                 .field("started_at", .datetime)
                 .field("finished_at", .datetime)
                 .create()

@@ -86,6 +86,7 @@ extension Deployment
             {
                 deployment.status = "failed"
                 deployment.finishedAt = .now
+                deployment.errorMessage = error.localizedDescription
                 try? await deployment.save(on: app.db)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
                 Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")

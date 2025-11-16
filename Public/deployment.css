@@ -618,3 +618,109 @@ body {
     color: #e5e5e5;
   }
 }
+
+/* ============================================
+   ERROR MESSAGE DISPLAY STYLES
+   ============================================ */
+
+/* Failed status button that can be clicked */
+.status-badge-failed-expandable {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  transition: opacity 0.2s ease;
+}
+
+.status-badge-failed-expandable:hover {
+  opacity: 0.8;
+}
+
+/* Chevron icon that rotates when expanded */
+.status-badge-chevron {
+  transition: transform 0.2s ease;
+  margin-left: 2px;
+}
+
+/* Rotate chevron when error row is expanded */
+.deployment-error-expanded + .deployment-error-row .status-badge-chevron,
+.deployment-row:has(+ .deployment-error-row.deployment-error-expanded) .status-badge-chevron {
+  transform: rotate(180deg);
+}
+
+/* Error row (hidden by default) */
+.deployment-error-row {
+  display: none;
+  background-color: #fef2f2;
+  border-top: 1px solid #fee2e2;
+}
+
+/* Show error row when expanded */
+.deployment-error-row.deployment-error-expanded {
+  display: table-row;
+}
+
+/* Error cell spanning all columns */
+.deployment-error-cell {
+  padding: 16px 24px !important;
+}
+
+/* Error container with border */
+.deployment-error-container {
+  background-color: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+/* Error label */
+.deployment-error-label {
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Error message pre block */
+.deployment-error-message {
+  margin: 0;
+  padding: 12px;
+  background-color: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #333;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .deployment-error-row {
+    background-color: #1c1917;
+    border-top-color: #44403c;
+  }
+
+  .deployment-error-container {
+    background-color: #262626;
+    border-color: #44403c;
+  }
+
+  .deployment-error-label {
+    color: #fca5a5;
+  }
+
+  .deployment-error-message {
+    background-color: #171717;
+    border-color: #404040;
+    color: #d4d4d8;
+  }
+}
