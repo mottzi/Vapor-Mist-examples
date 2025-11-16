@@ -90,6 +90,13 @@ class DeploymentManager {
             let shouldUpdate = false;
             
             mutations.forEach(mutation => {
+                // Handle attribute changes (e.g., data-has-error being added when status changes to failed)
+                if (mutation.type === 'attributes' && 
+                    mutation.attributeName === 'data-has-error' &&
+                    mutation.target.classList?.contains('deployment-row')) {
+                    shouldUpdate = true;
+                }
+                
                 // Handle added nodes
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1 && node.classList?.contains('deployment-row')) {
@@ -118,7 +125,9 @@ class DeploymentManager {
         if (tbody) {
             observer.observe(tbody, {
                 childList: true,
-                subtree: false
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['data-has-error']
             });
         }
     }
