@@ -88,16 +88,7 @@ extension Deployment
                 deployment.finishedAt = .now
                 try? await deployment.save(on: database)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
-
-                if let pipelineError = error as? PipelineError,
-                   case .executeError(let details) = pipelineError 
-                {
-                    Logger(label: "mottzi").error("[Mottzi] Pipeline error: \(details)")
-                } 
-                else 
-                {
-                    Logger(label: "mottzi").error("[Mottzi] Pipeline error: \(error.localizedDescription)")
-                }
+                Logger(label: "mottzi").error("\(error.localizedDescription)")
             }
         }
     }
@@ -105,9 +96,22 @@ extension Deployment
 
 extension Deployment.Pipeline
 {
-    private enum PipelineError: Error
+    private enum PipelineError: Error, LocalizedError
     {
+        case initiateError(String)
         case executeError(String)
+        
+        var errorDescription: String?
+        {
+            switch self
+            {
+                case .initiateError(let message):
+                    "[Mottzi] Pipeline initiate error: \(message)"
+                    
+                case .executeError(let message):
+                    "[Mottzi] Pipeline execute error: \(message)"
+            }
+        }
     }
     
 //    private static func execute(_ command: String, step: Int) async throws
@@ -149,14 +153,21 @@ extension Deployment.Pipeline
             process.terminationHandler =
             { [pipe, process] _ in
                 guard process.terminationStatus != 0 else { return continuation.resume(returning: ()) }
-                let output = try? pipe.fileHandleForReading.readToEnd()
-                let str = String(data: output ?? Data(), encoding: .utf8)
-                let error = PipelineError.executeError("Command failed: '\(command)'\nOutput: '\(str ?? "")'")
+                let output = String(data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(), encoding: .utf8)
+                let error = PipelineError.executeError("Execution of '\(command)' failed with output:\n'\(output ?? "")'")
                 return continuation.resume(throwing: error)
             }
             
-            do { try process.run() } 
-            catch { continuation.resume(throwing: error) }
+            do 
+            { 
+                try process.run() 
+            } 
+            catch 
+            {
+                continuation.resume(throwing:
+                    PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
+                )
+            }
         }
     }
     
