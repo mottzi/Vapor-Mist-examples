@@ -51,12 +51,12 @@ public struct ModelContainer: Encodable
             
             if extras.isEmpty
             {
-                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) without extras")
+//                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) without extras")
                 try container.encode(value, forKey: StringCodingKey(key))
             }
             else
             {
-                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) with \(extras.count) extras: \(extras.keys.sorted())")
+//                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) with \(extras.count) extras: \(extras.keys.sorted())")
                 let wrapper = MergingEncoder(base: value, extras: extras)
                 try container.encode(wrapper, forKey: StringCodingKey(key))
             }
