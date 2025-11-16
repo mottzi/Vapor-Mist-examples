@@ -22,6 +22,7 @@
             #endfor
         </tbody>
     </table>
+    <script src="/morphdom.js"></script>
     <script src="/mist.js"></script>
 </body>
 </html>

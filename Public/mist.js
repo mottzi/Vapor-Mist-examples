@@ -133,9 +133,9 @@ class MistSocket {
                     // If component already exists, treat as update
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
-                            element.outerHTML = html;
+                            morphdom(element, html);
                         });
-                        console.log(`Instance create (treated as update): '${component}' (${id.substring(0, 8)})`);
+                        console.log(`Instance create (treated as patch): '${component}' (${id.substring(0, 8)})`);
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
@@ -158,10 +158,10 @@ class MistSocket {
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
-                        element.outerHTML = html;
+                        morphdom(element, html);
                     });
                     
-                    console.log(`Instance update: '${component}' (${id.substring(0, 8)})`);
+                    console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);
                 }
                 else if (data.deleteInstanceComponent) {
                     const { component, id } = data.deleteInstanceComponent;
@@ -181,9 +181,9 @@ class MistSocket {
                     // If component already exists, replace it
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
-                            element.outerHTML = html;
+                            morphdom(element, html);
                         });
-                        console.log(`Query update (replaced): '${component}'`);
+                        console.log(`Query patch (replaced): '${component}'`);
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
