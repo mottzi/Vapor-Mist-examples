@@ -628,16 +628,28 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: none;
-  border: none;
-  padding: 0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: rgba(220, 38, 38, 0.2);
   cursor: pointer;
-  font: inherit;
   transition: opacity 0.2s ease;
 }
 
 .status-badge-failed-expandable:hover {
   opacity: 0.8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-badge-failed-expandable {
+    background-color: #262626;
+    color: #fca5a5;
+    border-color: rgba(252, 165, 165, 0.3);
+  }
 }
 
 /* Chevron icon that rotates when expanded */
