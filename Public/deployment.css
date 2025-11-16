@@ -695,7 +695,7 @@ body {
   overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-  max-height: 400px;
+  /* max-height: 400px; */
   overflow-y: auto;
 }
 
