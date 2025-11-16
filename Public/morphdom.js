@@ -773,4 +773,10 @@ function morphdomFactory(morphAttrs) {
 
 var morphdom = morphdomFactory(morphAttrs);
 
-module.exports = morphdom;
+// UMD (Universal Module Definition) - works in both Node.js and browsers
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = morphdom;
+}
+if (typeof window !== 'undefined') {
+    window.morphdom = morphdom;
+}
