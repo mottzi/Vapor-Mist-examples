@@ -88,7 +88,16 @@ extension Deployment
                 deployment.finishedAt = .now
                 try? await deployment.save(on: database)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
-                Logger(label: "mottzi").error("failed with error: \(error.localizedDescription)")
+
+                if let pipelineError = error as? PipelineError,
+                   case .executeError(let details) = pipelineError 
+                {
+                    Logger(label: "mottzi").error("[Mottzi] Pipeline error: \(details)")
+                } 
+                else 
+                {
+                    Logger(label: "mottzi").error("[Mottzi] Pipeline error: \(error.localizedDescription)")
+                }
             }
         }
     }
