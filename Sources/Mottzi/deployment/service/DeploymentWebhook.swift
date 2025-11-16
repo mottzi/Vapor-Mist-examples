@@ -7,7 +7,7 @@ extension Application
         Deployment.Webhook.register("pushevent", on: self)
         { request async in
             let message = Deployment.Pipeline.getCommitMessage(of: request)
-            await Deployment.Pipeline.start(message: message, on: request.db, app: request.application)
+            await Deployment.Pipeline.start(message: message, on: request.application)
         }
     }
 }

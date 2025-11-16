@@ -12,18 +12,18 @@ extension Deployment
         ///
         /// - Parameter message: The commit message of this deployment
         /// - Note: This is called when a valid GitHub pushevent is received.
-        public static func start(message: String?, on database: Database, app: Application) async
+        public static func start(message: String?, on app: Application) async
         {
-            await deploy(message: message, on: database, app: app)
+            await deploy(message: message, on: app)
         }
         
         /// Re-runs an existing `Deployment`.
         ///
         /// - Parameter deployment: Deployment to re-run
         /// - Note: This is called on the latest cancelled deployment whenever any deployment finishes successfully.
-        private static func resume(existingDeployment: Deployment, on database: Database, app: Application) async
+        private static func resume(existingDeployment: Deployment, on app: Application) async
         {
-            await deploy(existingDeployment: existingDeployment, on: database, app: app)
+            await deploy(existingDeployment: existingDeployment, on: app)
         }
         
         /// Internal recursive deployment pipeline. It can re-process exisiting deployments or create and process new deployments.
@@ -31,7 +31,7 @@ extension Deployment
         /// - Parameters:
         ///   - existingDeployment: Pass a deployment to re-run it.
         ///   - message: Pass a commit message for newly created deployments.
-        private static func deploy(existingDeployment: Deployment? = nil, message: String? = nil, on database: Database, app: Application) async
+        private static func deploy(existingDeployment: Deployment? = nil, message: String? = nil, on app: Application) async
         {
             let canDeploy = await Manager.shared.requestPipeline()
             
@@ -51,7 +51,7 @@ extension Deployment
                 )
             }
             
-            try? await deployment.save(on: database)
+            try? await deployment.save(on: app.db)
             
             guard canDeploy else { return }
             
@@ -63,10 +63,10 @@ extension Deployment
                 
                 deployment.status = "success"
                 deployment.finishedAt = .now
-                try? await deployment.save(on: database)
+                try? await deployment.save(on: app.db)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
                 
-                let canceledDeployment = try await Deployment.query(on: database)
+                let canceledDeployment = try await Deployment.query(on: app.db)
                     .filter(\.$status, .equal, "canceled")
                     .filter(\.$startedAt, .greaterThan, deployment.startedAt)
                     .sort(\.$startedAt, .descending)
@@ -74,11 +74,11 @@ extension Deployment
                 
                 if let canceledDeployment
                 {
-                    await resume(existingDeployment: canceledDeployment, on: database, app: app)
+                    await resume(existingDeployment: canceledDeployment, on: app)
                 }
                 else
                 {
-                    try await deployment.setCurrent(on: database)
+                    try await deployment.setCurrent(on: app.db)
                     try await restart()
                 }
             }
@@ -86,7 +86,7 @@ extension Deployment
             {
                 deployment.status = "failed"
                 deployment.finishedAt = .now
-                try? await deployment.save(on: database)
+                try? await deployment.save(on: app.db)
                 await Deployment.Pipeline.Manager.shared.endDeployment()
                 Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")
             }
