@@ -17,7 +17,7 @@ class MistSocket {
 
     subscribeToPageComponents() {
         
-        console.log("subscribing to server components...");
+        console.log("Client: Subscribing to on-page components...");
         
         const uniqueComponents = new Set();
         
