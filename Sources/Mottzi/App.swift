@@ -21,6 +21,7 @@ struct App
             MistDemoModel1.Table(),
             MistDemoModel2.Table()
         )
+        try await app.autoRevert()  // TEMPORARY: Wipe database clean
         try await app.autoMigrate()
         
         await app.mist.use(
