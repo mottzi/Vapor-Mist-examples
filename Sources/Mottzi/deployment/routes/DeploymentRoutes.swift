@@ -7,7 +7,7 @@ extension Application
 {
     func useTestRoute()
     {
-        self.get("test") { _ in "Test response test" }
+        self.get("test") { _ in "Test response test2" }
     }
     
     func useDeployPanel()
