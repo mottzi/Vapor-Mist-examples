@@ -76,10 +76,7 @@ class DeploymentManager {
         tr.className = 'deployment-error-row';
         tr.innerHTML = `
             <td colspan="6" class="deployment-error-cell">
-                <div class="deployment-error-container">
-                    <div class="deployment-error-label">Error Details:</div>
-                    <pre class="deployment-error-message"></pre>
-                </div>
+                <pre class="deployment-error-message"></pre>
             </td>
         `;
         // Set text content separately to avoid XSS issues

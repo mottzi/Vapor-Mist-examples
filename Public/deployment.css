@@ -678,32 +678,16 @@ body {
 
 /* Error cell spanning all columns */
 .deployment-error-cell {
-  padding: 16px 24px !important;
-}
-
-/* Error container with border */
-.deployment-error-container {
-  background-color: #fff;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-/* Error label */
-.deployment-error-label {
-  font-weight: 600;
-  color: #dc2626;
-  margin-bottom: 8px;
-  font-size: 14px;
+  padding: 12px 24px !important;
 }
 
 /* Error message pre block */
 .deployment-error-message {
   margin: 0;
-  padding: 12px;
+  padding: 16px;
   background-color: #fafafa;
   border: 1px solid #e5e5e5;
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.5;
@@ -719,15 +703,6 @@ body {
   .deployment-error-row {
     background-color: #1c1917;
     border-top-color: #44403c;
-  }
-
-  .deployment-error-container {
-    background-color: #262626;
-    border-color: #44403c;
-  }
-
-  .deployment-error-label {
-    color: #fca5a5;
   }
 
   .deployment-error-message {
