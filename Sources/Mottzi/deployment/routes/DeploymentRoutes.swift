@@ -2,7 +2,7 @@ import Vapor
 import Mist
 
 typealias MistModelContainer = Mist.ModelContainer
-hehe2
+
 extension Application
 {
     func useTestRoute()
