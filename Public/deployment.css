@@ -315,7 +315,7 @@ body {
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  border: 1px solid;
+  border: 2px solid;
 }
 
 .status-badge-success {
