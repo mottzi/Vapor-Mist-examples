@@ -50,20 +50,29 @@ class DeploymentRow {
         
         let startedAt;
         if (startedAtStr) {
-            // Try parsing as ISO 8601 or any standard date format
-            let parsed = Date.parse(startedAtStr);
-            
-            // If that fails, try adding 'Z' for UTC (Swift sometimes omits timezone)
-            if (isNaN(parsed) && !startedAtStr.includes('Z') && !startedAtStr.includes('+')) {
-                parsed = Date.parse(startedAtStr + 'Z');
-            }
-            
-            if (isNaN(parsed)) {
-                console.warn(`[DeploymentRow] Failed to parse date "${startedAtStr}", using current time`);
-                startedAt = Date.now() / 1000;
+            // Check if it's a numeric Swift TimeInterval (seconds since 2001-01-01)
+            const numericValue = parseFloat(startedAtStr);
+            if (!isNaN(numericValue) && numericValue > 0 && numericValue < 1e10) {
+                // Convert Swift TimeInterval to Unix timestamp
+                // Swift reference date: 2001-01-01 00:00:00 UTC = 978307200 Unix seconds
+                startedAt = numericValue + 978307200;
+                console.log(`[DeploymentRow] Converted Swift TimeInterval to Unix: ${new Date(startedAt * 1000).toISOString()}`);
             } else {
-                startedAt = parsed / 1000;
-                console.log(`[DeploymentRow] Parsed timestamp: ${new Date(parsed).toISOString()}`);
+                // Try parsing as ISO 8601 or standard date format
+                let parsed = Date.parse(startedAtStr);
+                
+                // If that fails, try adding 'Z' for UTC
+                if (isNaN(parsed) && !startedAtStr.includes('Z') && !startedAtStr.includes('+')) {
+                    parsed = Date.parse(startedAtStr + 'Z');
+                }
+                
+                if (isNaN(parsed)) {
+                    console.warn(`[DeploymentRow] Failed to parse date "${startedAtStr}", using current time`);
+                    startedAt = Date.now() / 1000;
+                } else {
+                    startedAt = parsed / 1000;
+                    console.log(`[DeploymentRow] Parsed ISO date: ${new Date(parsed).toISOString()}`);
+                }
             }
         } else {
             console.warn(`[DeploymentRow] No startedAt attribute, using current time`);
