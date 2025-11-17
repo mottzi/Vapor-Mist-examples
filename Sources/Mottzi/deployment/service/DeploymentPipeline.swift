@@ -132,7 +132,7 @@ extension Deployment.Pipeline
             { [pipe, process] _ in
                 guard process.terminationStatus != 0 else { return continuation.resume(returning: ()) }
                 let output = String(data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(), encoding: .utf8)
-                let error = PipelineError.executeError("Execution of '\(command)' failed with output:\n'\(output ?? "")'")
+                let error = PipelineError.executeError("Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'")
                 return continuation.resume(throwing: error)
             }
             
