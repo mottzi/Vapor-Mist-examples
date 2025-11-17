@@ -89,7 +89,6 @@ class MistSocket {
         const key = `${controllerName}-${componentId}`;
         
         if (this.activeControllers.has(key)) {
-            console.log(`[Mist] Controller already booted: '${controllerName}' for ${componentId.substring(0, 8)}`);
             return; // Already booted
         }
         
