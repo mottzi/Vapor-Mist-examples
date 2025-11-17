@@ -48,6 +48,14 @@ class DeploymentRow {
         
         // Timer is now scoped to this instance
         this.timer = setInterval(() => {
+            // Check if element still exists (stops when deployment finishes and element is replaced)
+            if (!this.rowElement.contains(liveDurationElement)) {
+                console.log(`[DeploymentRow] Live duration element removed, stopping timer for ${id?.substring(0, 8)}`);
+                clearInterval(this.timer);
+                this.timer = null;
+                return;
+            }
+            
             const now = Date.now() / 1000;
             const elapsed = now - parseFloat(startedAt);
             liveDurationElement.textContent = elapsed.toFixed(1) + 's';
