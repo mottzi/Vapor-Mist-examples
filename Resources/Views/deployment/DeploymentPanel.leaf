@@ -73,8 +73,8 @@
     </div>
   </div>
   <script src="/morphdom.js"></script>
-  <script src="/mist.js"></script>
   <script src="/controllers/DeploymentRow.js"></script>
+  <script src="/mist.js"></script>
 </body>
 </html>
 
