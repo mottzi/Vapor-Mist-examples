@@ -10,6 +10,8 @@ class MistSocket {
         this.initialDelay = 1000;
         this.interval = 5000;
         
+        this.activeControllers = new Map(); // Stores "controllerName-componentId" -> controllerInstance
+        
         document.addEventListener('visibilitychange', () => this.visibilityChange());
         window.addEventListener('online', () => this.connect());
         document.addEventListener('click', (event) => this.handleAction(event));
@@ -62,6 +64,74 @@ class MistSocket {
             };
             
             this.socket.send(JSON.stringify(message));
+        }
+    }
+    
+    // NEW: Boots controllers for elements that declare them
+    bootDeclaredControllers() {
+        const elements = document.querySelectorAll('[mist-controller]');
+        console.log(`[Mist] Booting ${elements.length} declared controller(s)`);
+        elements.forEach(element => {
+            this.bootControllerForElement(element);
+        });
+    }
+    
+    // NEW: Manages the lifecycle of a single controller
+    bootControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) {
+            console.log(`[Mist] Skipping boot: missing controller name or component ID`);
+            return;
+        }
+        
+        const key = `${controllerName}-${componentId}`;
+        
+        if (this.activeControllers.has(key)) {
+            console.log(`[Mist] Controller already booted: '${controllerName}' for ${componentId.substring(0, 8)}`);
+            return; // Already booted
+        }
+        
+        // Find the declared class on the global `window` object
+        const ControllerClass = window[controllerName]; 
+        
+        if (ControllerClass) {
+            try {
+                console.log(`[Mist] Booting controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
+                // Create an instance, passing the component's root element
+                const instance = new ControllerClass(element); 
+                this.activeControllers.set(key, instance);
+                console.log(`[Mist] ✓ Controller booted: '${controllerName}' for ${componentId.substring(0, 8)}`);
+            } catch (e) {
+                console.error(`[Mist] ✗ Failed to boot controller: ${controllerName}`, e);
+            }
+        } else {
+            console.warn(`[Mist] Controller class not found on window: ${controllerName}`);
+        }
+    }
+    
+    // NEW: Manages controller cleanup
+    destroyControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) return;
+        
+        const key = `${controllerName}-${componentId}`;
+        const instance = this.activeControllers.get(key);
+        
+        if (instance) {
+            console.log(`[Mist] Destroying controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
+            if (typeof instance.destroy === 'function') {
+                instance.destroy();
+            } else {
+                console.warn(`[Mist] Controller '${controllerName}' has no destroy() method`);
+            }
+            this.activeControllers.delete(key);
+            console.log(`[Mist] ✓ Controller destroyed: '${controllerName}' for ${componentId.substring(0, 8)}`);
+        } else {
+            console.log(`[Mist] No active controller found to destroy: '${controllerName}' for ${componentId.substring(0, 8)}`);
         }
     }
     
@@ -118,6 +188,9 @@ class MistSocket {
             if (this.timer) { clearInterval(this.timer); this.timer = null; }
             
             this.subscribeToPageComponents();
+            
+            // NEW: Boot controllers AFTER the first connection/subscription
+            this.bootDeclaredControllers();
         };
         
         this.socket.onmessage = (event) => {
@@ -134,6 +207,8 @@ class MistSocket {
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
                             morphdom(element, html);
+                            // NEW: Boot controller after morphing, in case it was just added
+                            this.bootControllerForElement(element);
                         });
                         console.log(`Instance create (treated as patch): '${component}' (${id.substring(0, 8)})`);
                     } else {
@@ -148,6 +223,12 @@ class MistSocket {
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
                                 console.log(`Instance create: '${component}' (${id.substring(0, 8)})`);
+                                
+                                // NEW: After creating the element, boot its controller
+                                const newElement = document.querySelector(this.buildComponentSelector(component, id));
+                                if (newElement) {
+                                    this.bootControllerForElement(newElement);
+                                }
                                 break;
                             }
                         }
@@ -159,6 +240,8 @@ class MistSocket {
                     
                     elements.forEach(element => {
                         morphdom(element, html);
+                        // NEW: Boot controller after morphing, in case it was just added
+                        this.bootControllerForElement(element);
                     });
                     
                     console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);
@@ -168,6 +251,8 @@ class MistSocket {
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
                     elements.forEach(element => {
+                        // NEW: Clean up the controller before removing the element
+                        this.destroyControllerForElement(element);
                         element.remove();
                     });
                     

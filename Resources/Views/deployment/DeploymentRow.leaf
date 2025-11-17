@@ -1,8 +1,9 @@
 <tr
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
+    mist-controller="DeploymentRow"
     class="deployment-row"
-    #if(component.deployment.errorMessage):data-has-error="true" data-error-message="#(component.deployment.errorMessage)"#endif
+    #if(component.deployment.errorMessage):data-error-message="#(component.deployment.errorMessage)"#endif
 >
 
     <!-- deployment commit message -->
