@@ -1,6 +1,6 @@
 import Vapor
 import Mist
-This will fail due to swift syntax error
+
 typealias MistModelContainer = Mist.ModelContainer
 
 extension Application
