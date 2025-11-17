@@ -676,7 +676,7 @@ body {
 
 /* Error cell spanning all columns */
 .deployment-error-cell {
-  padding: 12px 24px !important;
+  padding: 0 !important;
 }
 
 /* Error message pre block */
@@ -684,8 +684,8 @@ body {
   margin: 0;
   padding: 16px;
   background-color: #fafafa;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
+  border: none;
+  border-radius: 0;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.5;
