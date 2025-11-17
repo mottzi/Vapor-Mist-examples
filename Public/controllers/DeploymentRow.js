@@ -1,6 +1,3 @@
-// DeploymentRow Controller
-// Manages client-side state for DeploymentRow components
-
 class DeploymentRow {
     
     // The framework passes the component's root <tr> element
