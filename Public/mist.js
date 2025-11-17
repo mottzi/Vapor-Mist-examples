@@ -108,6 +108,21 @@ class MistSocket {
         }
     }
     
+    // NEW: Calls update() on controller after morphdom patches
+    updateControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) return;
+        
+        const key = `${controllerName}-${componentId}`;
+        const instance = this.activeControllers.get(key);
+        
+        if (instance && typeof instance.update === 'function') {
+            instance.update();
+        }
+    }
+    
     // NEW: Manages controller cleanup
     destroyControllerForElement(element) {
         const controllerName = element.getAttribute('mist-controller');
@@ -234,6 +249,8 @@ class MistSocket {
                         morphdom(element, html);
                         // NEW: Boot controller after morphing, in case it was just added
                         this.bootControllerForElement(element);
+                        // Call update() if controller exists and has the method
+                        this.updateControllerForElement(element);
                     });
                     
                     console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);

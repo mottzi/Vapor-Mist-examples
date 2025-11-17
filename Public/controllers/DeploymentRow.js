@@ -15,16 +15,21 @@ class DeploymentRow {
         const errorMessage = this.rowElement.dataset.errorMessage;
         const button = this.rowElement.querySelector('.status-badge-failed-expandable');
         
+        // Early return if no error or already setup
         if (!errorMessage || !button) return;
+        if (button.dataset.listenerAttached) return;
         
         const id = this.rowElement.getAttribute('mist-id');
         console.log(`[DeploymentRow] Setting up error toggle for ${id?.substring(0, 8)}`);
         
-        // 1. Create and inject the error row
-        this.errorRowElement = this.createErrorRow(errorMessage);
-        this.rowElement.after(this.errorRowElement);
+        // 1. Create and inject the error row (only if it doesn't exist)
+        if (!this.errorRowElement) {
+            this.errorRowElement = this.createErrorRow(errorMessage);
+            this.rowElement.after(this.errorRowElement);
+        }
         
-        // 2. Add listener
+        // 2. Add listener (mark to prevent duplicate listeners)
+        button.dataset.listenerAttached = 'true';
         button.addEventListener('click', (e) => {
             e.preventDefault();
             this.errorRowElement.classList.toggle('deployment-error-expanded');
@@ -72,6 +77,12 @@ class DeploymentRow {
         // Set text content separately to avoid XSS issues
         tr.querySelector('.deployment-error-message').textContent = errorMessage;
         return tr;
+    }
+    
+    // Called by Mist after morphdom patches the element
+    update() {
+        // Re-setup error toggle in case deployment just became failed
+        this.setupErrorToggle();
     }
     
     // Called by Mist's core loop before the element is removed
