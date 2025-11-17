@@ -44,9 +44,31 @@ class DeploymentRow {
         const id = this.rowElement.getAttribute('mist-id');
         console.log(`[DeploymentRow] Setting up live duration timer for ${id?.substring(0, 8)}`);
         
-        // Get server's startedAt timestamp from data attribute (ISO 8601 format)
-        const startedAtISO = this.rowElement.dataset.startedAt;
-        const startedAt = startedAtISO ? new Date(startedAtISO).getTime() / 1000 : Date.now() / 1000;
+        // Get server's startedAt timestamp from data attribute
+        const startedAtStr = this.rowElement.dataset.startedAt;
+        console.log(`[DeploymentRow] startedAt from server: "${startedAtStr}"`);
+        
+        let startedAt;
+        if (startedAtStr) {
+            // Try parsing as ISO 8601 or any standard date format
+            let parsed = Date.parse(startedAtStr);
+            
+            // If that fails, try adding 'Z' for UTC (Swift sometimes omits timezone)
+            if (isNaN(parsed) && !startedAtStr.includes('Z') && !startedAtStr.includes('+')) {
+                parsed = Date.parse(startedAtStr + 'Z');
+            }
+            
+            if (isNaN(parsed)) {
+                console.warn(`[DeploymentRow] Failed to parse date "${startedAtStr}", using current time`);
+                startedAt = Date.now() / 1000;
+            } else {
+                startedAt = parsed / 1000;
+                console.log(`[DeploymentRow] Parsed timestamp: ${new Date(parsed).toISOString()}`);
+            }
+        } else {
+            console.warn(`[DeploymentRow] No startedAt attribute, using current time`);
+            startedAt = Date.now() / 1000;
+        }
         
         // Timer is now scoped to this instance
         this.timer = setInterval(() => {
@@ -60,7 +82,7 @@ class DeploymentRow {
             }
             
             const now = Date.now() / 1000;
-            const elapsed = now - parseFloat(startedAt);
+            const elapsed = now - startedAt;
             currentElement.textContent = elapsed.toFixed(1) + 's';
         }, 100);
     }
