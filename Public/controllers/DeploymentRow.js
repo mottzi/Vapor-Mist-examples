@@ -87,3 +87,6 @@ class DeploymentRow {
     }
 }
 
+// Expose to global window for Mist framework
+window.DeploymentRow = DeploymentRow;
+
