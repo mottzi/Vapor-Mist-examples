@@ -44,7 +44,9 @@ class DeploymentRow {
         const id = this.rowElement.getAttribute('mist-id');
         console.log(`[DeploymentRow] Setting up live duration timer for ${id?.substring(0, 8)}`);
         
-        let startedAt = Date.now() / 1000;
+        // Get server's startedAt timestamp from data attribute (ISO 8601 format)
+        const startedAtISO = this.rowElement.dataset.startedAt;
+        const startedAt = startedAtISO ? new Date(startedAtISO).getTime() / 1000 : Date.now() / 1000;
         
         // Timer is now scoped to this instance
         this.timer = setInterval(() => {

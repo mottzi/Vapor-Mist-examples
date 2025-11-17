@@ -4,6 +4,7 @@
     mist-controller="DeploymentRow"
     class="deployment-row"
     #if(component.deployment.errorMessage):data-error-message="#(component.deployment.errorMessage)"#endif
+    #if(component.deployment.startedAt):data-started-at="#(component.deployment.startedAt)"#endif
 >
 
     <!-- deployment commit message -->
