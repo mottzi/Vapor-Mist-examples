@@ -98,11 +98,9 @@ class MistSocket {
         
         if (ControllerClass) {
             try {
-                console.log(`[Mist] Booting controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
                 // Create an instance, passing the component's root element
                 const instance = new ControllerClass(element); 
                 this.activeControllers.set(key, instance);
-                console.log(`[Mist] ✓ Controller booted: '${controllerName}' for ${componentId.substring(0, 8)}`);
             } catch (e) {
                 console.error(`[Mist] ✗ Failed to boot controller: ${controllerName}`, e);
             }
@@ -125,13 +123,8 @@ class MistSocket {
             console.log(`[Mist] Destroying controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
             if (typeof instance.destroy === 'function') {
                 instance.destroy();
-            } else {
-                console.warn(`[Mist] Controller '${controllerName}' has no destroy() method`);
             }
             this.activeControllers.delete(key);
-            console.log(`[Mist] ✓ Controller destroyed: '${controllerName}' for ${componentId.substring(0, 8)}`);
-        } else {
-            console.log(`[Mist] No active controller found to destroy: '${controllerName}' for ${componentId.substring(0, 8)}`);
         }
     }
     
