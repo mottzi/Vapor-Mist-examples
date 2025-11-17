@@ -28,10 +28,7 @@
             </span>
         #elseif(component.deployment.displayStatus == "failed"):
             #if(component.deployment.errorMessage):
-                <button 
-                    class="status-badge status-badge-failed status-badge-failed-expandable"
-                    type="button"
-                >
+                <button class="status-badge status-badge-failed-expandable" type="button">
                     <span class="status-badge-failed-dot"></span>
                     Failed
                     <svg class="status-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
