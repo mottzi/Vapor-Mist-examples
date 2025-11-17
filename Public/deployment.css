@@ -171,10 +171,8 @@ body {
   }
 }
 
-/* Table body */
-.deployment-tbody {
-  /* Row separators using divide-y pattern */
-}
+/* .deployment-tbody {
+} */
 
 .deployment-tbody > tr + tr {
   border-top: 1px solid #e5e7eb;
