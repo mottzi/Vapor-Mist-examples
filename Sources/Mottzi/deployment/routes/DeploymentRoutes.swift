@@ -1,6 +1,6 @@
 import Vapor
 import Mist
-fail
+
 typealias MistModelContainer = Mist.ModelContainer
 
 extension Application
