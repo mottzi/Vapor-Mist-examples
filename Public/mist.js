@@ -296,7 +296,20 @@ class MistSocket {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
                             if (acceptedComponents.includes(component)) {
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
-                                container.insertAdjacentHTML(insertPosition, html);
+                                
+                                // Special handling for table elements: if container is a table and we're inserting tbody,
+                                // insert after thead instead of using afterbegin
+                                if (container.tagName === 'TABLE' && html.trim().startsWith('<tbody')) {
+                                    const thead = container.querySelector('thead');
+                                    if (thead) {
+                                        thead.insertAdjacentHTML('afterend', html);
+                                    } else {
+                                        container.insertAdjacentHTML(insertPosition, html);
+                                    }
+                                } else {
+                                    container.insertAdjacentHTML(insertPosition, html);
+                                }
+                                
                                 // [NEW] Hydrate new element - find the component by its attributes
                                 const newEl = container.querySelector(`[mist-component="${component}"][mist-id="${id}"]`);
                                 if(newEl && newEl.hasAttribute('mist-state')) {
@@ -317,7 +330,42 @@ class MistSocket {
                     const { component, id, html } = data.updateInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     if (elements.length === 0) {
-                        console.warn(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}) - element not found`);
+                        // Element doesn't exist - treat as create and insert it
+                        console.log(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}) - element not found, treating as create`);
+                        const containers = document.querySelectorAll('[mist-container]');
+                        for (const container of containers) {
+                            const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            if (acceptedComponents.includes(component)) {
+                                const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
+                                
+                                // Special handling for table elements: if container is a table and we're inserting tbody,
+                                // insert after thead instead of using afterbegin
+                                let insertTarget = container;
+                                if (container.tagName === 'TABLE' && html.trim().startsWith('<tbody')) {
+                                    const thead = container.querySelector('thead');
+                                    if (thead) {
+                                        insertTarget = thead;
+                                        insertTarget.insertAdjacentHTML('afterend', html);
+                                    } else {
+                                        container.insertAdjacentHTML(insertPosition, html);
+                                    }
+                                } else {
+                                    container.insertAdjacentHTML(insertPosition, html);
+                                }
+                                
+                                // Hydrate new element
+                                const newEl = container.querySelector(`[mist-component="${component}"][mist-id="${id}"]`);
+                                if(newEl && newEl.hasAttribute('mist-state')) {
+                                    try {
+                                        this.updateComponentUI(newEl, JSON.parse(newEl.getAttribute('mist-state')));
+                                    } catch (e) {
+                                        console.error("Mist Hydration Error on new element:", e);
+                                    }
+                                }
+                                console.log(`Instance patch (created): '${component}' (id: ${id?.substring(0, 8)})`);
+                                break;
+                            }
+                        }
                     } else {
                         elements.forEach(element => {
                             console.log(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}), element:`, element.tagName, element.className);
@@ -329,6 +377,12 @@ class MistSocket {
                                 if (stateBefore && !element.hasAttribute('mist-state')) {
                                     console.warn(`State lost during morphdom update for ${component} ${id?.substring(0, 8)}`);
                                     element.setAttribute('mist-state', stateBefore);
+                                    // Re-apply UI bindings
+                                    try {
+                                        this.updateComponentUI(element, JSON.parse(stateBefore));
+                                    } catch (e) {
+                                        console.error("Mist State Re-apply Error:", e);
+                                    }
                                 }
                             } catch (e) {
                                 console.error(`Morphdom error for ${component} ${id?.substring(0, 8)}:`, e);
