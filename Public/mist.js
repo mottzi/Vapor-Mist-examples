@@ -1,5 +1,3 @@
-// Move this file (mist.js) to: /Public 
-
 class MistSocket {
     
     constructor() {
@@ -23,7 +21,12 @@ class MistSocket {
         });
         
         // [NEW] Initialize existing components on load
-        document.addEventListener('DOMContentLoaded', () => this.hydrateAll());
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.hydrateAll());
+        } else {
+            // DOM already loaded, hydrate immediately
+            this.hydrateAll();
+        }
     }
 
     // [NEW] Logic Handler
@@ -40,6 +43,7 @@ class MistSocket {
         
         if (!logicJSON || !stateJSON) return;
 
+        // getAttribute() automatically unescapes HTML entities
         const logic = JSON.parse(logicJSON);
         const state = JSON.parse(stateJSON);
         const funcBody = logic[actionName];
@@ -99,8 +103,15 @@ class MistSocket {
     // [NEW] Hydrate all interactive components
     hydrateAll() {
         document.querySelectorAll('[mist-state]').forEach(el => {
-            const state = JSON.parse(el.getAttribute('mist-state'));
-            this.updateComponentUI(el, state);
+            try {
+                const stateJSON = el.getAttribute('mist-state');
+                if (!stateJSON) return;
+                // getAttribute() automatically unescapes HTML entities
+                const state = JSON.parse(stateJSON);
+                this.updateComponentUI(el, state);
+            } catch (e) {
+                console.error("Mist Hydration Error:", e, el.getAttribute('mist-state'));
+            }
         });
     }
 
@@ -193,8 +204,13 @@ class MistSocket {
             onElUpdated: (el) => {
                 // Re-run bindings after update
                 if (el.hasAttribute('mist-state')) {
-                    const state = JSON.parse(el.getAttribute('mist-state'));
-                    this.updateComponentUI(el, state);
+                    try {
+                        // getAttribute() automatically unescapes HTML entities
+                        const state = JSON.parse(el.getAttribute('mist-state'));
+                        this.updateComponentUI(el, state);
+                    } catch (e) {
+                        console.error("Mist State Update Error:", e);
+                    }
                 }
             }
         };
@@ -230,11 +246,15 @@ class MistSocket {
                             if (acceptedComponents.includes(component)) {
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
-                                // [NEW] Hydrate new element
-                                const newEl = container.lastElementChild || container.firstElementChild; 
-                                // Note: this selection is loose, but standard hydration handles it via mist-state attr
+                                // [NEW] Hydrate new element - find the component by its attributes
+                                const newEl = container.querySelector(`[mist-component="${component}"][mist-id="${id}"]`);
                                 if(newEl && newEl.hasAttribute('mist-state')) {
-                                    this.updateComponentUI(newEl, JSON.parse(newEl.getAttribute('mist-state')));
+                                    try {
+                                        // getAttribute() automatically unescapes HTML entities
+                                        this.updateComponentUI(newEl, JSON.parse(newEl.getAttribute('mist-state')));
+                                    } catch (e) {
+                                        console.error("Mist Hydration Error on new element:", e);
+                                    }
                                 }
                                 console.log(`Instance create: '${component}'`);
                                 break;
@@ -316,7 +336,16 @@ class MistSocket {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+// Initialize MistSocket
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Mist: Initializing...");
+        window.ws = new MistSocket();
+        window.ws.connect();
+    });
+} else {
+    // DOM already loaded
+    console.log("Mist: Initializing (DOM already loaded)...");
     window.ws = new MistSocket();
     window.ws.connect();
-});
+}

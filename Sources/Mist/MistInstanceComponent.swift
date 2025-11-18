@@ -29,12 +29,14 @@ public extension InstanceComponent
         if let interactive = self as? ClientInteractive 
         {
             // Encode state to JSON String for HTML attribute
+            // Leaf will automatically escape this for HTML attributes
             if let stateData = try? JSONEncoder().encode(AnyEncodable(interactive.clientState)),
                let stateString = String(data: stateData, encoding: .utf8) {
                 container.addMeta(stateString, for: "_mistState")
             }
             
             // Encode logic to JSON String for HTML attribute
+            // Leaf will automatically escape this for HTML attributes
             if let logicData = try? JSONEncoder().encode(AnyEncodable(interactive.clientLogic)),
                let logicString = String(data: logicData, encoding: .utf8) {
                 container.addMeta(logicString, for: "_mistLogic")

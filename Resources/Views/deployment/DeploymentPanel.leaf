@@ -1,13 +1,51 @@
-<!-- Mottzi/Resources/Views/deployment/DeploymentPanel.leaf -->
-<!-- ... Header section remains unchanged ... -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deployment Dashboard</title>
+  <link rel="icon" type="image/png" href="/mottzi.png">
+  <link rel="stylesheet" href="/deployment.css">
+  <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+  <style>
+    html { font-family: 'Inter', sans-serif; }
+    @supports (font-variation-settings: normal) {
+      html { font-family: 'Inter var', sans-serif; }
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="deployment-container">
+    
+    <!-- header -->
+    <header class="deployment-header">
+      <div class="deployment-header-inner">
+        <div class="deployment-title-container">
+          <h1 class="deployment-title">
+            Deployments
+          </h1>
+        </div>
 
+        <div
+            class="deployment-status-container"
+            mist-container="DeploymentStatus"
+            mist-insert-position="beforeend"
+        >
+          #if(component):
+              #extend("deployment/DeploymentStatus")
+          #endif
+        </div>
+      </div>
+    </header>
+    
     <!-- table -->
     <div class="deployment-content">
       <div class="deployment-content-scroll">
         <div class="deployment-content-inner">
           <div class="deployment-table-container">
             <div class="deployment-table-wrapper">
-              <!-- [CHANGED] mist-container moved to table tag -->
+              <!-- [CHANGED] mist-container moved to table tag since components are now tbody elements -->
               <table 
                   class="deployment-table"
                   mist-container="DeploymentRow"
@@ -35,4 +73,9 @@
         </div>
       </div>
     </div>
-<!-- ... Scripts section remains unchanged ... -->
+  </div>
+  <script src="/morphdom.js"></script>
+  <script src="/controllers/DeploymentRow.js"></script>
+  <script src="/mist.js"></script>
+</body>
+</html>
