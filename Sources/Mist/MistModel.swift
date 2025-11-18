@@ -31,9 +31,6 @@ public struct ModelContainer: Encodable
     
     private var models: [String: any Model] = [:]
     
-    // [NEW] Metadata storage for ClientInteractive properties
-    private var metadata: [String: AnyEncodable] = [:]
-    
     var hasElements: Bool
     {
         !models.isEmpty
@@ -44,36 +41,25 @@ public struct ModelContainer: Encodable
         models[key] = model
     }
     
-    // [NEW] Helper to inject raw encodables
-    public mutating func addMeta(_ value: any Encodable, for key: String) 
-    {
-        metadata[key] = AnyEncodable(value)
-    }
-    
     public func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: StringCodingKey.self)
         
-        // Encode Models
         for (key, value) in models
         {
             let extras = value.contextExtras()
             
             if extras.isEmpty
             {
+//                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) without extras")
                 try container.encode(value, forKey: StringCodingKey(key))
             }
             else
             {
+//                logger.warning("Encoding model '\(key)' (type: \(type(of: value))) with \(extras.count) extras: \(extras.keys.sorted())")
                 let wrapper = MergingEncoder(base: value, extras: extras)
                 try container.encode(wrapper, forKey: StringCodingKey(key))
             }
-        }
-        
-        // [NEW] Encode Metadata (e.g. _mistState, _mistLogic)
-        for (key, value) in metadata 
-        {
-            try container.encode(value, forKey: StringCodingKey(key))
         }
     }
     

@@ -45,12 +45,7 @@
         <div class="deployment-content-inner">
           <div class="deployment-table-container">
             <div class="deployment-table-wrapper">
-              <!-- [CHANGED] mist-container moved to table tag since components are now tbody elements -->
-              <table 
-                  class="deployment-table"
-                  mist-container="DeploymentRow"
-                  mist-insert-position="afterbegin"
-              >
+              <table class="deployment-table">
                 <thead class="deployment-thead">
                   <tr>
                     <th class="deployment-th">Message</th>
@@ -61,12 +56,15 @@
                     <th class="deployment-th">Actions</th>
                   </tr>
                 </thead>
-                
-                <!-- [CHANGED] No wrapper tbody, loop renders multiple tbody components -->
-                #for(component in components):
+                <tbody
+                    mist-container="DeploymentRow"
+                    mist-insert-position="afterbegin"
+                    class="deployment-tbody"
+                >
+                  #for(component in components):
                     #extend("deployment/DeploymentRow")
-                #endfor
-                
+                  #endfor
+                </tbody>
               </table>
             </div>
           </div>
@@ -79,3 +77,4 @@
   <script src="/mist.js"></script>
 </body>
 </html>
+

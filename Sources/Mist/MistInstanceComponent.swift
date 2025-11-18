@@ -13,46 +13,6 @@ public extension InstanceComponent
         guard let primaryModelType = models.first else { return nil }
         return await primaryModelType.findAll(on: db)
     }
-    
-    func makeContext(of componentID: UUID, in db: Database) async -> SingleComponentContext?
-    {
-        var container = ModelContainer()
-        
-        for model in models 
-        {
-            guard let modelData = await model.find(id: componentID, on: db) else { continue }
-            let modelName = String(describing: model).lowercased()
-            container.add(modelData, for: modelName)
-        }
-        
-        // [NEW] Inject ClientInteractive data if present
-        if let interactive = self as? ClientInteractive 
-        {
-            // Encode state to JSON String for HTML attribute
-            // Leaf will automatically escape this for HTML attributes
-            if let stateData = try? JSONEncoder().encode(AnyEncodable(interactive.clientState)),
-               let stateString = String(data: stateData, encoding: .utf8) {
-                container.addMeta(stateString, for: "_mistState")
-            } else {
-                // Fallback: empty state object
-                container.addMeta("{}", for: "_mistState")
-            }
-            
-            // Encode logic to JSON String for HTML attribute
-            // Leaf will automatically escape this for HTML attributes
-            if let logicData = try? JSONEncoder().encode(AnyEncodable(interactive.clientLogic)),
-               let logicString = String(data: logicData, encoding: .utf8) {
-                container.addMeta(logicString, for: "_mistLogic")
-            } else {
-                // Fallback: empty logic object
-                container.addMeta("{}", for: "_mistLogic")
-            }
-        }
-        
-        guard container.hasElements else { return nil }
-        
-        return SingleComponentContext(component: container)
-    }
 }
 
 public extension InstanceComponent

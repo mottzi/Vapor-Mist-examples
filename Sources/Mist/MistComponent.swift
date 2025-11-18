@@ -11,16 +11,6 @@ public protocol Component: Sendable
     func shouldUpdate<M: Model>(for model: M) -> Bool
 }
 
-// [NEW] Protocol for Zero-JS Client State
-public protocol ClientInteractive: Component
-{
-    // State variables (e.g., ["isOpen": false])
-    var clientState: [String: any Encodable] { get }
-    
-    // Logic one-liners (e.g., ["toggle": "this.isOpen = !this.isOpen"])
-    var clientLogic: [String: String] { get }
-}
-
 public extension Component
 {
     var name: String { String(describing: Self.self) }

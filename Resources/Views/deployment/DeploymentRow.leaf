@@ -1,127 +1,99 @@
-<!-- [CHANGED] Root is now tbody to hold two rows. Added mist-state/logic injection. -->
-<tbody
+<tr
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
-    mist-state="#(component._mistState)"
-    mist-logic="#(component._mistLogic)"
-    class="deployment-tbody-group"
+    mist-controller="DeploymentRow"
+    class="deployment-row"
+    #if(component.deployment.errorMessage):data-error-message="#(component.deployment.errorMessage)"#endif
+    #if(component.deployment.startedAt):data-started-at="#(component.deployment.startedAt)"#endif
 >
-    <!-- Row 1: Main Info -->
-    <tr class="deployment-row" #if(component.deployment.errorMessage):data-has-error="true"#endif>
 
-        <!-- message -->
-        <td class="deployment-td deployment-td-message">
-            <span class="deployment-text-message">#(component.deployment.message)</span>
-        </td>
+    <!-- deployment commit message -->
+    <td class="deployment-td deployment-td-message">
+        <span class="deployment-text-message">#(component.deployment.message)</span>
+    </td>
 
-        <!-- ID -->
-        <td class="deployment-td deployment-td-hidden-sm">
-            <a onclick="navigator.clipboard.writeText('#(component.deployment.id)'); return false;" href="#" class="deployment-text-id" title="#(component.deployment.id)">
-                #(component.deployment.shortID)
-            </a>
-        </td>
-        
-        <!-- status -->
-        <td class="deployment-td">
-            #if(component.deployment.displayStatus == "success"):
-                <span class="status-badge status-badge-success">
-                    <span class="status-badge-success-dot"></span>
-                    Success
-                </span>
-            #elseif(component.deployment.displayStatus == "failed"):
-                #if(component.deployment.errorMessage):
-                    <!-- [CHANGED] Use mist-on-click and mist-class-rotate -->
-                    <button 
-                        class="status-badge status-badge-failed status-badge-failed-expandable"
-                        type="button"
-                        mist-on-click="toggleError"
-                    >
-                        <span class="status-badge-failed-dot"></span>
-                        Failed
-                        <svg 
-                            class="status-badge-chevron" 
-                            mist-class-rotate-180="isExpanded"
-                            xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        >
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
-                #else:
-                    <span class="status-badge status-badge-failed">
-                        <span class="status-badge-failed-dot"></span>
-                        Failed
-                    </span>
-                #endif
-            #elseif(component.deployment.displayStatus == "stale"):
-                <span class="status-badge status-badge-stale">
-                    <span class="status-badge-stale-dot"></span>
-                    Stale
-                </span>
-            #elseif(component.deployment.displayStatus == "canceled"):
-                <span class="status-badge status-badge-canceled">
-                    <span class="status-badge-canceled-dot"></span>
-                    Canceled
-                </span>
-            #elseif(component.deployment.displayStatus == "deployed"):
-                <span class="status-badge status-badge-deployed">
-                    <span class="status-badge-deployed-dot"></span>
-                    Deployed
-                </span>
-            #elseif(component.deployment.displayStatus == "running"):
-                <span class="status-badge status-badge-running">
-                    <span class="status-badge-running-dot"></span>
-                    Running
-                </span>
-            #else:
-                <span class="status-badge status-badge-running">
-                    <span class="status-badge-running-dot"></span>
-                    #(component.deployment.displayStatus)
-                </span>
-            #endif
-        </td>
-        
-        <!-- started at -->
-        <td class="deployment-td deployment-td-hidden-sm">
-            <span class="deployment-text-started">
-                <span class="deployment-text-started-time">#date(component.deployment.startedAt, "HH:mm:ss")</span>
-                <span class="deployment-text-started-date">(#date(component.deployment.startedAt, "dd.MM."))</span>
+    <!-- deployment ID -->
+    <td class="deployment-td deployment-td-hidden-sm">
+        <a onclick="navigator.clipboard.writeText('#(component.deployment.id)'); return false;" href="#" class="deployment-text-id" title="#(component.deployment.id)">
+            #(component.deployment.shortID)
+        </a>
+    </td>
+    
+    <!-- deployment status -->
+    <td class="deployment-td">
+        #if(component.deployment.displayStatus == "success"):
+            <span class="status-badge status-badge-success">
+                <span class="status-badge-success-dot"></span>
+                Success
             </span>
-        </td>
-
-        <!-- duration -->
-        <td class="deployment-td">
-            #if(component.deployment.durationString):
-                <span class="deployment-text-duration">#(component.deployment.durationString)</span>
-            #elseif(component.deployment.displayStatus == "stale"):
-                <span class="deployment-text-duration-dash">—</span>
-            #elseif(component.deployment.displayStatus == "canceled"):
-                <span class="deployment-text-duration-dash">—</span>
-            #else:
-                <div class="deployment-duration-running">
-                    <svg class="deployment-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        #elseif(component.deployment.displayStatus == "failed"):
+            #if(component.deployment.errorMessage):
+                <button class="status-badge status-badge-failed-expandable" type="button">
+                    <span class="status-badge-failed-dot"></span>
+                    Failed
+                    <svg class="status-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
-                    <span class="deployment-live-duration">0.0s</span>
-                </div>
+                </button>
+            #else:
+                <span class="status-badge status-badge-failed">
+                    <span class="status-badge-failed-dot"></span>
+                    Failed
+                </span>
             #endif
-        </td>
-        
-        <!-- actions -->
-        <td class="deployment-td">
-            <button mist-action="delete" class="delete-button">
-                Delete
-            </button>
-        </td>
-    </tr>
+        #elseif(component.deployment.displayStatus == "stale"):
+            <span class="status-badge status-badge-stale">
+                <span class="status-badge-stale-dot"></span>
+                Stale
+            </span>
+        #elseif(component.deployment.displayStatus == "canceled"):
+            <span class="status-badge status-badge-canceled">
+                <span class="status-badge-canceled-dot"></span>
+                Canceled
+            </span>
+        #elseif(component.deployment.displayStatus == "deployed"):
+            <span class="status-badge status-badge-deployed">
+                <span class="status-badge-deployed-dot"></span>
+                Deployed
+            </span>
+        #elseif(component.deployment.displayStatus == "running"):
+            <span class="status-badge status-badge-running">
+                <span class="status-badge-running-dot"></span>
+                Running
+            </span>
+        #else:
+            <span class="status-badge status-badge-running">
+                <span class="status-badge-running-dot"></span>
+                #(component.deployment.displayStatus)
+            </span>
+        #endif
+    </td>
+    
+    <!-- deployment started at -->
+    <td class="deployment-td deployment-td-hidden-sm">
+        <span class="deployment-text-started">
+            <span class="deployment-text-started-time">#date(component.deployment.startedAt, "HH:mm:ss")</span>
+            <span class="deployment-text-started-date">(#date(component.deployment.startedAt, "dd.MM."))</span>
+        </span>
+    </td>
 
-    <!-- Row 2: Error Message (Hidden by default) -->
-    <!-- [CHANGED] Included directly in Leaf, visibility toggled by mist-show -->
-    #if(component.deployment.errorMessage):
-    <tr class="deployment-error-row" mist-show="isExpanded" style="display:none;">
-        <td colspan="6" class="deployment-error-cell">
-            <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
-        </td>
-    </tr>
-    #endif
-</tbody>
+    <!-- deployment duration -->
+    <td class="deployment-td">
+        #if(component.deployment.durationString):
+            <span class="deployment-text-duration">#(component.deployment.durationString)</span>
+        #elseif(component.deployment.displayStatus == "stale"):
+            <span class="deployment-text-duration-dash">—</span>
+        #elseif(component.deployment.displayStatus == "canceled"):
+            <span class="deployment-text-duration-dash">—</span>
+        #else:
+            <span class="deployment-live-duration deployment-text-duration">0.0s</span>
+        #endif
+    </td>
+    
+    <!-- deployment delete button -->
+    <td class="deployment-td">
+        <button mist-action="delete" class="delete-button">
+            Delete
+        </button>
+    </td>
+</tr>

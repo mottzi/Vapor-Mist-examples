@@ -1,170 +1,49 @@
+// Move this file (mist.js) to: /Public 
+
 class MistSocket {
     
     constructor() {
+
         this.socket = null;
+        
         this.timer = null;
         this.initialDelay = 1000;
         this.interval = 5000;
         
-        // [NEW] Store client state for components (persistence across server updates)
-        this.componentStates = new Map(); 
+        this.activeControllers = new Map(); // Stores "controllerName-componentId" -> controllerInstance
         
         document.addEventListener('visibilitychange', () => this.visibilityChange());
         window.addEventListener('online', () => this.connect());
-        
-        // [NEW] Delegated Event Listener for Client Logic
-        document.addEventListener('click', (event) => {
-            // 1. Check for Server Actions
-            this.handleAction(event);
-            // 2. Check for Client Logic
-            this.handleClientLogic(event);
-        });
-        
-        // [NEW] Initialize existing components on load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.hydrateAll());
-        } else {
-            // DOM already loaded, hydrate immediately
-            this.hydrateAll();
-        }
-    }
-
-    // [NEW] Logic Handler
-    handleClientLogic(event) {
-        const target = event.target.closest('[mist-on-click]');
-        if (!target) return;
-
-        const componentEl = target.closest('[mist-state]');
-        if (!componentEl) {
-            console.log("Mist Client Logic: No component element with mist-state found");
-            return;
-        }
-
-        const actionName = target.getAttribute('mist-on-click');
-        const logicJSON = componentEl.getAttribute('mist-logic');
-        const stateJSON = componentEl.getAttribute('mist-state');
-        
-        if (!logicJSON || !stateJSON) {
-            console.log("Mist Client Logic: Missing logic or state", { logicJSON: !!logicJSON, stateJSON: !!stateJSON, actionName });
-            return;
-        }
-
-        // getAttribute() automatically unescapes HTML entities
-        let logic, state;
-        try {
-            logic = JSON.parse(logicJSON);
-            state = JSON.parse(stateJSON);
-        } catch (e) {
-            console.error("Mist Client Logic: JSON parse error", e, { logicJSON, stateJSON });
-            return;
-        }
-        
-        const funcBody = logic[actionName];
-        if (!funcBody) {
-            console.log("Mist Client Logic: No function body found for action", actionName, "Available actions:", Object.keys(logic));
-            return;
-        }
-
-        event.preventDefault();
-        event.stopPropagation();
-        
-        // Execute logic against state
-        try {
-            // Create a proxy to detect changes
-            const stateProxy = new Proxy(state, {
-                set: (obj, prop, value) => {
-                    obj[prop] = value;
-                    return true;
-                }
-            });
-            
-            // Run function
-            (new Function(funcBody)).call(stateProxy);
-            
-            // Extract actual state from proxy (JSON.stringify works on proxies, but let's be explicit)
-            const actualState = JSON.parse(JSON.stringify(stateProxy));
-            console.log("Mist Client Logic: Executed", actionName, "New state:", actualState);
-            
-            // Update DOM with actual state
-            this.updateComponentUI(componentEl, actualState);
-            
-            // Save new state to DOM attribute and Memory
-            const newStateStr = JSON.stringify(actualState);
-            componentEl.setAttribute('mist-state', newStateStr);
-            
-            const id = componentEl.getAttribute('mist-id');
-            if (id) this.componentStates.set(id, newStateStr);
-            
-        } catch (e) {
-            console.error("Mist Logic Error:", e);
-        }
-    }
-
-    // [NEW] UI Updater (Bindings)
-    updateComponentUI(element, state) {
-        // Handle mist-show (visibility)
-        const showElements = element.querySelectorAll('[mist-show]');
-        console.log("Mist UI Update: Found", showElements.length, "elements with mist-show");
-        showElements.forEach(el => {
-            const key = el.getAttribute('mist-show');
-            const shouldShow = !!state[key]; // Ensure boolean
-            console.log("Mist UI Update: Setting visibility for", key, "to", shouldShow);
-            // Explicitly set display style to override any inline styles
-            if (shouldShow) {
-                el.style.display = '';
-                el.removeAttribute('style'); // Remove inline style to let CSS take over
-            } else {
-                el.style.display = 'none';
-            }
-        });
-        
-        // Handle mist-class-[className] (css classes)
-        element.querySelectorAll('*').forEach(el => {
-            Array.from(el.attributes).forEach(attr => {
-                if (attr.name.startsWith('mist-class-')) {
-                    const className = attr.name.replace('mist-class-', '');
-                    const key = attr.value;
-                    const shouldAdd = !!state[key]; // Ensure boolean
-                    if (shouldAdd) {
-                        el.classList.add(className);
-                    } else {
-                        el.classList.remove(className);
-                    }
-                }
-            });
-        });
-    }
-
-    // [NEW] Hydrate all interactive components
-    hydrateAll() {
-        document.querySelectorAll('[mist-state]').forEach(el => {
-            try {
-                const stateJSON = el.getAttribute('mist-state');
-                if (!stateJSON) return;
-                // getAttribute() automatically unescapes HTML entities
-                const state = JSON.parse(stateJSON);
-                this.updateComponentUI(el, state);
-            } catch (e) {
-                console.error("Mist Hydration Error:", e, el.getAttribute('mist-state'));
-            }
-        });
+        document.addEventListener('click', (event) => this.handleAction(event));
     }
 
     subscribeToPageComponents() {
+        
         console.log("Client: Subscribing to on-page components...");
+        
         const uniqueComponents = new Set();
         
+        // Subscribe to existing components
         document.querySelectorAll('[mist-component]').forEach(element => {
+            
             const component = element.getAttribute('mist-component');
-            if (component) uniqueComponents.add(component);
+            
+            if (component) {
+                uniqueComponents.add(component);
+            }
         });
         
+        // Subscribe to components that containers accept (even if they don't exist yet)
         document.querySelectorAll('[mist-container]').forEach(container => {
+            
             const acceptedComponents = container.getAttribute('mist-container');
+            
             if (acceptedComponents) {
                 acceptedComponents.split(',').forEach(component => {
                     const trimmed = component.trim();
-                    if (trimmed) uniqueComponents.add(trimmed);
+                    if (trimmed) {
+                        uniqueComponents.add(trimmed);
+                    }
                 });
             }
         });
@@ -175,35 +54,127 @@ class MistSocket {
     }
     
     subscribe(component) {
+        
         if (this.isConnected()) {
-            const message = { subscribe: { component: component } };
+            
+            const message = {
+                subscribe: {
+                    component: component
+                }
+            };
+            
             this.socket.send(JSON.stringify(message));
         }
     }
     
+    // NEW: Boots controllers for elements that declare them
+    bootDeclaredControllers() {
+        const elements = document.querySelectorAll('[mist-controller]');
+        console.log(`[Mist] Booting ${elements.length} declared controller(s)`);
+        elements.forEach(element => {
+            this.bootControllerForElement(element);
+        });
+    }
+    
+    // NEW: Manages the lifecycle of a single controller
+    bootControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) {
+            console.log(`[Mist] Skipping boot: missing controller name or component ID`);
+            return;
+        }
+        
+        const key = `${controllerName}-${componentId}`;
+        
+        if (this.activeControllers.has(key)) {
+            return; // Already booted
+        }
+        
+        // Find the declared class on the global `window` object
+        const ControllerClass = window[controllerName]; 
+        
+        if (ControllerClass) {
+            try {
+                // Create an instance, passing the component's root element
+                const instance = new ControllerClass(element); 
+                this.activeControllers.set(key, instance);
+            } catch (e) {
+                console.error(`[Mist] ✗ Failed to boot controller: ${controllerName}`, e);
+            }
+        } else {
+            console.warn(`[Mist] Controller class not found on window: ${controllerName}`);
+        }
+    }
+    
+    // NEW: Calls update() on controller after morphdom patches
+    updateControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) return;
+        
+        const key = `${controllerName}-${componentId}`;
+        const instance = this.activeControllers.get(key);
+        
+        if (instance && typeof instance.update === 'function') {
+            instance.update();
+        }
+    }
+    
+    // NEW: Manages controller cleanup
+    destroyControllerForElement(element) {
+        const controllerName = element.getAttribute('mist-controller');
+        const componentId = element.getAttribute('mist-id');
+        
+        if (!controllerName || !componentId) return;
+        
+        const key = `${controllerName}-${componentId}`;
+        const instance = this.activeControllers.get(key);
+        
+        if (instance) {
+            console.log(`[Mist] Destroying controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
+            if (typeof instance.destroy === 'function') {
+                instance.destroy();
+            }
+            this.activeControllers.delete(key);
+        }
+    }
+    
     handleAction(event) {
+        
         const target = event.target.closest('[mist-action]');
+        
         if (!target) return;
         
         const actionName = target.getAttribute('mist-action');
+        
+        // 1. Find component, but ID is now optional
         const componentElement = target.closest('[mist-component]');
         
         if (!componentElement || !actionName) return;
         
         const componentName = componentElement.getAttribute('mist-component');
+        // 2. ID can now be null, which is valid
         const componentId = componentElement.getAttribute('mist-id');
         
+        // 3. Only require componentName. componentId is optional.
         if (!componentName) return;
         
         if (this.isConnected()) {
+            
             const message = {
                 action: {
                     component: componentName,
-                    id: componentId, 
+                    id: componentId, // Will correctly send `id: null` if not found
                     action: actionName
                 }
             };
+            
             this.socket.send(JSON.stringify(message));
+            
+            // 4. Update log message to handle null ID
             const idLog = componentId ? componentId.substring(0, 8) : 'null';
             console.log(`Action sent: '${actionName}' on '${componentName}' (${idLog})`);
         }
@@ -212,150 +183,59 @@ class MistSocket {
     isConnected() { return this.socket?.readyState === WebSocket.OPEN; }
     isConnecting() { return this.socket?.readyState === WebSocket.CONNECTING; }
     
-    // [NEW] Helper for morphdom options
-    getMorphOptions() {
-        return {
-            // Help morphdom match tbody elements by mist-id
-            getNodeKey: (node) => {
-                // For tbody elements with mist-id, use that as the key
-                // This ensures morphdom can correctly match the component during updates
-                if (node.nodeType === 1 && node.tagName === 'TBODY' && node.hasAttribute && node.hasAttribute('mist-id')) {
-                    return node.getAttribute('mist-id');
-                }
-                // Default: use id attribute if available
-                return node.getAttribute && node.getAttribute('id') ? node.getAttribute('id') : null;
-            },
-            onBeforeElUpdated: (fromEl, toEl) => {
-                // PRESERVE STATE:
-                // If the element being updated is a Mist component with state,
-                // we prioritize the LOCAL state (fromEl) over the SERVER state (toEl),
-                // because the server doesn't know about client interactions (expanded/collapsed).
-                
-                if (fromEl.hasAttribute('mist-state')) {
-                    const id = fromEl.getAttribute('mist-id');
-                    
-                    // 1. Check memory cache first
-                    if (id && this.componentStates.has(id)) {
-                        const savedState = this.componentStates.get(id);
-                        toEl.setAttribute('mist-state', savedState);
-                        // Also preserve mist-logic
-                        if (fromEl.hasAttribute('mist-logic')) {
-                            toEl.setAttribute('mist-logic', fromEl.getAttribute('mist-logic'));
-                        }
-                    } 
-                    // 2. Fallback to DOM attribute
-                    else {
-                        toEl.setAttribute('mist-state', fromEl.getAttribute('mist-state'));
-                        if (fromEl.hasAttribute('mist-logic')) {
-                            toEl.setAttribute('mist-logic', fromEl.getAttribute('mist-logic'));
-                        }
-                    }
-                }
-                
-                // For tbody elements, ensure we preserve the structure
-                if (fromEl.tagName === 'TBODY' && toEl.tagName === 'TBODY') {
-                    // Ensure mist attributes are preserved
-                    if (fromEl.hasAttribute('mist-component')) {
-                        toEl.setAttribute('mist-component', fromEl.getAttribute('mist-component'));
-                    }
-                    if (fromEl.hasAttribute('mist-id')) {
-                        toEl.setAttribute('mist-id', fromEl.getAttribute('mist-id'));
-                    }
-                }
-                
-                return true;
-            },
-            onElUpdated: (el) => {
-                // Re-run bindings after update
-                if (el.hasAttribute('mist-state')) {
-                    try {
-                        // getAttribute() automatically unescapes HTML entities
-                        const state = JSON.parse(el.getAttribute('mist-state'));
-                        this.updateComponentUI(el, state);
-                    } catch (e) {
-                        console.error("Mist State Update Error:", e);
-                    }
-                }
-                
-                // For tbody elements, ensure all mist attributes are preserved
-                if (el.tagName === 'TBODY' && el.hasAttribute('mist-component')) {
-                    // Re-apply UI bindings after morphdom update
-                    if (el.hasAttribute('mist-state')) {
-                        try {
-                            const state = JSON.parse(el.getAttribute('mist-state'));
-                            this.updateComponentUI(el, state);
-                        } catch (e) {
-                            console.error("Mist TBody State Update Error:", e);
-                        }
-                    }
-                }
-            },
-            // Handle children updates for tbody - ensure rows are properly matched
-            onBeforeElChildrenUpdated: (fromEl, toEl) => {
-                // For tbody elements, we want to ensure proper row matching
-                if (fromEl.tagName === 'TBODY' && toEl.tagName === 'TBODY') {
-                    // Let morphdom handle the children update normally
-                    return true;
-                }
-                return true;
-            }
-        };
-    }
-
     connect() {
+
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
         
         this.socket = new WebSocket('wss://mottzi.de/mist/ws/');
         
         this.socket.onopen = () => {
+            
             if (this.timer) { clearInterval(this.timer); this.timer = null; }
+            
             this.subscribeToPageComponents();
+            
+            // NEW: Boot controllers AFTER the first connection/subscription
+            this.bootDeclaredControllers();
         };
         
         this.socket.onmessage = (event) => {
             try {
+                
                 const data = JSON.parse(event.data);
-                const morphOpts = this.getMorphOptions(); // Use new options
-
+                
+                // Instance-based component messages (with ID)
                 if (data.createInstanceComponent) {
                     const { component, id, html } = data.createInstanceComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
                     
+                    // If component already exists, treat as update
                     if (existingElements.length > 0) {
-                        existingElements.forEach(element => morphdom(element, html, morphOpts));
-                        console.log(`Instance create (treated as patch): '${component}'`);
+                        existingElements.forEach(element => {
+                            morphdom(element, html);
+                            // NEW: Boot controller after morphing, in case it was just added
+                            this.bootControllerForElement(element);
+                        });
+                        console.log(`Instance create (treated as patch): '${component}' (${id.substring(0, 8)})`);
                     } else {
+                        // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
+                        
                         for (const container of containers) {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            
                             if (acceptedComponents.includes(component)) {
+                                // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
+                                container.insertAdjacentHTML(insertPosition, html);
+                                console.log(`Instance create: '${component}' (${id.substring(0, 8)})`);
                                 
-                                // Special handling for table elements: if container is a table and we're inserting tbody,
-                                // insert after thead instead of using afterbegin
-                                if (container.tagName === 'TABLE' && html.trim().startsWith('<tbody')) {
-                                    const thead = container.querySelector('thead');
-                                    if (thead) {
-                                        thead.insertAdjacentHTML('afterend', html);
-                                    } else {
-                                        container.insertAdjacentHTML(insertPosition, html);
-                                    }
-                                } else {
-                                    container.insertAdjacentHTML(insertPosition, html);
+                                // NEW: After creating the element, boot its controller
+                                const newElement = document.querySelector(this.buildComponentSelector(component, id));
+                                if (newElement) {
+                                    this.bootControllerForElement(newElement);
                                 }
-                                
-                                // [NEW] Hydrate new element - find the component by its attributes
-                                const newEl = container.querySelector(`[mist-component="${component}"][mist-id="${id}"]`);
-                                if(newEl && newEl.hasAttribute('mist-state')) {
-                                    try {
-                                        // getAttribute() automatically unescapes HTML entities
-                                        this.updateComponentUI(newEl, JSON.parse(newEl.getAttribute('mist-state')));
-                                    } catch (e) {
-                                        console.error("Mist Hydration Error on new element:", e);
-                                    }
-                                }
-                                console.log(`Instance create: '${component}'`);
                                 break;
                             }
                         }
@@ -364,88 +244,52 @@ class MistSocket {
                 else if (data.updateInstanceComponent) {
                     const { component, id, html } = data.updateInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    if (elements.length === 0) {
-                        // Element doesn't exist - treat as create and insert it
-                        console.log(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}) - element not found, treating as create`);
-                        const containers = document.querySelectorAll('[mist-container]');
-                        for (const container of containers) {
-                            const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
-                            if (acceptedComponents.includes(component)) {
-                                const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
-                                
-                                // Special handling for table elements: if container is a table and we're inserting tbody,
-                                // insert after thead instead of using afterbegin
-                                let insertTarget = container;
-                                if (container.tagName === 'TABLE' && html.trim().startsWith('<tbody')) {
-                                    const thead = container.querySelector('thead');
-                                    if (thead) {
-                                        insertTarget = thead;
-                                        insertTarget.insertAdjacentHTML('afterend', html);
-                                    } else {
-                                        container.insertAdjacentHTML(insertPosition, html);
-                                    }
-                                } else {
-                                    container.insertAdjacentHTML(insertPosition, html);
-                                }
-                                
-                                // Hydrate new element
-                                const newEl = container.querySelector(`[mist-component="${component}"][mist-id="${id}"]`);
-                                if(newEl && newEl.hasAttribute('mist-state')) {
-                                    try {
-                                        this.updateComponentUI(newEl, JSON.parse(newEl.getAttribute('mist-state')));
-                                    } catch (e) {
-                                        console.error("Mist Hydration Error on new element:", e);
-                                    }
-                                }
-                                console.log(`Instance patch (created): '${component}' (id: ${id?.substring(0, 8)})`);
-                                break;
-                            }
-                        }
-                    } else {
-                        elements.forEach(element => {
-                            console.log(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}), element:`, element.tagName, element.className);
-                            // Store state before morphdom update
-                            const stateBefore = element.hasAttribute('mist-state') ? element.getAttribute('mist-state') : null;
-                            try {
-                                morphdom(element, html, morphOpts);
-                                // Verify state was preserved after update
-                                if (stateBefore && !element.hasAttribute('mist-state')) {
-                                    console.warn(`State lost during morphdom update for ${component} ${id?.substring(0, 8)}`);
-                                    element.setAttribute('mist-state', stateBefore);
-                                    // Re-apply UI bindings
-                                    try {
-                                        this.updateComponentUI(element, JSON.parse(stateBefore));
-                                    } catch (e) {
-                                        console.error("Mist State Re-apply Error:", e);
-                                    }
-                                }
-                            } catch (e) {
-                                console.error(`Morphdom error for ${component} ${id?.substring(0, 8)}:`, e);
-                            }
-                        });
-                    }
+                    
+                    elements.forEach(element => {
+                        morphdom(element, html);
+                        // NEW: Boot controller after morphing, in case it was just added
+                        this.bootControllerForElement(element);
+                        // Call update() if controller exists and has the method
+                        this.updateControllerForElement(element);
+                    });
+                    
+                    console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);
                 }
                 else if (data.deleteInstanceComponent) {
                     const { component, id } = data.deleteInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    elements.forEach(element => element.remove());
-                    // [NEW] cleanup memory
-                    if (this.componentStates.has(id)) this.componentStates.delete(id);
-                    console.log(`Instance delete: '${component}'`);
+                    
+                    elements.forEach(element => {
+                        // NEW: Clean up the controller before removing the element
+                        this.destroyControllerForElement(element);
+                        element.remove();
+                    });
+                    
+                    console.log(`Instance delete: '${component}' (${id.substring(0, 8)})`);
                 }
+                // Query-based component messages (no ID)
                 else if (data.updateQueryComponent) {
                     const { component, html } = data.updateQueryComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, null));
                     
+                    // If component already exists, replace it
                     if (existingElements.length > 0) {
-                        existingElements.forEach(element => morphdom(element, html, morphOpts));
+                        existingElements.forEach(element => {
+                            morphdom(element, html);
+                        });
+                        console.log(`Query patch (replaced): '${component}'`);
                     } else {
+                        // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
+                        
                         for (const container of containers) {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
+                            
                             if (acceptedComponents.includes(component)) {
+                                // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
+                                console.log(`Query update (created): '${component}'`);
                                 break;
                             }
                         }
@@ -454,55 +298,71 @@ class MistSocket {
                 else if (data.deleteQueryComponent) {
                     const { component } = data.deleteQueryComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, null));
-                    elements.forEach(element => element.remove());
+                    
+                    elements.forEach(element => {
+                        element.remove();
+                    });
+                    
+                    console.log(`Query delete: '${component}'`);
                 }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
                     const isSuccess = result.success !== undefined;
                     const resultType = isSuccess ? '✅' : '❌';
-                    console.log(`Action result [${resultType}]: '${action}' - ${message}`);
+                    const idLog = id ? id.substring(0, 8) : 'null';
+                    
+                    console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);
                 }
                 else if (data.text) {
-                    console.log(`Server message: '${data.text.message}'`);
+                    const { message } = data.text;
+                    console.log(`Server message: '${message}'`);
+                }
+                else {
+                    console.log(`Unhandled server message (RAW): '${event.data}'`);
                 }
             }
             catch (error) {
-                console.error(`Error parsing server message: '${error}'`, error);
+                console.error(`Error parsing server message: '${error}'`);
             }
         };
         
         this.socket.onclose = () => {
-            if (this.timer) return;
+
+            if (this.timer) return
+                
             console.log("WS: ... closed -> Connect in 1s ...");
+            
             setTimeout(() => {
                 this.connect();
-                this.timer = setInterval(() => { this.connect(); }, this.interval);
-            }, this.initialDelay);
+                
+                this.timer = setInterval(() => {
+                    this.connect();
+                },
+                this.interval);
+            },
+            this.initialDelay);
         };
     }
     
+    // Helper function to build component selector
     buildComponentSelector(component, id) {
-        if (id) return `[mist-component="${component}"][mist-id="${id}"]`;
-        return `[mist-component="${component}"]`;
+        if (id) {
+            return `[mist-component="${component}"][mist-id="${id}"]`;
+        } else {
+            return `[mist-component="${component}"]`;
+        }
     }
 
     visibilityChange() {
         if (document.visibilityState === "visible") {
+            console.log('visibilityState === "visible" -> calling connect()')
             this.connect();
         }
     }
 }
 
-// Initialize MistSocket
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log("Mist: Initializing...");
-        window.ws = new MistSocket();
-        window.ws.connect();
-    });
-} else {
-    // DOM already loaded
-    console.log("Mist: Initializing (DOM already loaded)...");
+// Wait for the DOM to be fully loaded before executing the code
+document.addEventListener('DOMContentLoaded', function () {
     window.ws = new MistSocket();
-    window.ws.connect();
-}
+    window.ws.connect()
+});
