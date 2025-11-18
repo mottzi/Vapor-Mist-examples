@@ -2,7 +2,8 @@ import Vapor
 import Fluent
 import Mist
 
-struct DeploymentRow: Mist.InstanceComponent
+// [CHANGED] Conforms to ClientInteractive
+struct DeploymentRow: Mist.InstanceComponent, Mist.ClientInteractive
 {
     let models: [any Mist.Model.Type] = [Deployment.self]
     let actions: [any Action] = [DeleteDeploymentAction()]
@@ -13,6 +14,16 @@ struct DeploymentRow: Mist.InstanceComponent
         return try? await Deployment.query(on: db)
             .sort(\.$startedAt, .descending)
             .all()
+    }
+    
+    // [NEW] Define Client State
+    var clientState: [String : any Encodable] {
+        ["isExpanded": false]
+    }
+    
+    // [NEW] Define Client Logic
+    var clientLogic: [String : String] {
+        ["toggleError": "this.isExpanded = !this.isExpanded"]
     }
 }
 
@@ -31,4 +42,3 @@ struct DeleteDeploymentAction: Mist.Action
         return .success()
     }
 }
-

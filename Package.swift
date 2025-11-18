@@ -17,6 +17,7 @@ let package = Package(
             name: "Mottzi",
             dependencies: [
                 "Mist",
+                "Nova",
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
@@ -26,6 +27,14 @@ let package = Package(
         ),
         .target(
             name: "Mist",
+            dependencies: [
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "Leaf", package: "leaf"),
+            ]
+        ),
+        .target(
+            name: "Nova",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "Fluent", package: "fluent"),
