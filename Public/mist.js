@@ -180,6 +180,16 @@ class MistSocket {
     // [NEW] Helper for morphdom options
     getMorphOptions() {
         return {
+            // Help morphdom match tbody elements by mist-id
+            getNodeKey: (node) => {
+                // For tbody elements with mist-id, use that as the key
+                // This ensures morphdom can correctly match the component during updates
+                if (node.nodeType === 1 && node.tagName === 'TBODY' && node.hasAttribute && node.hasAttribute('mist-id')) {
+                    return node.getAttribute('mist-id');
+                }
+                // Default: use id attribute if available
+                return node.getAttribute && node.getAttribute('id') ? node.getAttribute('id') : null;
+            },
             onBeforeElUpdated: (fromEl, toEl) => {
                 // PRESERVE STATE:
                 // If the element being updated is a Mist component with state,
@@ -193,12 +203,31 @@ class MistSocket {
                     if (id && this.componentStates.has(id)) {
                         const savedState = this.componentStates.get(id);
                         toEl.setAttribute('mist-state', savedState);
+                        // Also preserve mist-logic
+                        if (fromEl.hasAttribute('mist-logic')) {
+                            toEl.setAttribute('mist-logic', fromEl.getAttribute('mist-logic'));
+                        }
                     } 
                     // 2. Fallback to DOM attribute
                     else {
                         toEl.setAttribute('mist-state', fromEl.getAttribute('mist-state'));
+                        if (fromEl.hasAttribute('mist-logic')) {
+                            toEl.setAttribute('mist-logic', fromEl.getAttribute('mist-logic'));
+                        }
                     }
                 }
+                
+                // For tbody elements, ensure we preserve the structure
+                if (fromEl.tagName === 'TBODY' && toEl.tagName === 'TBODY') {
+                    // Ensure mist attributes are preserved
+                    if (fromEl.hasAttribute('mist-component')) {
+                        toEl.setAttribute('mist-component', fromEl.getAttribute('mist-component'));
+                    }
+                    if (fromEl.hasAttribute('mist-id')) {
+                        toEl.setAttribute('mist-id', fromEl.getAttribute('mist-id'));
+                    }
+                }
+                
                 return true;
             },
             onElUpdated: (el) => {
@@ -212,6 +241,28 @@ class MistSocket {
                         console.error("Mist State Update Error:", e);
                     }
                 }
+                
+                // For tbody elements, ensure all mist attributes are preserved
+                if (el.tagName === 'TBODY' && el.hasAttribute('mist-component')) {
+                    // Re-apply UI bindings after morphdom update
+                    if (el.hasAttribute('mist-state')) {
+                        try {
+                            const state = JSON.parse(el.getAttribute('mist-state'));
+                            this.updateComponentUI(el, state);
+                        } catch (e) {
+                            console.error("Mist TBody State Update Error:", e);
+                        }
+                    }
+                }
+            },
+            // Handle children updates for tbody - ensure rows are properly matched
+            onBeforeElChildrenUpdated: (fromEl, toEl) => {
+                // For tbody elements, we want to ensure proper row matching
+                if (fromEl.tagName === 'TBODY' && toEl.tagName === 'TBODY') {
+                    // Let morphdom handle the children update normally
+                    return true;
+                }
+                return true;
             }
         };
     }
@@ -265,8 +316,25 @@ class MistSocket {
                 else if (data.updateInstanceComponent) {
                     const { component, id, html } = data.updateInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    elements.forEach(element => morphdom(element, html, morphOpts));
-                    console.log(`Instance patch: '${component}'`);
+                    if (elements.length === 0) {
+                        console.warn(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}) - element not found`);
+                    } else {
+                        elements.forEach(element => {
+                            console.log(`Instance patch: '${component}' (id: ${id?.substring(0, 8)}), element:`, element.tagName, element.className);
+                            // Store state before morphdom update
+                            const stateBefore = element.hasAttribute('mist-state') ? element.getAttribute('mist-state') : null;
+                            try {
+                                morphdom(element, html, morphOpts);
+                                // Verify state was preserved after update
+                                if (stateBefore && !element.hasAttribute('mist-state')) {
+                                    console.warn(`State lost during morphdom update for ${component} ${id?.substring(0, 8)}`);
+                                    element.setAttribute('mist-state', stateBefore);
+                                }
+                            } catch (e) {
+                                console.error(`Morphdom error for ${component} ${id?.substring(0, 8)}:`, e);
+                            }
+                        });
+                    }
                 }
                 else if (data.deleteInstanceComponent) {
                     const { component, id } = data.deleteInstanceComponent;
