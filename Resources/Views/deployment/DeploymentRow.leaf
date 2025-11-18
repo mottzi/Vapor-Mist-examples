@@ -2,8 +2,8 @@
 <tbody
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
-    #if(component._mistState): mist-state="#(component._mistState)" #endif
-    #if(component._mistLogic): mist-logic="#(component._mistLogic)" #endif
+    mist-state="#(component._mistState)"
+    mist-logic="#(component._mistLogic)"
     class="deployment-tbody-group"
 >
     <!-- Row 1: Main Info -->

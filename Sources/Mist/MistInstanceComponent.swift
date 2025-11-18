@@ -33,6 +33,9 @@ public extension InstanceComponent
             if let stateData = try? JSONEncoder().encode(AnyEncodable(interactive.clientState)),
                let stateString = String(data: stateData, encoding: .utf8) {
                 container.addMeta(stateString, for: "_mistState")
+            } else {
+                // Fallback: empty state object
+                container.addMeta("{}", for: "_mistState")
             }
             
             // Encode logic to JSON String for HTML attribute
@@ -40,6 +43,9 @@ public extension InstanceComponent
             if let logicData = try? JSONEncoder().encode(AnyEncodable(interactive.clientLogic)),
                let logicString = String(data: logicData, encoding: .utf8) {
                 container.addMeta(logicString, for: "_mistLogic")
+            } else {
+                // Fallback: empty logic object
+                container.addMeta("{}", for: "_mistLogic")
             }
         }
         

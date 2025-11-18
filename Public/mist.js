@@ -35,47 +35,66 @@ class MistSocket {
         if (!target) return;
 
         const componentEl = target.closest('[mist-state]');
-        if (!componentEl) return;
+        if (!componentEl) {
+            console.log("Mist Client Logic: No component element with mist-state found");
+            return;
+        }
 
         const actionName = target.getAttribute('mist-on-click');
         const logicJSON = componentEl.getAttribute('mist-logic');
         const stateJSON = componentEl.getAttribute('mist-state');
         
-        if (!logicJSON || !stateJSON) return;
+        if (!logicJSON || !stateJSON) {
+            console.log("Mist Client Logic: Missing logic or state", { logicJSON: !!logicJSON, stateJSON: !!stateJSON, actionName });
+            return;
+        }
 
         // getAttribute() automatically unescapes HTML entities
-        const logic = JSON.parse(logicJSON);
-        const state = JSON.parse(stateJSON);
+        let logic, state;
+        try {
+            logic = JSON.parse(logicJSON);
+            state = JSON.parse(stateJSON);
+        } catch (e) {
+            console.error("Mist Client Logic: JSON parse error", e, { logicJSON, stateJSON });
+            return;
+        }
+        
         const funcBody = logic[actionName];
+        if (!funcBody) {
+            console.log("Mist Client Logic: No function body found for action", actionName, "Available actions:", Object.keys(logic));
+            return;
+        }
 
-        if (funcBody) {
-            event.preventDefault();
-            // Execute logic against state
-            try {
-                // Create a proxy to detect changes
-                const stateProxy = new Proxy(state, {
-                    set: (obj, prop, value) => {
-                        obj[prop] = value;
-                        return true;
-                    }
-                });
-                
-                // Run function
-                (new Function(funcBody)).call(stateProxy);
-                
-                // Update DOM
-                this.updateComponentUI(componentEl, stateProxy);
-                
-                // Save new state to DOM attribute and Memory
-                const newStateStr = JSON.stringify(stateProxy);
-                componentEl.setAttribute('mist-state', newStateStr);
-                
-                const id = componentEl.getAttribute('mist-id');
-                if (id) this.componentStates.set(id, newStateStr);
-                
-            } catch (e) {
-                console.error("Mist Logic Error:", e);
-            }
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Execute logic against state
+        try {
+            // Create a proxy to detect changes
+            const stateProxy = new Proxy(state, {
+                set: (obj, prop, value) => {
+                    obj[prop] = value;
+                    return true;
+                }
+            });
+            
+            // Run function
+            (new Function(funcBody)).call(stateProxy);
+            
+            console.log("Mist Client Logic: Executed", actionName, "New state:", stateProxy);
+            
+            // Update DOM
+            this.updateComponentUI(componentEl, stateProxy);
+            
+            // Save new state to DOM attribute and Memory
+            const newStateStr = JSON.stringify(stateProxy);
+            componentEl.setAttribute('mist-state', newStateStr);
+            
+            const id = componentEl.getAttribute('mist-id');
+            if (id) this.componentStates.set(id, newStateStr);
+            
+        } catch (e) {
+            console.error("Mist Logic Error:", e);
         }
     }
 
@@ -84,7 +103,14 @@ class MistSocket {
         // Handle mist-show (visibility)
         element.querySelectorAll('[mist-show]').forEach(el => {
             const key = el.getAttribute('mist-show');
-            el.style.display = state[key] ? '' : 'none';
+            const shouldShow = state[key];
+            // Explicitly set display style to override any inline styles
+            if (shouldShow) {
+                el.style.display = '';
+                el.removeAttribute('style'); // Remove inline style to let CSS take over
+            } else {
+                el.style.display = 'none';
+            }
         });
         
         // Handle mist-class-[className] (css classes)
@@ -93,8 +119,11 @@ class MistSocket {
                 if (attr.name.startsWith('mist-class-')) {
                     const className = attr.name.replace('mist-class-', '');
                     const key = attr.value;
-                    if (state[key]) el.classList.add(className);
-                    else el.classList.remove(className);
+                    if (state[key]) {
+                        el.classList.add(className);
+                    } else {
+                        el.classList.remove(className);
+                    }
                 }
             });
         });
