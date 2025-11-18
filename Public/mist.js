@@ -81,13 +81,15 @@ class MistSocket {
             // Run function
             (new Function(funcBody)).call(stateProxy);
             
-            console.log("Mist Client Logic: Executed", actionName, "New state:", stateProxy);
+            // Extract actual state from proxy (JSON.stringify works on proxies, but let's be explicit)
+            const actualState = JSON.parse(JSON.stringify(stateProxy));
+            console.log("Mist Client Logic: Executed", actionName, "New state:", actualState);
             
-            // Update DOM
-            this.updateComponentUI(componentEl, stateProxy);
+            // Update DOM with actual state
+            this.updateComponentUI(componentEl, actualState);
             
             // Save new state to DOM attribute and Memory
-            const newStateStr = JSON.stringify(stateProxy);
+            const newStateStr = JSON.stringify(actualState);
             componentEl.setAttribute('mist-state', newStateStr);
             
             const id = componentEl.getAttribute('mist-id');
@@ -101,9 +103,12 @@ class MistSocket {
     // [NEW] UI Updater (Bindings)
     updateComponentUI(element, state) {
         // Handle mist-show (visibility)
-        element.querySelectorAll('[mist-show]').forEach(el => {
+        const showElements = element.querySelectorAll('[mist-show]');
+        console.log("Mist UI Update: Found", showElements.length, "elements with mist-show");
+        showElements.forEach(el => {
             const key = el.getAttribute('mist-show');
-            const shouldShow = state[key];
+            const shouldShow = !!state[key]; // Ensure boolean
+            console.log("Mist UI Update: Setting visibility for", key, "to", shouldShow);
             // Explicitly set display style to override any inline styles
             if (shouldShow) {
                 el.style.display = '';
@@ -119,7 +124,8 @@ class MistSocket {
                 if (attr.name.startsWith('mist-class-')) {
                     const className = attr.name.replace('mist-class-', '');
                     const key = attr.value;
-                    if (state[key]) {
+                    const shouldAdd = !!state[key]; // Ensure boolean
+                    if (shouldAdd) {
                         el.classList.add(className);
                     } else {
                         el.classList.remove(className);
