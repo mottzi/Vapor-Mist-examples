@@ -112,7 +112,7 @@
 #if(component.deployment.errorMessage):
 <tr
     class="deployment-error-row"
-    style="#if(state.errorExpanded):display:table-row!important#else:display:none#end"
+    style="#if(state.errorExpanded):display:table-row!important#else:display:none#endif"
 >
     <td colspan="6" class="deployment-error-cell">
         <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
