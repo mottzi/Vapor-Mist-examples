@@ -1,8 +1,9 @@
-<tr
+<tbody
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
-    class="deployment-row"
+    class="deployment-tbody"
 >
+    <tr class="deployment-row">
 
     <!-- deployment commit message -->
     <td class="deployment-td deployment-td-message">
@@ -119,3 +120,4 @@
     </td>
 </tr>
 #endif
+</tbody>
