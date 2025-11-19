@@ -641,8 +641,7 @@ body {
 }
 
 /* Rotate chevron when error row is expanded */
-.deployment-error-expanded + .deployment-error-row .status-badge-chevron,
-.deployment-row:has(+ .deployment-error-row.deployment-error-expanded) .status-badge-chevron {
+.status-badge-failed-expandable[aria-expanded="true"] .status-badge-chevron {
   transform: rotate(180deg);
 }
 

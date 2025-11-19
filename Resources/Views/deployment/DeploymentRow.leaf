@@ -96,8 +96,8 @@
                 >
                     0.0s
                 </span>
-            #else:
-                <span class="deployment-live-duration deployment-text-duration">0.0s</span>
+        #else:
+            <span class="deployment-live-duration deployment-text-duration">0.0s</span>
             #endif
         #endif
     </td>
