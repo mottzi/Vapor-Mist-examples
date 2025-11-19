@@ -26,10 +26,10 @@
         #elseif(component.deployment.displayStatus == "failed"):
             #if(component.deployment.errorMessage):
                 <button
-                    class="status-badge status-badge-failed-expandable#if(state.errorExpanded): status-badge-expanded#end"
+                    class="status-badge status-badge-failed-expandable#if(state.errorExpanded): status-badge-expanded#endif"
                     type="button"
                     mist-action="toggleError"
-                    aria-expanded="#if(state.errorExpanded):true#else:false#end"
+                    aria-expanded="#if(state.errorExpanded):true#else:false#endif"
                 >
                     <span class="status-badge-failed-dot"></span>
                     Failed
