@@ -64,8 +64,22 @@ extension Socket.Connection
             component: component,
             action: action,
             id: id,
+            clientID: clientID,
+            clients: app.mist.clients,
             on: app.db
         )
+        
+        if case .success = result, let id
+        {
+            if let componentInstance = await app.mist.components.component(named: component) as? any InstanceComponent
+            {
+                let state = await app.mist.clients.state(for: clientID, componentID: id.uuidString, default: componentInstance.defaultState)
+                if let html = await componentInstance.render(id: id, state: state, on: app.db, using: app.leaf.renderer)
+                {
+                    await app.mist.clients.send(Message.InstanceUpdate(component: component, id: id, html: html), to: clientID)
+                }
+            }
+        }
 
         let resultMessage = switch result {
             case .success(let message): message ?? "Success"

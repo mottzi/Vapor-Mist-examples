@@ -63,11 +63,31 @@ extension Components
         return modelToComponents[key] != nil
     }
     
-    func performAction(component: String, action: String, id: UUID?, on db: Database) async -> ActionResult
+    func performAction(
+        component: String,
+        action: String,
+        id: UUID?,
+        clientID: UUID,
+        clients: MistClients,
+        on db: Database
+    ) async -> ActionResult
     {
         guard let componentActions = componentActions[component] else { return .failure(message: "Component '\(component)' not found") }
         guard let action = componentActions[action] else { return .failure(message: "Action '\(action)' not found") }
-        return await action.perform(id: id, on: db)
+        guard let componentInstance = components.first(where: { $0.name == component }) else {
+            return .failure(message: "Component '\(component)' not found")
+        }
+        
+        let componentKey = id?.uuidString ?? component
+        var state = await clients.state(for: clientID, componentID: componentKey, default: componentInstance.defaultState)
+        let result = await action.perform(id: id, state: &state, on: db)
+        await clients.setState(state, for: clientID, componentID: componentKey)
+        return result
+    }
+    
+    func component(named name: String) -> (any Component)?
+    {
+        return components.first(where: { $0.name == name })
     }
     
 }

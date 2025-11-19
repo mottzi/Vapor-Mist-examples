@@ -227,6 +227,8 @@ final class MistComponentsTest: XCTestCase
             component: "DummyRowWithActions",
             action: "testAction",
             id: modelID,
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -268,6 +270,8 @@ final class MistComponentsTest: XCTestCase
             component: "DummyRowWithActions",
             action: "testAction",
             id: modelID,
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -282,6 +286,8 @@ final class MistComponentsTest: XCTestCase
             component: "DummyRowWithActions",
             action: "anotherAction",
             id: modelID,
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -296,6 +302,8 @@ final class MistComponentsTest: XCTestCase
             component: "DummyRowWithActions",
             action: "failingAction",
             id: modelID,
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -324,6 +332,8 @@ final class MistComponentsTest: XCTestCase
             component: "NonExistentComponent",
             action: "testAction",
             id: UUID(),
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -353,6 +363,8 @@ final class MistComponentsTest: XCTestCase
             component: "DummyRowWithActions",
             action: "nonExistentAction",
             id: UUID(),
+            clientID: UUID(),
+            clients: app.mist.clients,
             on: app.db
         )
         
@@ -423,7 +435,7 @@ struct TestAction: Action
 {
     let name: String = "testAction"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         return .success()
     }
@@ -433,7 +445,7 @@ struct AnotherAction: Action
 {
     let name: String = "anotherAction"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         return .success(message: "Custom success message")
     }
@@ -443,7 +455,7 @@ struct FailingAction: Action
 {
     let name: String = "failingAction"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         return .failure(message: "This action always fails")
     }

@@ -69,10 +69,12 @@ public struct ModelContainer: Encodable
 public struct SingleComponentContext: Encodable
 {
     public let component: ModelContainer
+    public let state: MistState
     
-    public init(component: ModelContainer)
+    public init(component: ModelContainer, state: MistState)
     {
         self.component = component
+        self.state = state
     }
 }
 

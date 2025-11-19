@@ -1,10 +1,7 @@
 <tr
     mist-component="DeploymentRow"
     mist-id="#(component.deployment.id)"
-    mist-controller="DeploymentRow"
     class="deployment-row"
-    #if(component.deployment.errorMessage):data-error-message="#(component.deployment.errorMessage)"#endif
-    #if(component.deployment.startedAt):data-started-at="#(component.deployment.startedAt)"#endif
 >
 
     <!-- deployment commit message -->
@@ -28,7 +25,12 @@
             </span>
         #elseif(component.deployment.displayStatus == "failed"):
             #if(component.deployment.errorMessage):
-                <button class="status-badge status-badge-failed-expandable" type="button">
+                <button
+                    class="status-badge status-badge-failed-expandable#if(state.errorExpanded): status-badge-expanded#endif"
+                    type="button"
+                    mist-action="toggleError"
+                    aria-expanded="#if(state.errorExpanded)true#else:false#end"
+                >
                     <span class="status-badge-failed-dot"></span>
                     Failed
                     <svg class="status-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,7 +88,17 @@
         #elseif(component.deployment.displayStatus == "canceled"):
             <span class="deployment-text-duration-dash">—</span>
         #else:
-            <span class="deployment-live-duration deployment-text-duration">0.0s</span>
+            #if(component.deployment.startedAtReference):
+                <span
+                    class="deployment-live-duration deployment-text-duration"
+                    mist-behavior="timer"
+                    data-start-timestamp="#(component.deployment.startedAtReference)"
+                >
+                    0.0s
+                </span>
+            #else:
+                <span class="deployment-live-duration deployment-text-duration">0.0s</span>
+            #endif
         #endif
     </td>
     
@@ -97,3 +109,10 @@
         </button>
     </td>
 </tr>
+#if(state.errorExpanded && component.deployment.errorMessage):
+<tr class="deployment-error-row">
+    <td colspan="6" class="deployment-error-cell">
+        <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
+    </td>
+</tr>
+#endif

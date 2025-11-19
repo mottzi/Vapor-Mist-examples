@@ -7,6 +7,7 @@ public actor Clients
 {
     var clients: [Client] = []
     var componentToClients: [String: Set<UUID>] = [:]
+    var sessionState: [UUID: [String: MistState]] = [:]
     
     let components: Components
     
@@ -41,6 +42,7 @@ extension Clients
         }
         
         clients.remove(at: clientIndex)
+        sessionState[id] = nil
     }
     
     func subscribers(of component: String) -> [Client]
@@ -49,6 +51,39 @@ extension Clients
         return clients.filter { subscriberIDs.contains($0.id) }
     }
     
+}
+
+extension Clients
+{
+    func state(for clientID: UUID, componentID: String, default defaultState: MistState) -> MistState
+    {
+        return sessionState[clientID]?[componentID] ?? defaultState
+    }
+    
+    func setState(_ state: MistState, for clientID: UUID, componentID: String)
+    {
+        var clientState = sessionState[clientID] ?? [:]
+        clientState[componentID] = state
+        sessionState[clientID] = clientState
+    }
+    
+    func clearState(for componentID: String)
+    {
+        let clientIDs = Array(sessionState.keys)
+        for clientID in clientIDs
+        {
+            var state = sessionState[clientID] ?? [:]
+            state.removeValue(forKey: componentID)
+            if state.isEmpty
+            {
+                sessionState[clientID] = nil
+            }
+            else
+            {
+                sessionState[clientID] = state
+            }
+        }
+    }
 }
 
 extension Clients

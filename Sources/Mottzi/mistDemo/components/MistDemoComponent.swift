@@ -13,7 +13,7 @@ struct DeleteAction: Mist.Action
 {
     let name: String = "delete"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         guard let model1 = try? await MistDemoModel1.find(id, on: db) else { return .failure(message: "Model1 not found") }
         guard let model2 = try? await MistDemoModel2.find(id, on: db) else { return .failure(message: "Model2 not found") }
@@ -26,7 +26,7 @@ struct DeleteAction: Mist.Action
 
 struct RandomizeAction: Mist.Action
 {
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         guard let model1 = try? await MistDemoModel1.find(id, on: db) else { return .failure(message: "Model1 not found") }
         guard let model2 = try? await MistDemoModel2.find(id, on: db) else { return .failure(message: "Model2 not found") }

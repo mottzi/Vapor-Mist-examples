@@ -13,7 +13,7 @@ struct AddDemoModelAction: Mist.Action
 {
     let name: String = "AddDemoModelAction"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         let words =
         [

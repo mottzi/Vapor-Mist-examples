@@ -30,6 +30,8 @@ extension Clients
     func send(_ message: String, to clientID: UUID) async { await send(Message.Text(message: message), to: clientID) }
     func send(_ message: Message.Text, to clientID: UUID) async { await send(message: message, to: clientID) }
     func send(_ actionResult: Message.ActionResult, to clientID: UUID) async { await send(message: actionResult, to: clientID) }
+    func send(_ create: Message.InstanceCreate, to clientID: UUID) async { await send(message: create, to: clientID) }
+    func send(_ update: Message.InstanceUpdate, to clientID: UUID) async { await send(message: update, to: clientID) }
 }
 
 extension Clients
@@ -87,13 +89,13 @@ extension Message
 
 extension Message
 {
-    struct InstanceCreate: BroadcastableMessage
+    struct InstanceCreate: BroadcastableMessage, SendableMessage
     {
         let component: String; let id: UUID; let html: String
         var wireFormat: Message { .createInstanceComponent(component: component, id: id, html: html) }
     }
 
-    struct InstanceUpdate: BroadcastableMessage
+    struct InstanceUpdate: BroadcastableMessage, SendableMessage
     {
         let component: String; let id: UUID; let html: String
         var wireFormat: Message { .updateInstanceComponent(component: component, id: id, html: html) }

@@ -76,6 +76,38 @@ class MistSocket {
         });
     }
     
+    // NEW: Boots global behaviors (timers, etc.)
+    bootBehaviors() {
+        this.bootTimers();
+    }
+    
+    bootTimers() {
+        const referenceDateOffset = 978307200; // seconds between 1970 and 2001 reference dates
+        document.querySelectorAll('[mist-behavior="timer"]').forEach(element => {
+            if (element._mistTimer) return;
+            const referenceSeconds = parseFloat(element.dataset.startTimestamp);
+            if (Number.isNaN(referenceSeconds)) return;
+            
+            const startedAt = referenceSeconds + referenceDateOffset;
+            const update = () => {
+                const now = Date.now() / 1000;
+                const elapsed = Math.max(now - startedAt, 0);
+                element.textContent = `${elapsed.toFixed(1)}s`;
+            };
+            
+            update();
+            
+            element._mistTimer = setInterval(() => {
+                if (!document.body.contains(element)) {
+                    clearInterval(element._mistTimer);
+                    element._mistTimer = null;
+                    return;
+                }
+                update();
+            }, 1000);
+        });
+    }
+    
     // NEW: Manages the lifecycle of a single controller
     bootControllerForElement(element) {
         const controllerName = element.getAttribute('mist-controller');
@@ -198,6 +230,7 @@ class MistSocket {
             
             // NEW: Boot controllers AFTER the first connection/subscription
             this.bootDeclaredControllers();
+            this.bootBehaviors();
         };
         
         this.socket.onmessage = (event) => {
@@ -320,6 +353,8 @@ class MistSocket {
                 else {
                     console.log(`Unhandled server message (RAW): '${event.data}'`);
                 }
+                
+                this.bootBehaviors();
             }
             catch (error) {
                 console.error(`Error parsing server message: '${error}'`);

@@ -5,8 +5,13 @@ import Mist
 struct DeploymentRow: Mist.InstanceComponent
 {
     let models: [any Mist.Model.Type] = [Deployment.self]
-    let actions: [any Action] = [DeleteDeploymentAction()]
+    let actions: [any Action] = [DeleteDeploymentAction(), ToggleDeploymentErrorAction()]
     let template: Template = .file(path: "deployment/DeploymentRow")
+    
+    var defaultState: MistState
+    {
+        ["errorExpanded": .bool(false)]
+    }
 
     func allModels(on db: Database) async -> [any Mist.Model]?
     {
@@ -20,7 +25,7 @@ struct DeleteDeploymentAction: Mist.Action
 {
     let name: String = "delete"
     
-    func perform(id: UUID?, on db: Database) async -> ActionResult
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
     {
         guard let deployment = try? await Deployment.find(id, on: db)
         else { return .failure(message: "Deployment not found") }
@@ -28,6 +33,28 @@ struct DeleteDeploymentAction: Mist.Action
         guard (try? await deployment.delete(on: db)) != nil
         else { return .failure(message: "Failed to delete deployment") }
         
+        return .success()
+    }
+}
+
+struct ToggleDeploymentErrorAction: Mist.Action
+{
+    let name: String = "toggleError"
+    
+    func perform(id: UUID?, state: inout MistState, on db: Database) async -> ActionResult
+    {
+        guard let id, let deployment = try? await Deployment.find(id, on: db) else
+        {
+            return .failure(message: "Deployment not found")
+        }
+        
+        guard deployment.errorMessage != nil else
+        {
+            return .failure(message: "No error to display")
+        }
+        
+        let current = state["errorExpanded"]?.bool ?? false
+        state["errorExpanded"] = .bool(!current)
         return .success()
     }
 }
