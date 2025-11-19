@@ -89,11 +89,11 @@
         #elseif(component.deployment.displayStatus == "canceled"):
             <span class="deployment-text-duration-dash">—</span>
         #else:
-            #if(component.deployment.startedAtReference):
+            #if(component.deployment.startedAt):
                 <span
                     class="deployment-live-duration deployment-text-duration"
                     mist-behavior="timer"
-                    data-start-timestamp="#(component.deployment.startedAtReference)"
+                    data-start-timestamp="#(component.deployment.startedAt)"
                 >
                     0.0s
                 </span>

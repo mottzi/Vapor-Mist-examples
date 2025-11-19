@@ -85,10 +85,11 @@ class MistSocket {
         const referenceDateOffset = 978307200; // seconds between 1970 and 2001 reference dates
         document.querySelectorAll('[mist-behavior="timer"]').forEach(element => {
             if (element._mistTimer) return;
-            const referenceSeconds = parseFloat(element.dataset.startTimestamp);
-            if (Number.isNaN(referenceSeconds)) return;
+            // Expects encoded Swift Date (CFAbsoluteTime: seconds since 2001-01-01)
+            const swiftTimestamp = parseFloat(element.dataset.startTimestamp);
+            if (Number.isNaN(swiftTimestamp)) return;
 
-            const startedAt = referenceSeconds + referenceDateOffset;
+            const startedAt = swiftTimestamp + referenceDateOffset;
             const update = () => {
                 const now = Date.now() / 1000;
                 const elapsed = Math.max(now - startedAt, 0);

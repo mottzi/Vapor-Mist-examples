@@ -54,8 +54,7 @@ extension Deployment
     func contextExtras() -> [String: any Encodable] {[
         "durationString": durationString,
         "displayStatus": displayStatus,
-        "shortID": shortID,
-        "startedAtReference": startedAtReference
+        "shortID": shortID
     ]}
     
     var durationString: String? {
@@ -75,12 +74,6 @@ extension Deployment
               Date.now.timeIntervalSince(startedAt) > 1800
         else { return status }
         return "stale"
-    }
-    
-    var startedAtReference: Double?
-    {
-        guard let startedAt else { return nil }
-        return startedAt.timeIntervalSinceReferenceDate
     }
 }
 
