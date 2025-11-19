@@ -654,7 +654,7 @@ body {
 
 /* Show error row when expanded */
 .deployment-error-row.deployment-error-expanded {
-  display: table-row;
+  display: table-row !important;
 }
 
 /* Error cell spanning all columns */
