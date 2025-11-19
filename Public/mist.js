@@ -1,43 +1,43 @@
 // Move this file (mist.js) to: /Public 
 
 class MistSocket {
-    
+
     constructor() {
 
         this.socket = null;
-        
+
         this.timer = null;
         this.initialDelay = 1000;
         this.interval = 5000;
-        
+
         this.activeControllers = new Map(); // Stores "controllerName-componentId" -> controllerInstance
-        
+
         document.addEventListener('visibilitychange', () => this.visibilityChange());
         window.addEventListener('online', () => this.connect());
         document.addEventListener('click', (event) => this.handleAction(event));
     }
 
     subscribeToPageComponents() {
-        
+
         console.log("Client: Subscribing to on-page components...");
-        
+
         const uniqueComponents = new Set();
-        
+
         // Subscribe to existing components
         document.querySelectorAll('[mist-component]').forEach(element => {
-            
+
             const component = element.getAttribute('mist-component');
-            
+
             if (component) {
                 uniqueComponents.add(component);
             }
         });
-        
+
         // Subscribe to components that containers accept (even if they don't exist yet)
         document.querySelectorAll('[mist-container]').forEach(container => {
-            
+
             const acceptedComponents = container.getAttribute('mist-container');
-            
+
             if (acceptedComponents) {
                 acceptedComponents.split(',').forEach(component => {
                     const trimmed = component.trim();
@@ -47,26 +47,26 @@ class MistSocket {
                 });
             }
         });
-        
+
         uniqueComponents.forEach(component => {
             this.subscribe(component);
         });
     }
-    
+
     subscribe(component) {
-        
+
         if (this.isConnected()) {
-            
+
             const message = {
                 subscribe: {
                     component: component
                 }
             };
-            
+
             this.socket.send(JSON.stringify(message));
         }
     }
-    
+
     // NEW: Boots controllers for elements that declare them
     bootDeclaredControllers() {
         const elements = document.querySelectorAll('[mist-controller]');
@@ -75,62 +75,71 @@ class MistSocket {
             this.bootControllerForElement(element);
         });
     }
-    
+
     // NEW: Boots global behaviors (timers, etc.)
     bootBehaviors() {
         this.bootTimers();
     }
-    
+
     bootTimers() {
         const referenceDateOffset = 978307200; // seconds between 1970 and 2001 reference dates
         document.querySelectorAll('[mist-behavior="timer"]').forEach(element => {
             if (element._mistTimer) return;
             const referenceSeconds = parseFloat(element.dataset.startTimestamp);
             if (Number.isNaN(referenceSeconds)) return;
-            
+
             const startedAt = referenceSeconds + referenceDateOffset;
             const update = () => {
                 const now = Date.now() / 1000;
                 const elapsed = Math.max(now - startedAt, 0);
                 element.textContent = `${elapsed.toFixed(1)}s`;
             };
-            
+
             update();
-            
+
             element._mistTimer = setInterval(() => {
+                // Stop if element is removed from DOM
                 if (!document.body.contains(element)) {
                     clearInterval(element._mistTimer);
                     element._mistTimer = null;
                     return;
                 }
+
+                // Stop if element no longer has the timer behavior (e.g. morphed into static span)
+                if (element.getAttribute('mist-behavior') !== 'timer') {
+                    clearInterval(element._mistTimer);
+                    element._mistTimer = null;
+                    return;
+                }
+
                 update();
-            }, 1000);
+            }, 100);
         });
     }
-    
+
     // NEW: Manages the lifecycle of a single controller
     bootControllerForElement(element) {
         const controllerName = element.getAttribute('mist-controller');
         const componentId = element.getAttribute('mist-id');
-        
+
         if (!controllerName || !componentId) {
             console.log(`[Mist] Skipping boot: missing controller name or component ID`);
             return;
         }
-        
+
         const key = `${controllerName}-${componentId}`;
-        
+
         if (this.activeControllers.has(key)) {
             return; // Already booted
         }
-        
+
         // Find the declared class on the global `window` object
-        const ControllerClass = window[controllerName]; 
-        
+        const ControllerClass = window[controllerName];
+
         if (ControllerClass) {
             try {
                 // Create an instance, passing the component's root element
-                const instance = new ControllerClass(element); 
+                const instance = new ControllerClass(element);
                 this.activeControllers.set(key, instance);
             } catch (e) {
                 console.error(`[Mist] ✗ Failed to boot controller: ${controllerName}`, e);
@@ -139,32 +148,32 @@ class MistSocket {
             console.warn(`[Mist] Controller class not found on window: ${controllerName}`);
         }
     }
-    
+
     // NEW: Calls update() on controller after morphdom patches
     updateControllerForElement(element) {
         const controllerName = element.getAttribute('mist-controller');
         const componentId = element.getAttribute('mist-id');
-        
+
         if (!controllerName || !componentId) return;
-        
+
         const key = `${controllerName}-${componentId}`;
         const instance = this.activeControllers.get(key);
-        
+
         if (instance && typeof instance.update === 'function') {
             instance.update();
         }
     }
-    
+
     // NEW: Manages controller cleanup
     destroyControllerForElement(element) {
         const controllerName = element.getAttribute('mist-controller');
         const componentId = element.getAttribute('mist-id');
-        
+
         if (!controllerName || !componentId) return;
-        
+
         const key = `${controllerName}-${componentId}`;
         const instance = this.activeControllers.get(key);
-        
+
         if (instance) {
             console.log(`[Mist] Destroying controller: '${controllerName}' for ${componentId.substring(0, 8)}`);
             if (typeof instance.destroy === 'function') {
@@ -173,29 +182,29 @@ class MistSocket {
             this.activeControllers.delete(key);
         }
     }
-    
+
     handleAction(event) {
-        
+
         const target = event.target.closest('[mist-action]');
-        
+
         if (!target) return;
-        
+
         const actionName = target.getAttribute('mist-action');
-        
+
         // 1. Find component, but ID is now optional
         const componentElement = target.closest('[mist-component]');
-        
+
         if (!componentElement || !actionName) return;
-        
+
         const componentName = componentElement.getAttribute('mist-component');
         // 2. ID can now be null, which is valid
         const componentId = componentElement.getAttribute('mist-id');
-        
+
         // 3. Only require componentName. componentId is optional.
         if (!componentName) return;
-        
+
         if (this.isConnected()) {
-            
+
             const message = {
                 action: {
                     component: componentName,
@@ -203,46 +212,46 @@ class MistSocket {
                     action: actionName
                 }
             };
-            
+
             this.socket.send(JSON.stringify(message));
-            
+
             // 4. Update log message to handle null ID
             const idLog = componentId ? componentId.substring(0, 8) : 'null';
             console.log(`Action sent: '${actionName}' on '${componentName}' (${idLog})`);
         }
     }
-    
+
     isConnected() { return this.socket?.readyState === WebSocket.OPEN; }
     isConnecting() { return this.socket?.readyState === WebSocket.CONNECTING; }
-    
+
     connect() {
 
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
-        
+
         this.socket = new WebSocket('wss://mottzi.de/mist/ws/');
-        
+
         this.socket.onopen = () => {
-            
+
             if (this.timer) { clearInterval(this.timer); this.timer = null; }
-            
+
             this.subscribeToPageComponents();
-            
+
             // NEW: Boot controllers AFTER the first connection/subscription
             this.bootDeclaredControllers();
             this.bootBehaviors();
         };
-        
+
         this.socket.onmessage = (event) => {
             try {
-                
+
                 const data = JSON.parse(event.data);
-                
+
                 // Instance-based component messages (with ID)
                 if (data.createInstanceComponent) {
                     const { component, id, html } = data.createInstanceComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    
+
                     // If component already exists, treat as update
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
@@ -254,16 +263,16 @@ class MistSocket {
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
-                        
+
                         for (const container of containers) {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
-                            
+
                             if (acceptedComponents.includes(component)) {
                                 // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
                                 console.log(`Instance create: '${component}' (${id.substring(0, 8)})`);
-                                
+
                                 // NEW: After creating the element, boot its controller
                                 const newElement = document.querySelector(this.buildComponentSelector(component, id));
                                 if (newElement) {
@@ -277,7 +286,7 @@ class MistSocket {
                 else if (data.updateInstanceComponent) {
                     const { component, id, html } = data.updateInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    
+
                     elements.forEach(element => {
                         morphdom(element, html);
                         // NEW: Boot controller after morphing, in case it was just added
@@ -285,26 +294,26 @@ class MistSocket {
                         // Call update() if controller exists and has the method
                         this.updateControllerForElement(element);
                     });
-                    
+
                     console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);
                 }
                 else if (data.deleteInstanceComponent) {
                     const { component, id } = data.deleteInstanceComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, id));
-                    
+
                     elements.forEach(element => {
                         // NEW: Clean up the controller before removing the element
                         this.destroyControllerForElement(element);
                         element.remove();
                     });
-                    
+
                     console.log(`Instance delete: '${component}' (${id.substring(0, 8)})`);
                 }
                 // Query-based component messages (no ID)
                 else if (data.updateQueryComponent) {
                     const { component, html } = data.updateQueryComponent;
                     const existingElements = document.querySelectorAll(this.buildComponentSelector(component, null));
-                    
+
                     // If component already exists, replace it
                     if (existingElements.length > 0) {
                         existingElements.forEach(element => {
@@ -314,10 +323,10 @@ class MistSocket {
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
-                        
+
                         for (const container of containers) {
                             const acceptedComponents = container.getAttribute('mist-container').split(',').map(c => c.trim());
-                            
+
                             if (acceptedComponents.includes(component)) {
                                 // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
@@ -331,11 +340,11 @@ class MistSocket {
                 else if (data.deleteQueryComponent) {
                     const { component } = data.deleteQueryComponent;
                     const elements = document.querySelectorAll(this.buildComponentSelector(component, null));
-                    
+
                     elements.forEach(element => {
                         element.remove();
                     });
-                    
+
                     console.log(`Query delete: '${component}'`);
                 }
                 else if (data.actionResult) {
@@ -343,7 +352,7 @@ class MistSocket {
                     const isSuccess = result.success !== undefined;
                     const resultType = isSuccess ? '✅' : '❌';
                     const idLog = id ? id.substring(0, 8) : 'null';
-                    
+
                     console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);
                 }
                 else if (data.text) {
@@ -353,32 +362,32 @@ class MistSocket {
                 else {
                     console.log(`Unhandled server message (RAW): '${event.data}'`);
                 }
-                
+
                 this.bootBehaviors();
             }
             catch (error) {
                 console.error(`Error parsing server message: '${error}'`);
             }
         };
-        
+
         this.socket.onclose = () => {
 
             if (this.timer) return
-                
+
             console.log("WS: ... closed -> Connect in 1s ...");
-            
+
             setTimeout(() => {
                 this.connect();
-                
+
                 this.timer = setInterval(() => {
                     this.connect();
                 },
-                this.interval);
+                    this.interval);
             },
-            this.initialDelay);
+                this.initialDelay);
         };
     }
-    
+
     // Helper function to build component selector
     buildComponentSelector(component, id) {
         if (id) {
