@@ -3,7 +3,7 @@ import Fluent
 import Mist
 
 struct DeploymentStatus: QueryComponent
-{    
+{
     let models: [any Mist.Model.Type] = [Deployment.self]
     let template: Template = .file(path: "deployment/DeploymentStatus")
     
