@@ -71,7 +71,7 @@ extension Socket.Connection
         
         if case .success = result, let id
         {
-            if let componentInstance = await app.mist.components.component(named: component) as? any InstanceComponent
+            if let componentInstance = await app.mist.components.getComponent(usingName: component) as? any InstanceComponent
             {
                 let state = await app.mist.clients.state(for: clientID, componentID: id.uuidString, default: componentInstance.defaultState)
                 if let html = await componentInstance.render(id: id, state: state, on: app.db, using: app.leaf.renderer)

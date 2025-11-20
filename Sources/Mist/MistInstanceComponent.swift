@@ -41,23 +41,21 @@ public extension InstanceComponent
 {
     func handleCreate(id: UUID, app: Application) async
     {
-        let subscribers = await app.mist.clients.subscribers(of: name)
-        for client in subscribers
+        for subscriber in await app.mist.clients.subscribers(of: name)
         {
-            let state = await app.mist.clients.state(for: client.id, componentID: id.uuidString, default: defaultState)
+            let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
             guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { continue }
-            await app.mist.clients.send(Message.InstanceCreate(component: name, id: id, html: html), to: client.id)
+            await app.mist.clients.send(Message.InstanceCreate(component: name, id: id, html: html), to: subscriber.id)
         }
     }
 
     func handleUpdate(id: UUID, app: Application) async
     {
-        let subscribers = await app.mist.clients.subscribers(of: name)
-        for client in subscribers
+        for subscriber in await app.mist.clients.subscribers(of: name)
         {
-            let state = await app.mist.clients.state(for: client.id, componentID: id.uuidString, default: defaultState)
+            let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
             guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { continue }
-            await app.mist.clients.send(Message.InstanceUpdate(component: name, id: id, html: html), to: client.id)
+            await app.mist.clients.send(Message.InstanceUpdate(component: name, id: id, html: html), to: subscriber.id)
         }
     }
 

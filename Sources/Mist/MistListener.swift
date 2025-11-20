@@ -44,7 +44,7 @@ extension Listener
     
     func handle(event: ModelEvent, model: M, db: Database) async
     {
-        for component in await app.mist.components.getComponents(using: M.self)
+        for component in await app.mist.components.getComponents(usingModel: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
 
