@@ -230,7 +230,7 @@ class MistSocket {
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
 
-        this.socket = new WebSocket('wss://mottzi.de/mist/ws/');
+        this.socket = new WebSocket('wss://mottzi.codes/mist/ws/');
 
         this.socket.onopen = () => {
 
