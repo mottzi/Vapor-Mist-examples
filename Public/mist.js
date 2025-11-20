@@ -17,7 +17,7 @@ class MistSocket {
 
     subscribeToPageComponents() {
 
-        console.log("Client: Subscribing to on-page components...");
+        console.log("[Client] Scanning DOM and subscribing to components");
 
         const uniqueComponents = new Set();
 
@@ -141,7 +141,7 @@ class MistSocket {
 
             // 4. Update log message to handle null ID
             const idLog = componentId ? componentId.substring(0, 8) : 'null';
-            console.log(`Action sent: '${actionName}' on '${componentName}' (${idLog})`);
+            console.log(`[Client] Action sent to server: ${componentName}.${actionName} (${idLog})`);
         }
     }
 
@@ -179,7 +179,7 @@ class MistSocket {
                         existingElements.forEach(element => {
                             morphdom(element, html);
                         });
-                        console.log(`Instance create (treated as patch): '${component}' (${id.substring(0, 8)})`);
+                        console.log(`[Client] Component updated: ${component} (${id.substring(0, 8)})`);
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
@@ -191,7 +191,7 @@ class MistSocket {
                                 // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
-                                console.log(`Instance create: '${component}' (${id.substring(0, 8)})`);
+                                console.log(`[Client] Component created: ${component} (${id.substring(0, 8)})`);
                                 break;
                             }
                         }
@@ -205,7 +205,7 @@ class MistSocket {
                         morphdom(element, html);
                     });
 
-                    console.log(`Instance patch: '${component}' (${id.substring(0, 8)})`);
+                    console.log(`[Client] Component updated: ${component} (${id.substring(0, 8)})`);
                 }
                 else if (data.deleteInstanceComponent) {
                     const { component, id } = data.deleteInstanceComponent;
@@ -215,7 +215,7 @@ class MistSocket {
                         element.remove();
                     });
 
-                    console.log(`Instance delete: '${component}' (${id.substring(0, 8)})`);
+                    console.log(`[Client] Component deleted: ${component} (${id.substring(0, 8)})`);
                 }
                 // Query-based component messages (no ID)
                 else if (data.updateQueryComponent) {
@@ -227,7 +227,7 @@ class MistSocket {
                         existingElements.forEach(element => {
                             morphdom(element, html);
                         });
-                        console.log(`Query patch (replaced): '${component}'`);
+                        console.log(`[Client] Component updated: ${component}`);
                     } else {
                         // Find container that accepts this component
                         const containers = document.querySelectorAll('[mist-container]');
@@ -239,7 +239,7 @@ class MistSocket {
                                 // Check for custom insertion position (default: 'beforeend' to append)
                                 const insertPosition = container.getAttribute('mist-insert-position') || 'beforeend';
                                 container.insertAdjacentHTML(insertPosition, html);
-                                console.log(`Query update (created): '${component}'`);
+                                console.log(`[Client] Component created: ${component}`);
                                 break;
                             }
                         }
@@ -253,7 +253,7 @@ class MistSocket {
                         element.remove();
                     });
 
-                    console.log(`Query delete: '${component}'`);
+                    console.log(`[Client] Component deleted: ${component}`);
                 }
                 else if (data.actionResult) {
                     const { component, id, action, result, message } = data.actionResult;
@@ -261,20 +261,20 @@ class MistSocket {
                     const resultType = isSuccess ? '✅' : '❌';
                     const idLog = id ? id.substring(0, 8) : 'null';
 
-                    console.log(`Action result [${resultType}]: '${action}' on '${component}' (${idLog}) - ${message}`);
+                    console.log(`[Server] Action result ${resultType}: ${component}.${action} (${idLog}, ${message})`);
                 }
                 else if (data.text) {
                     const { message } = data.text;
-                    console.log(`Server message: '${message}'`);
+                    console.log(`[Server] Message: ${message}`);
                 }
                 else {
-                    console.log(`Unhandled server message (RAW): '${event.data}'`);
+                    console.log(`[Client] Unhandled server message (raw): ${event.data}`);
                 }
 
                 this.bootBehaviors();
             }
             catch (error) {
-                console.error(`Error parsing server message: '${error}'`);
+                console.error(`[Client] Error parsing server message: ${error}`);
             }
         };
 
@@ -282,7 +282,7 @@ class MistSocket {
 
             if (this.timer) return
 
-            console.log("WS: ... closed -> Connect in 1s ...");
+            console.log("[Client] WebSocket closed: Reconnecting in 1s");
 
             setTimeout(() => {
                 this.connect();
@@ -307,7 +307,7 @@ class MistSocket {
 
     visibilityChange() {
         if (document.visibilityState === "visible") {
-            console.log('visibilityState === "visible" -> calling connect()')
+            console.log('[Client] Document visibility changed to visible: Connecting...');
             this.connect();
         }
     }
