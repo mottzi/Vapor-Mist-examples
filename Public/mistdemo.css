@@ -1,7 +1,7 @@
 /* Mist Demo Styles - Modern & Professional */
 
 :root {
-    /* Light Mode Palette (Matches deployment.css) */
+    /* Light Mode Palette */
     --bg-body: #f9fafb;
     --bg-card: #ffffff;
     --bg-header: rgba(255, 255, 255, 0.8);
@@ -125,11 +125,14 @@ button {
     background-color: var(--color-primary);
     color: #ffffff;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    line-height: 1;
+    /* Fix vertical alignment in pills */
 }
 
 button:hover {
     background-color: var(--color-primary-hover);
     transform: translateY(-1px);
+    border: 1px solid var(--border-color);
 }
 
 button:active {
@@ -220,22 +223,37 @@ tr:last-child td {
     border-bottom: none;
 }
 
-/* ID Column Styling */
+/* ID Column Styling & Layout */
 td:nth-child(2) {
     font-family: var(--font-mono);
     color: var(--color-primary);
     font-size: 0.8125rem;
+    /* Use flexbox to align ID and button */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Actions Column Styling & Layout */
+td:last-child {
+    /* Use flexbox to align action buttons */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Copy ID Button */
 td button {
     font-size: 0.75rem;
     padding: 0.25rem 0.75rem;
-    margin-left: 0.75rem;
+    margin: 0;
+    /* Remove margin, use gap instead */
     background-color: transparent;
     color: var(--text-secondary);
     border: 1px solid var(--border-color);
     box-shadow: none;
+    height: auto;
+    /* Ensure height fits content */
 }
 
 td button:hover {
@@ -259,5 +277,10 @@ td button:hover {
     h1 {
         font-size: 1.5rem;
         margin-bottom: 1.5rem;
+    }
+
+    /* Stack actions on small screens if needed */
+    td:last-child {
+        flex-wrap: wrap;
     }
 }
