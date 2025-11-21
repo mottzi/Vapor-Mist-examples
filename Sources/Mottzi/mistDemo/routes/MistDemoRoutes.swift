@@ -3,7 +3,7 @@ import Vapor
 extension Application {
     func useMistDemo() {
         self.get("test") { _ in
-            return "Hello world"
+            return "Hello world2"
         }
 
         self.get("mistDemo") { request async throws -> View in
