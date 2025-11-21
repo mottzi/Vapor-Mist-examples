@@ -1,9 +1,9 @@
 import Vapor
-hehe
+
 extension Application {
     func useMistDemo() {
         self.get("test") { _ in
-            return "2"
+            return "1"
         }
 
         self.get("mistDemo") { request async throws -> View in
