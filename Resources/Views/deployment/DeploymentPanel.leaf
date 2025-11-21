@@ -66,7 +66,7 @@
     </div>
   </div>
   <script src="/morphdom.js"></script>
-  <script src="/mist.js"></script>
+  <script src="/mist.js" data-url="/deployment/ws/"></script>
 </body>
 </html>
 

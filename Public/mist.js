@@ -2,13 +2,12 @@
 
 class MistSocket {
 
-    constructor() {
-
+    constructor(config) {
+        this.config = config;
         this.socket = null;
 
         this.timer = null;
         this.initialDelay = 1000;
-        this.interval = 5000;
 
         document.addEventListener('visibilitychange', () => this.visibilityChange());
         window.addEventListener('online', () => this.connect());
@@ -153,10 +152,8 @@ class MistSocket {
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
 
-        // Dynamic WebSocket Path
-        const path = window.location.pathname.startsWith('/deployment') ? '/deployment/ws/' : '/mist/ws/';
-        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-        this.socket = new WebSocket(`${protocol}${window.location.host}${path}`);
+        // Use URL from config
+        this.socket = new WebSocket(this.config.url);
 
         this.socket.onopen = () => {
 
@@ -317,7 +314,25 @@ class MistSocket {
 }
 
 // Wait for the DOM to be fully loaded before executing the code
+// Capture the script element immediately to read attributes
+const mistScript = document.currentScript;
+
+// Wait for the DOM to be fully loaded before executing the code
 document.addEventListener('DOMContentLoaded', function () {
-    window.ws = new MistSocket();
-    window.ws.connect()
+    let path = '/mist/ws/'; // Default path
+
+    if (mistScript) {
+        const dataUrl = mistScript.getAttribute('data-url');
+        if (dataUrl) {
+            path = dataUrl;
+        }
+    }
+
+    // Construct full URL
+    const protocol = 'wss://';
+    const host = window.location.host;
+    const url = `${protocol}${host}${path}`;
+
+    window.ws = new MistSocket({ url: url });
+    window.ws.connect();
 });
