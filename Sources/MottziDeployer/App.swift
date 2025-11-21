@@ -12,6 +12,9 @@ struct DeployerApp {
         // DISTINCT PORT: Run Deployer on 8081 (Mottzi runs on 8080)
         app.http.server.configuration.port = 8081
 
+        // Serve static files (CSS, JS, Images)
+        app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
         // SHARED DATABASE
         // Both apps connect to the same file.
         app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
