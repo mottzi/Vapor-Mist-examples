@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "Mottzi",
     platforms: [
-        .macOS(.v13),
+        .macOS(.v13)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.110.1"),
@@ -15,6 +15,17 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "Mottzi",
+            dependencies: [
+                "Mist",
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
+                .product(name: "Leaf", package: "leaf"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .executableTarget(
+            name: "MottziDeployer",
             dependencies: [
                 "Mist",
                 .product(name: "Vapor", package: "vapor"),
@@ -43,7 +54,9 @@ let package = Package(
     swiftLanguageModes: [.v5]
 )
 
-var swiftSettings: [SwiftSetting] { [
-    .enableUpcomingFeature("DisableOutwardActorInference"),
-    .enableExperimentalFeature("StrictConcurrency"),
-] }
+var swiftSettings: [SwiftSetting] {
+    [
+        .enableUpcomingFeature("DisableOutwardActorInference"),
+        .enableExperimentalFeature("StrictConcurrency"),
+    ]
+}
