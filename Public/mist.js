@@ -313,7 +313,6 @@ class MistSocket {
     }
 }
 
-// Wait for the DOM to be fully loaded before executing the code
 // Capture the script element immediately to read attributes
 const mistScript = document.currentScript;
 
