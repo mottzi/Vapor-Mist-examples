@@ -5,9 +5,9 @@ extension Application
     func useMistDemo()
     {
         self.get("test") { _ in
-            return "Hello, World!"
+            return "Hello, World!3"
         }
-        
+
         self.get("mistDemo")
         { request async throws -> View in
             let context = await MistDemoComponent().makeContext(ofAll: request.db)
