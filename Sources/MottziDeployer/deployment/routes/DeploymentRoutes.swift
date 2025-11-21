@@ -5,7 +5,7 @@ typealias MistModelContainer = Mist.ModelContainer
 
 extension Application {
     func useTestRoute() {
-        self.get("test") { _ in "Test response 3" }
+        self.get("test") { _ in "Test response 4133" }
     }
 
     func useDeployPanel() {
