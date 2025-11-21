@@ -26,6 +26,8 @@ struct DeployerApp {
         try await app.autoMigrate()  // Only Deployer should migrate Deployment table
 
         // Register Deployment Components
+        // Register Deployment Components
+        app.mist.socketPath = ["deployment", "ws"]
         await app.mist.use(DeploymentRow(), DeploymentStatus())
 
         app.views.use(.leaf)

@@ -141,7 +141,7 @@ extension Deployment.Pipeline {
     }
 
     private static func build() async throws {
-        try await execute("swift build -c debug", step: 2)
+        try await execute("swift build -c debug --product Mottzi", step: 2)
     }
 
     private static func restart() async throws {
@@ -154,9 +154,6 @@ extension Deployment.Pipeline {
 
         let buildPathMottzi = "/var/www/mottzi/.build/debug/Mottzi"
         let deployPathMottzi = "/var/www/mottzi/deploy/Mottzi"
-
-        let buildPathDeployer = "/var/www/mottzi/.build/debug/MottziDeployer"
-        let deployPathDeployer = "/var/www/mottzi/deploy/MottziDeployer"
 
         let deployDir = "/var/www/mottzi/deploy"
 
@@ -175,15 +172,6 @@ extension Deployment.Pipeline {
                 try fileManager.removeItem(atPath: deployPathMottzi)
             }
             try fileManager.moveItem(atPath: buildPathMottzi, toPath: deployPathMottzi)
-
-            // Move MottziDeployer
-            if fileManager.fileExists(atPath: deployPathDeployer) {
-                try fileManager.removeItem(atPath: deployPathDeployer)
-            }
-            // We only move if the build artifact exists (it should)
-            if fileManager.fileExists(atPath: buildPathDeployer) {
-                try fileManager.moveItem(atPath: buildPathDeployer, toPath: deployPathDeployer)
-            }
         }.get()
     }
 
