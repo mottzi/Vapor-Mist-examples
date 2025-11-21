@@ -12,7 +12,7 @@ struct DeployerApp {
 
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-        app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
+        app.databases.use(.sqlite(.file("deploy/Deployer.db")), as: .sqlite)
         app.migrations.add(Deployment.Table())
         try await app.autoMigrate()  // Only Deployer should migrate Deployment table
 
