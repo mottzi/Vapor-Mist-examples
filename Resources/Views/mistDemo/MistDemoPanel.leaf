@@ -2,26 +2,30 @@
 <html lang="en">
 <head>
     <title>Mist Demo</title>
+    <link rel="stylesheet" href="/mistdemo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <h1>Mist Demo</h1>
-    #extend("mistDemo/MistDemoHeader")
-    <table>
-        <thead>
-            <tr>
-                <th>Component</th>
-                <th>ID</th>
-                <th>DemoModel1</th>
-                <th>DemoModel2</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody mist-container="MistDemoComponent">
-            #for(component in components):
-                #extend("mistDemo/MistDemoComponent")
-            #endfor
-        </tbody>
-    </table>
+    <main class="container">
+        <h1>Mist Demo</h1>
+        #extend("mistDemo/MistDemoHeader")
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>ID</th>
+                    <th>DemoModel1</th>
+                    <th>DemoModel2</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody mist-container="MistDemoComponent">
+                #for(component in components):
+                    #extend("mistDemo/MistDemoComponent")
+                #endfor
+            </tbody>
+        </table>
+    </main>
     <script src="/morphdom.js"></script>
     <script src="/mist.js"></script>
 </body>
