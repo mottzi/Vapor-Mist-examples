@@ -12,7 +12,7 @@ struct MottziApp {
 
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-        app.databases.use(.sqlite(.file("deploy/Mottzi.db")), as: .sqlite)
+        app.databases.use(.sqlite(.file("deploy/Deployer.db")), as: .sqlite)
         app.migrations.add(
             MistDemoModel1.Table(),
             MistDemoModel2.Table()
