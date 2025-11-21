@@ -17,21 +17,15 @@ let package = Package(
             name: "Mottzi",
             dependencies: [
                 "Mist",
-                .product(name: "Vapor", package: "vapor"),
-                .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
-                .product(name: "Leaf", package: "leaf"),
             ],
             swiftSettings: swiftSettings
         ),
         .executableTarget(
-            name: "MottziDeployer",
+            name: "Deployer",
             dependencies: [
                 "Mist",
-                .product(name: "Vapor", package: "vapor"),
-                .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
-                .product(name: "Leaf", package: "leaf"),
             ],
             swiftSettings: swiftSettings
         ),

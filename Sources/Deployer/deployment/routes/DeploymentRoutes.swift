@@ -4,10 +4,6 @@ import Vapor
 typealias MistModelContainer = Mist.ModelContainer
 
 extension Application {
-    func useTestRoute() {
-        self.get("test") { _ in "Test response 4133" }
-    }
-hehe
     func useDeployPanel() {
         self.get("deployment") { request async throws -> View in
 
