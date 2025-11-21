@@ -153,7 +153,10 @@ class MistSocket {
         if (this.isConnected() || this.isConnecting()) return;
         if (this.socket) { this.socket.close(); this.socket = null; }
 
-        this.socket = new WebSocket('wss://mottzi.codes/mist/ws/');
+        // Dynamic WebSocket Path
+        const path = window.location.pathname.startsWith('/deployment') ? '/deployment/ws/' : '/mist/ws/';
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        this.socket = new WebSocket(`${protocol}${window.location.host}${path}`);
 
         this.socket.onopen = () => {
 
