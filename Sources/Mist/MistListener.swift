@@ -24,7 +24,7 @@ struct Listener<M: Model>: AsyncModelMiddleware
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.update(model, on: db)
-        logger.warning("### Updating model \(model.id, default: "unknown")")
+        logger.warning("### Updating model")
         Task.detached { await handle(event: .update, model: model, db: db) }
     }
 
