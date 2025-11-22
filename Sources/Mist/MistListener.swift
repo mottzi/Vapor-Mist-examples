@@ -13,7 +13,6 @@ extension Mist.Model
 struct Listener<M: Model>: AsyncModelMiddleware
 {
     let app: Application
-    let logger = Logger(label: "MistListener")
 
     func create(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
@@ -24,7 +23,6 @@ struct Listener<M: Model>: AsyncModelMiddleware
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.update(model, on: db)
-        logger.warning("### Updating model")
         Task.detached { await handle(event: .update, model: model, db: db) }
     }
 
@@ -46,10 +44,6 @@ extension Listener
     
     func handle(event: ModelEvent, model: M, db: Database) async
     {
-        logger.warning("⏳ [MistListener] Starting blocking work...")
-        try? await Task.sleep(nanoseconds: 5 * 1_000_000_000) 
-        logger.warning("✅ [MistListener] Finished blocking work.")
-
         for component in await app.mist.components.getComponents(usingModel: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }

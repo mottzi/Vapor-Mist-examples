@@ -36,14 +36,16 @@ extension Clients
 
 extension Clients
 {
-    private func broadcast<T: BroadcastableMessage>(message: T) async
+    private func broadcast<T: BroadcastableMessage>(message: T) async 
     {
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
-        for subscriber in subscribers(of: message.component)
+
+        let sockets = subscribers(of: message.component).map { $0.socket }
+
+        for socket in sockets 
         {
-            Task { try? await subscriber.socket.send(jsonString) }
+            Task { try? await socket.send(jsonString) }
         }
     }
 
