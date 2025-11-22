@@ -17,32 +17,27 @@ struct Listener<M: Model>: AsyncModelMiddleware
     func create(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.create(model, on: db)
-        Task.detached { await handle(event: .create, model: model, db: db) }
+        Task.detached { await handle(event: .create, model: model) }
     }
 
     func update(model: M, on db: Database, next: AnyAsyncModelResponder) async throws
     {
         try await next.update(model, on: db)
-        Task.detached { await handle(event: .update, model: model, db: db) }
+        Task.detached { await handle(event: .update, model: model) }
     }
 
     func delete(model: M, force: Bool, on db: any Database, next: any AnyAsyncModelResponder) async throws
     {
         try await next.delete(model, force: force, on: db)
-        Task.detached { await handle(event: .delete, model: model, db: db) }
+        Task.detached { await handle(event: .delete, model: model) }
     }
 }
 
 extension Listener
 {
-    enum ModelEvent
-    {
-        case create
-        case update
-        case delete
-    }
+    enum ModelEvent { case create, update, delete }
     
-    func handle(event: ModelEvent, model: M, db: Database) async
+    func handle(event: ModelEvent, model: M) async 
     {
         for component in await app.mist.components.getComponents(usingModel: M.self)
         {
