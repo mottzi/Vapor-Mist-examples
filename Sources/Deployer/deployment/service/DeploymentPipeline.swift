@@ -2,31 +2,29 @@ import Fluent
 import Vapor
 
 extension Deployment {
-    /// Handles deployment process execution (pull, build, queue check, restart).
-    /// Ensures chronological execution by re-running latest canceled commit after successfull deployments.
+    struct Configuration {
+        let buildConfiguration: String = "debug"
+        let productName: String = "Mottzi"
+        let supervisorJob: String = "mottzi"
+        let workingDirectory: String = "/var/www/mottzi"
+    }
+}
+
+extension Deployment {
     struct Pipeline {
-        /// Creates and processes a new `Deployment`. After successfull deployment, this will check for previously
-        /// cancelled deployments and re-runs the latest one found.
-        ///
-        /// - Parameter message: The commit message of this deployment
-        /// - Note: This is called when a valid GitHub pushevent is received.
+        static let config = Configuration()
+
+        // Creates and processes a new `Deployment`. After successfull deployment, this will check for previously cancelled deployments and re-runs the latest one found.
         public static func start(message: String?, on app: Application) async {
             await deploy(message: message, on: app)
         }
 
-        /// Re-runs an existing `Deployment`.
-        ///
-        /// - Parameter deployment: Deployment to re-run
-        /// - Note: This is called on the latest cancelled deployment whenever any deployment finishes successfully.
+        // Re-runs an existing `Deployment`.
         private static func resume(existingDeployment: Deployment, on app: Application) async {
             await deploy(existingDeployment: existingDeployment, on: app)
         }
 
-        /// Internal recursive deployment pipeline. It can re-process exisiting deployments or create and process new deployments.
-        ///
-        /// - Parameters:
-        ///   - existingDeployment: Pass a deployment to re-run it.
-        ///   - message: Pass a commit message for newly created deployments.
+        // Internal recursive deployment pipeline. It can re-process exisiting deployments or create and process new deployments.
         private static func deploy(
             existingDeployment: Deployment? = nil, message: String? = nil, on app: Application
         ) async {
@@ -103,10 +101,11 @@ extension Deployment.Pipeline {
     private static func execute(_ command: String, step: Int) async throws {
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
+
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = ["bash", "-c", command]
-            process.currentDirectoryURL = URL(fileURLWithPath: "/var/www/mottzi")
+            process.currentDirectoryURL = URL(fileURLWithPath: config.workingDirectory)
 
             let pipe = Pipe()
             process.standardOutput = pipe
@@ -141,21 +140,23 @@ extension Deployment.Pipeline {
     }
 
     private static func build() async throws {
-        try await execute("swift build -c debug --product Mottzi", step: 2)
+        try await execute(
+            "swift build -c \(config.buildConfiguration) --product \(config.productName)", step: 2)
     }
 
     private static func restart() async throws {
-        try await execute("supervisorctl restart mottzi", step: 4)
+        try await execute("supervisorctl restart \(config.supervisorJob)", step: 4)
     }
 
     private static func move(using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
-        let buildPathMottzi = "/var/www/mottzi/.build/debug/Mottzi"
-        let deployPathMottzi = "/var/www/mottzi/deploy/Mottzi"
+        let buildPathMottzi =
+            "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
+        let deployPathMottzi = "\(config.workingDirectory)/deploy/\(config.productName)"
 
-        let deployDir = "/var/www/mottzi/deploy"
+        let deployDir = "\(config.workingDirectory)/deploy"
 
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
