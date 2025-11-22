@@ -44,6 +44,10 @@ extension Listener
     
     func handle(event: ModelEvent, model: M, db: Database) async
     {
+        print("⏳ [MistListener] Starting blocking work...")
+        try? await Task.sleep(nanoseconds: 5 * 1_000_000_000) 
+        print("✅ [MistListener] Finished blocking work.")
+
         for component in await app.mist.components.getComponents(usingModel: M.self)
         {
             guard component.shouldUpdate(for: model) else { continue }
