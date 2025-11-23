@@ -43,9 +43,12 @@ public extension InstanceComponent
     {
         for subscriber in await app.mist.clients.subscribers(of: name)
         {
-            let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
-            guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { continue }
-            await app.mist.clients.send(Message.InstanceCreate(component: name, id: id, html: html), to: subscriber.id)
+            Task.detached
+            {
+                let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
+                guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { return }
+                await app.mist.clients.send(Message.InstanceCreate(component: name, id: id, html: html), to: subscriber.id)
+            }
         }
     }
 
@@ -53,16 +56,22 @@ public extension InstanceComponent
     {
         for subscriber in await app.mist.clients.subscribers(of: name)
         {
-            let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
-            guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { continue }
-            await app.mist.clients.send(Message.InstanceUpdate(component: name, id: id, html: html), to: subscriber.id)
+            Task.detached
+            {
+                let state = await app.mist.clients.state(for: subscriber.id, componentID: id.uuidString, default: defaultState)
+                guard let html = await render(id: id, state: state, on: app.db, using: app.leaf.renderer) else { return }
+                await app.mist.clients.send(Message.InstanceUpdate(component: name, id: id, html: html), to: subscriber.id)
+            }
         }
     }
 
     func handleDelete(id: UUID, app: Application) async
     {
-        await app.mist.clients.clearState(for: id.uuidString)
-        await app.mist.clients.broadcast(Message.InstanceDelete(component: name, id: id))
+        Task.detached
+        {
+            await app.mist.clients.clearState(for: id.uuidString)
+            await app.mist.clients.broadcast(Message.InstanceDelete(component: name, id: id))
+        }
     }
 }
 

@@ -21,7 +21,7 @@ extension Socket.Connection {
         }
 
         ws.onClose.whenComplete { _ in
-            Task { await app.mist.clients.removeClient(id: clientID) }
+            Task.detached { await app.mist.clients.removeClient(id: clientID) }
         }
     }
 

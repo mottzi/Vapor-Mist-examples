@@ -24,7 +24,7 @@ extension Clients
         guard let jsonData = try? JSONEncoder().encode(message.wireFormat) else { return }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         
-        try? await client.socket.send(jsonString)
+        Task.detached { try? await client.socket.send(jsonString) }
     }
     
     func send(_ message: String, to clientID: UUID) async { await send(Message.Text(message: message), to: clientID) }
@@ -45,7 +45,7 @@ extension Clients
 
         for socket in sockets 
         {
-            Task { try? await socket.send(jsonString) }
+            Task.detached { try? await socket.send(jsonString) }
         }
     }
 
