@@ -231,7 +231,7 @@ td:nth-child(1) {
     /* Use flexbox to align ID and button */
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1.5rem;
 }
 
 /* Actions Column Styling & Layout */
