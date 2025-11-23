@@ -1,9 +1,9 @@
 <tr mist-component="MistDemoComponent" mist-id="#(component.mistdemomodel1.id)">
-    <td>MistDemoComponent</td>
     <td>
         #(component.mistdemomodel1.shortID)
         <button onclick="navigator.clipboard.writeText('#(component.mistdemomodel1.id)')">Copy ID</button>
     </td>
+    <td>MistDemoComponent</td>
     <td>#(component.mistdemomodel1.text)</td>
     <td>#(component.mistdemomodel2.text)</td>
     <td>

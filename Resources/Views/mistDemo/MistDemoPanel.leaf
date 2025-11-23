@@ -12,8 +12,8 @@
         <table>
             <thead>
                 <tr>
-                    <th>Component</th>
                     <th>ID</th>
+                    <th>Component</th>
                     <th>DemoModel1</th>
                     <th>DemoModel2</th>
                     <th>Actions</th>

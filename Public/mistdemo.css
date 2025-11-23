@@ -224,7 +224,7 @@ tr:last-child td {
 }
 
 /* ID Column Styling & Layout */
-td:nth-child(2) {
+td:nth-child(1) {
     font-family: var(--font-mono);
     color: var(--color-primary);
     font-size: 0.8125rem;
