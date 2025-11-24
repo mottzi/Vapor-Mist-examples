@@ -31,7 +31,7 @@
             mist-container="DeploymentStatus"
             mist-insert-position="beforeend"
         >
-          #if(component):
+          #if(status):
               #extend("deployment/DeploymentStatus")
           #endif
         </div>
@@ -55,7 +55,7 @@
                     <th class="deployment-th">Actions</th>
                   </tr>
                 </thead>
-                  #for(component in components):
+                  #for(row in rows):
                     #extend("deployment/DeploymentRow")
                   #endfor
               </table>
