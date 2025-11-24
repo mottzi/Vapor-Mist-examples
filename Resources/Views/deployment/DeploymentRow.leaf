@@ -1,19 +1,19 @@
 <tbody
     mist-component="DeploymentRow"
-    mist-id="#(component.deployment.id)"
+    mist-id="#(row.deployment.id)"
     class="deployment-tbody"
 >
     <tr class="deployment-row">
 
     <!-- deployment commit message -->
     <td class="deployment-td deployment-td-message">
-        <span class="deployment-text-message">#(component.deployment.message)</span>
+        <span class="deployment-text-message">#(row.deployment.message)</span>
     </td>
 
     <!-- deployment ID -->
     <td class="deployment-td deployment-td-hidden-sm">
-        <a onclick="navigator.clipboard.writeText('#(component.deployment.id)'); return false;" href="#" class="deployment-text-id" title="#(component.deployment.id)">
-            #(component.deployment.shortID)
+        <a onclick="navigator.clipboard.writeText('#(row.deployment.id)'); return false;" href="#" class="deployment-text-id" title="#(row.deployment.id)">
+            #(row.deployment.shortID)
         </a>
     </td>
     
@@ -67,7 +67,7 @@
         #else:
             <span class="status-badge status-badge-running">
                 <span class="status-badge-running-dot"></span>
-                #(component.deployment.displayStatus)
+                #(row.deployment.displayStatus)
             </span>
         #endif
     </td>
@@ -83,7 +83,7 @@
     <!-- deployment duration -->
     <td class="deployment-td">
         #if(component.deployment.durationString):
-            <span class="deployment-text-duration">#(component.deployment.durationString)</span>
+            <span class="deployment-text-duration">#(row.deployment.durationString)</span>
         #elseif(component.deployment.displayStatus == "stale"):
             <span class="deployment-text-duration-dash">—</span>
         #elseif(component.deployment.displayStatus == "canceled"):
@@ -93,7 +93,7 @@
                 <span
                     class="deployment-live-duration deployment-text-duration"
                     mist-behavior="timer"
-                    data-start-timestamp="#(component.deployment.startedAt)"
+                    data-start-timestamp="#(row.deployment.startedAt)"
                 >
                     0.0s
                 </span>
@@ -116,7 +116,7 @@
     style="#if(state.errorExpanded):display:table-row!important#else:display:none#endif"
 >
     <td colspan="6" class="deployment-error-cell">
-        <pre class="deployment-error-message">#(component.deployment.errorMessage)</pre>
+        <pre class="deployment-error-message">#(row.deployment.errorMessage)</pre>
     </td>
 </tr>
 #endif
