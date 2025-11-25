@@ -6,6 +6,10 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+    products: [
+        .executable(name: "Mottzi", targets: ["Mottzi"]),
+        .executable(name: "Deployer", targets: ["Deployer"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.110.1"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.12.0"),
