@@ -7,7 +7,7 @@ extension Application
 {
     func useDeployPanel() 
     {
-        self.get("Deployer2")
+        self.get("Deployer")
         { request async throws -> String in
             return "hi"
 //            let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
