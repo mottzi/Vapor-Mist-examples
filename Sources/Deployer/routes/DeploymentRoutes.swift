@@ -30,7 +30,7 @@ extension Application
                 component: statusComponent
             )
 
-            return try await request.view.render("Deployer/DeploymentPanel", context)
+            return try await request.view.render("deployer/DeploymentPanel", context)
         }
     }
 }

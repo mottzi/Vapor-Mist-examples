@@ -32,7 +32,7 @@
             mist-insert-position="beforeend"
         >
           #if(component):
-              #extend("Deployer/DeploymentStatus")
+              #extend("deployer/DeploymentStatus")
           #endif
         </div>
       </div>
@@ -56,7 +56,7 @@
                   </tr>
                 </thead>
                   #for(component in components):
-                    #extend("Deployer/DeploymentRow")
+                    #extend("deployer/DeploymentRow")
                   #endfor
               </table>
             </div>
