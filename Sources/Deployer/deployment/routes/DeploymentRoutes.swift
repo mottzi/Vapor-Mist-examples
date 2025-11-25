@@ -10,7 +10,9 @@ extension Application {
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
             let currentDeployment = try? await Deployment.getCurrent(on: request.db)
 
+            // Build the status component context (matching Mist's structure)
             var statusComponent: MistModelContainer?
+
             if let currentDeployment {
                 var container = MistModelContainer()
                 container.add(currentDeployment, for: "deployment")
@@ -18,13 +20,13 @@ extension Application {
             }
 
             struct DeploymentPanelContext: Encodable {
-                let rows: [MistModelContainer]
-                let status: MistModelContainer?
+                let components: [MistModelContainer]
+                let component: MistModelContainer?
             }
 
             let context = DeploymentPanelContext(
-                rows: componentsContext.components,
-                status: statusComponent
+                components: componentsContext.components,
+                component: statusComponent
             )
 
             return try await request.view.render("deployment/DeploymentPanel", context)
