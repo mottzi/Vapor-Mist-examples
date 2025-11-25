@@ -4,8 +4,10 @@ import Mist
 import Vapor
 
 @main
-struct DeployerApp {
-    static func main() async throws {
+struct DeployerApp 
+{
+    static func main() async throws 
+    {
         let env = try Environment.detect()
         let app = try await Application.make(env)
         app.http.server.configuration.port = 8081
@@ -14,7 +16,7 @@ struct DeployerApp {
 
         app.databases.use(.sqlite(.file("deploy/Deployer.db")), as: .sqlite)
         app.migrations.add(Deployment.Table())
-        try await app.autoMigrate()  // Only Deployer should migrate Deployment table
+        try await app.autoMigrate()
 
         app.mist.socketPath = ["deployment", "ws"]
         await app.mist.use(DeploymentRow(), DeploymentStatus())
@@ -22,10 +24,10 @@ struct DeployerApp {
         app.views.use(.leaf)
 
         app.environment.useVariables()
-        app.useWebhook()  // The GitHub listener
-        app.useDeployPanel()  // The UI
+        app.useWebhook()
+        app.useDeployPanel()
         
-        app.asyncCommands.use(HelloCommand(), as: "hello")
+        app.asyncCommands.use(DeployCommand(), as: "deploy")
 
         try await app.execute()
         try await app.asyncShutdown()

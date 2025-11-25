@@ -3,10 +3,10 @@ import Vapor
 
 extension Deployment {
     struct Configuration {
-        let buildConfiguration: String = "debug"
-        let productName: String = "Mottzi"
-        let supervisorJob: String = "mottzi"
-        let workingDirectory: String = "/var/www/mottzi"
+        var buildConfiguration: String = "debug"
+        var productName: String = "Mottzi"
+        var supervisorJob: String = "mottzi"
+        var workingDirectory: String = "/var/www/mottzi"
     }
 }
 
