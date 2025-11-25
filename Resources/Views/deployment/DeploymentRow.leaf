@@ -19,13 +19,13 @@
     
     <!-- deployment status -->
     <td class="deployment-td">
-        #if(row.deployment.displayStatus == "success"):
+        #if(component.deployment.displayStatus == "success"):
             <span class="status-badge status-badge-success">
                 <span class="status-badge-success-dot"></span>
                 Success
             </span>
-        #elseif(row.deployment.displayStatus == "failed"):
-            #if(row.deployment.errorMessage):
+        #elseif(component.deployment.displayStatus == "failed"):
+            #if(component.deployment.errorMessage):
                 <button
                     class="status-badge status-badge-failed-expandable#if(state.errorExpanded): deployment-error-expanded#endif"
                     type="button"
@@ -44,22 +44,22 @@
                     Failed
                 </span>
             #endif
-        #elseif(row.deployment.displayStatus == "stale"):
+        #elseif(component.deployment.displayStatus == "stale"):
             <span class="status-badge status-badge-stale">
                 <span class="status-badge-stale-dot"></span>
                 Stale
             </span>
-        #elseif(row.deployment.displayStatus == "canceled"):
+        #elseif(component.deployment.displayStatus == "canceled"):
             <span class="status-badge status-badge-canceled">
                 <span class="status-badge-canceled-dot"></span>
                 Canceled
             </span>
-        #elseif(row.deployment.displayStatus == "deployed"):
+        #elseif(component.deployment.displayStatus == "deployed"):
             <span class="status-badge status-badge-deployed">
                 <span class="status-badge-deployed-dot"></span>
                 Deployed
             </span>
-        #elseif(row.deployment.displayStatus == "running"):
+        #elseif(component.deployment.displayStatus == "running"):
             <span class="status-badge status-badge-running">
                 <span class="status-badge-running-dot"></span>
                 Running
@@ -75,21 +75,21 @@
     <!-- deployment started at -->
     <td class="deployment-td deployment-td-hidden-sm">
         <span class="deployment-text-started">
-            <span class="deployment-text-started-time">#date(row.deployment.startedAt, "HH:mm:ss")</span>
-            <span class="deployment-text-started-date">(#date(row.deployment.startedAt, "dd.MM."))</span>
+            <span class="deployment-text-started-time">#date(component.deployment.startedAt, "HH:mm:ss")</span>
+            <span class="deployment-text-started-date">(#date(component.deployment.startedAt, "dd.MM."))</span>
         </span>
     </td>
 
     <!-- deployment duration -->
     <td class="deployment-td">
-        #if(row.deployment.durationString):
+        #if(component.deployment.durationString):
             <span class="deployment-text-duration">#(row.deployment.durationString)</span>
-        #elseif(row.deployment.displayStatus == "stale"):
+        #elseif(component.deployment.displayStatus == "stale"):
             <span class="deployment-text-duration-dash">—</span>
-        #elseif(row.deployment.displayStatus == "canceled"):
+        #elseif(component.deployment.displayStatus == "canceled"):
             <span class="deployment-text-duration-dash">—</span>
         #else:
-            #if(row.deployment.startedAt):
+            #if(component.deployment.startedAt):
                 <span
                     class="deployment-live-duration deployment-text-duration"
                     mist-behavior="timer"
@@ -110,7 +110,7 @@
         </button>
     </td>
 </tr>
-#if(row.deployment.errorMessage):
+#if(component.deployment.errorMessage):
 <tr
     class="deployment-error-row"
     style="#if(state.errorExpanded):display:table-row!important#else:display:none#endif"
