@@ -8,7 +8,7 @@
 <body>
     <main class="container">
         <h1>Mist Demo</h1>
-        #extend("mistDemo/MistDemoHeader")
+        #extend("MistDemo/MistDemoHeader")
         <table>
             <thead>
                 <tr>
@@ -21,7 +21,7 @@
             </thead>
             <tbody mist-container="MistDemoComponent">
                 #for(component in components):
-                    #extend("mistDemo/MistDemoComponent")
+                    #extend("MistDemo/MistDemoComponent")
                 #endfor
             </tbody>
         </table>

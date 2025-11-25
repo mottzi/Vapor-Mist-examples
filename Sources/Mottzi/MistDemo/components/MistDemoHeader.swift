@@ -6,7 +6,7 @@ struct MistDemoHeader: Mist.InstanceComponent
 {
     let models: [any Mist.Model.Type] = []
     let actions: [any Mist.Action] = [AddDemoModelAction()]
-    let template: Mist.Template = .file(path: "mistDemo/MistDemoHeader")
+    let template: Mist.Template = .file(path: "MistDemo/MistDemoHeader")
 }
 
 struct AddDemoModelAction: Mist.Action

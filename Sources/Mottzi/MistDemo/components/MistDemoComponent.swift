@@ -5,7 +5,7 @@ import Vapor
 struct MistDemoComponent: Mist.InstanceComponent {
     let models: [any Mist.Model.Type] = [MistDemoModel1.self, MistDemoModel2.self]
     let actions: [any Mist.Action] = [DeleteAction(), RandomizeAction()]
-    let template: Mist.Template = .file(path: "mistDemo/MistDemoComponent")
+    let template: Mist.Template = .file(path: "MistDemo/MistDemoComponent")
 }
 
 struct DeleteAction: Mist.Action {
