@@ -1,0 +1,13 @@
+<tr mist-component="MistDemoComponent" mist-id="#(component.mistdemomodel1.id)">
+    <td>
+        #(component.mistdemomodel1.shortID)
+        <button onclick="navigator.clipboard.writeText('#(component.mistdemomodel1.id)')">Copy</button>
+    </td>
+    <td>MistDemoComponent</td>
+    <td>#(component.mistdemomodel1.text)</td>
+    <td>#(component.mistdemomodel2.text)</td>
+    <td>
+        <button mist-action="RandomizeAction">Randomize</button>
+        <button mist-action="delete">Delete</button>
+    </td>
+</tr>
