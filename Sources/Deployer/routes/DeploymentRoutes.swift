@@ -7,7 +7,7 @@ extension Application
 {
     func useDeployPanel() 
     {
-        self.get("deployment") { request async throws -> View in
+        self.get("deployer") { request async throws -> View in
 
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
             let currentDeployment = try? await Deployment.getCurrent(on: request.db)
@@ -30,7 +30,7 @@ extension Application
                 component: statusComponent
             )
 
-            return try await request.view.render("deployment/DeploymentPanel", context)
+            return try await request.view.render("Deployer/DeploymentPanel", context)
         }
     }
 }

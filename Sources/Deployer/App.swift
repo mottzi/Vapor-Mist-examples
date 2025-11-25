@@ -24,6 +24,8 @@ struct DeployerApp {
         app.environment.useVariables()
         app.useWebhook()  // The GitHub listener
         app.useDeployPanel()  // The UI
+        
+        app.asyncCommands.use(HelloCommand(), as: "hello")
 
         try await app.execute()
         try await app.asyncShutdown()
