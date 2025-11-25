@@ -3,23 +3,24 @@ import Vapor
 
 typealias MistModelContainer = Mist.ModelContainer
 
-extension Application {
-    func useDeployPanel() {
+extension Application
+{
+    func useDeployPanel() 
+    {
         self.get("deployment") { request async throws -> View in
 
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
             let currentDeployment = try? await Deployment.getCurrent(on: request.db)
 
-            // Build the status component context (matching Mist's structure)
-            var statusComponent: MistModelContainer?
-
-            if let currentDeployment {
+            let statusComponent = currentDeployment.map 
+            { 
                 var container = MistModelContainer()
-                container.add(currentDeployment, for: "deployment")
-                statusComponent = container
-            }
+                container.add($0, for: "deployment")
+                return container
+             }
 
-            struct DeploymentPanelContext: Encodable {
+            struct DeploymentPanelContext: Encodable 
+            {
                 let components: [MistModelContainer]
                 let component: MistModelContainer?
             }
@@ -32,5 +33,4 @@ extension Application {
             return try await request.view.render("deployment/DeploymentPanel", context)
         }
     }
-
 }
