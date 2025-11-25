@@ -13,6 +13,19 @@ extension InstanceComponent {
 }
 
 extension InstanceComponent {
+    public func makeContainer(ofAll db: Database) async -> [ModelContainer] {
+        var modelContainers: [ModelContainer] = []
+        
+        guard let primaryModels = await allModels(on: db) else { return [] }
+        
+        for primaryModel in primaryModels {
+            guard let modelID = primaryModel.id else { continue }
+            guard let modelContext = await makeContext(of: modelID, in: db) else { continue }
+            modelContainers.append(modelContext.component)
+        }
+                
+        return modelContainers
+    }
     public func makeContext(ofAll db: Database) async -> MultipleComponentContext {
         var modelContainers: [ModelContainer] = []
 
@@ -24,8 +37,6 @@ extension InstanceComponent {
 
             modelContainers.append(modelContext.component)
         }
-
-        guard modelContainers.isEmpty == false else { return .empty }
 
         return MultipleComponentContext(components: modelContainers)
     }
