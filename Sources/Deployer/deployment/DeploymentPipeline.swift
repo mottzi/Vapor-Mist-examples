@@ -164,27 +164,26 @@ extension Deployment.Pipeline {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
-        let buildPathMottzi =
-            "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
-        let deployPathMottzi = "\(config.workingDirectory)/deploy/\(config.productName)"
+        let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
+        let deployPath = "\(config.workingDirectory)/deploy/\(config.productName)"
 
         let deployDir = "\(config.workingDirectory)/deploy"
 
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
 
-            // Create deploy directory if it doesn't exist
+            // Create deploy directory
             try fileManager.createDirectory(
                 atPath: deployDir,
                 withIntermediateDirectories: true,
                 attributes: nil
             )
 
-            // Move Mottzi
-            if fileManager.fileExists(atPath: deployPathMottzi) {
-                try fileManager.removeItem(atPath: deployPathMottzi)
+            // Move product
+            if fileManager.fileExists(atPath: deployPath) {
+                try fileManager.removeItem(atPath: deployPath)
             }
-            try fileManager.moveItem(atPath: buildPathMottzi, toPath: deployPathMottzi)
+            try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
         }.get()
     }
 }
