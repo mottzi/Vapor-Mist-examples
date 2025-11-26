@@ -205,7 +205,7 @@ extension Deployment.Pipeline {
                 // move new build to old build location
                 try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
                 
-                // remove backup
+                // remove backup 
                 if fileManager.fileExists(atPath: backupPath) {
                     try? fileManager.removeItem(atPath: backupPath)
                 }
