@@ -159,7 +159,7 @@ extension Deployment.Pipeline {
     func restart() async throws {
         try await execute("supervisorctl restart \(config.supervisorJob)")
     }
-//
+
     func move(using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
