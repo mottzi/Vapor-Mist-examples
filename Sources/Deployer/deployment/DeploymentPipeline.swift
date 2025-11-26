@@ -163,27 +163,32 @@ extension Deployment.Pipeline {
     func move(using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
-
         let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
         let deployDir = "\(config.workingDirectory)/deploy"
-        let deployPath =                     "\(deployDir)/\(config.productName)"
-        let tempPath =                       "\(deployDir)/.\(config.productName).tmp.\(UUID().uuidString)"
-
+        let deployPath = "\(deployDir)/\(config.productName)"
+        
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
-
             try fileManager.createDirectory(
                 atPath: deployDir,
                 withIntermediateDirectories: true,
                 attributes: nil
             )
-
-            do {
-                try fileManager.moveItem(atPath: buildPath, toPath: tempPath)
-                try fileManager.moveItem(atPath: tempPath, toPath: deployPath)
-            } catch {
-                try? fileManager.removeItem(atPath: tempPath)
-                throw error
+            
+            let buildURL = URL(fileURLWithPath: buildPath)
+            let deployURL = URL(fileURLWithPath: deployPath)
+            
+            if fileManager.fileExists(atPath: deployPath) {
+                // Atomic replacement when file exists
+                _ = try fileManager.replaceItemAt(
+                    deployURL,
+                    withItemAt: buildURL,
+                    backupItemName: nil,
+                    options: []
+                )
+            } else {
+                // First deployment - just move it
+                try fileManager.moveItem(at: buildURL, to: deployURL)
             }
         }.get()
     }
