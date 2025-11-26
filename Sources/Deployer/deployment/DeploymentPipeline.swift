@@ -165,24 +165,22 @@ extension Deployment.Pipeline {
         let threadPool = app.threadPool
 
         let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
-        let deployPath = "\(config.workingDirectory)/deploy/\(config.productName)"
-
         let deployDir = "\(config.workingDirectory)/deploy"
+        let deployPath = "\(deployDir)/\(config.productName)"
 
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
 
-            // Create deploy directory
             try fileManager.createDirectory(
                 atPath: deployDir,
                 withIntermediateDirectories: true,
                 attributes: nil
             )
 
-            // Move product
             if fileManager.fileExists(atPath: deployPath) {
                 try fileManager.removeItem(atPath: deployPath)
             }
+
             try fileManager.copyItem(atPath: buildPath, toPath: deployPath)
 
         }.get()

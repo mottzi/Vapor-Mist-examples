@@ -10,17 +10,17 @@ struct DeployCommand: AsyncCommand
     {
         context.console.print("Starting deployment pipeline to update the deployer...")
 
-        let pipeline = Deployment.Pipeline(
-            config: .init(
-                productName: "Deployer",
-                supervisorJob: "deployer"
+        Task.detached 
+        {
+            let pipeline = Deployment.Pipeline(
+                config: .init(
+                    productName: "Deployer",
+                    supervisorJob: "deployer"
+                )
             )
-        )
-        
-        context.console.print("3. move")
-        try await pipeline.move(using: context.application)
-        
-        context.console.print("4. restart")
-        try await pipeline.restart()
+
+            try await pipeline.move(using: context.application)
+            try await pipeline.restart()
+        }
     }
 }
