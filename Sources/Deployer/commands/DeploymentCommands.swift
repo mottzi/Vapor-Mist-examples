@@ -22,5 +22,5 @@ struct DeployCommand: AsyncCommand
             try await pipeline.move(using: context.application)
             try await pipeline.restart()
         }
-    }
+    } //
 }
