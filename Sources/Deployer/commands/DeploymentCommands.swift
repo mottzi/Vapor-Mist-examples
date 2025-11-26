@@ -8,7 +8,7 @@ struct DeployCommand: AsyncCommand
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
-        context.console.print("Starting deployment pipeline to update the deployer...")
+        context.console.print("#0 Start deploying Deployer")
 
         let pipeline = Deployment.Pipeline(
             config: .init(
