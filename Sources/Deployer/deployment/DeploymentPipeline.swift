@@ -179,15 +179,8 @@ extension Deployment.Pipeline {
             let deployURL = URL(fileURLWithPath: deployPath)
             
             if fileManager.fileExists(atPath: deployPath) {
-                // Atomic replacement when file exists
-                _ = try fileManager.replaceItemAt(
-                    deployURL,
-                    withItemAt: buildURL,
-                    backupItemName: nil,
-                    options: []
-                )
+                _ = try fileManager.replaceItemAt(deployURL, withItemAt: buildURL)
             } else {
-                // First deployment - just move it
                 try fileManager.moveItem(at: buildURL, to: deployURL)
             }
         }.get()
