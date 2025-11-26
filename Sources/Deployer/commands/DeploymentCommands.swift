@@ -25,7 +25,7 @@ struct DeployCommand: AsyncCommand
             try await pipeline.restart()
         }
         catch {
-            context.console.print("Error executing command: \(error.localizedDescription)")
+            context.console.print("Error executing command: \(error.localizedDescription)") // test
         }
     }
 }
