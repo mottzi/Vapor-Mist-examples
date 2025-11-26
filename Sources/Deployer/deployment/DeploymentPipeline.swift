@@ -124,25 +124,16 @@ extension Deployment.Pipeline {
             process.arguments = ["bash", "-c", command]
             process.currentDirectoryURL = URL(fileURLWithPath: config.workingDirectory)
             
-            // --- FIX START ---
-            // Supervisor often strips environment variables.
-            // SwiftPM needs HOME to find the cache (~/.swiftpm) or it rebuilds everything.
             var env = ProcessInfo.processInfo.environment
-            
-            // Force HOME to root (since you verified you run as root)
             if env["HOME"] == nil {
                 env["HOME"] = "/root"
             }
-            
-            // Ensure PATH includes swift (just in case)
             if let path = env["PATH"] {
                 env["PATH"] = path + ":/usr/local/bin:/usr/bin:/bin"
             } else {
                 env["PATH"] = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
             }
-            
             process.environment = env
-            // --- FIX END ---
 
             let pipe = Pipe()
             process.standardOutput = pipe

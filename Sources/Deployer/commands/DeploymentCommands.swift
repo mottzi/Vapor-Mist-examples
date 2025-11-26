@@ -18,13 +18,13 @@ struct DeployCommand: AsyncCommand
         )
         
         do {
-            context.console.print("    #1 Move Deployer: build directory -> deploy directory")
+            context.console.print("    #1 Move Deployer")
             try await pipeline.move(using: context.application)
             
             context.console.print("    #2 Restart Deployer")
             try await pipeline.restart()
             
-            context.console.print("\nSuccessfully deployed Deployer\n")
+            context.console.print("Successfully deployed Deployer\n")
         }
         catch {
             context.console.print("Error deploying Deployer: \(error.localizedDescription)\n")
