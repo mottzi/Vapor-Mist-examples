@@ -17,10 +17,15 @@ struct DeployCommand: AsyncCommand
             )
         )
         
-        context.console.print("3. move")
-        try await pipeline.move(using: context.application)
-        
-        context.console.print("4. restart")
-        try await pipeline.restart()
+        do {
+            context.console.print("3. move")
+            try await pipeline.move(using: context.application)
+            
+            context.console.print("4. restart")
+            try await pipeline.restart()
+        }
+        catch {
+            context.console.print("Error executing command: \(error.localizedDescription)")
+        }
     }
 }
