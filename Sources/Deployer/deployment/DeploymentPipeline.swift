@@ -183,7 +183,7 @@ extension Deployment.Pipeline {
             if fileManager.fileExists(atPath: deployPath) {
                 try fileManager.removeItem(atPath: deployPath)
             }
-            try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
+            try fileManager.copyItem(atPath: deployPath, toPath: deployPath)
 
         }.get()
     }
