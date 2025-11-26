@@ -111,7 +111,7 @@ extension Deployment.Pipeline {
         }
     }
 
-    private func execute(_ command: String, step: Int) async throws {
+    private func execute(_ command: String) async throws {
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
 
@@ -125,18 +125,18 @@ extension Deployment.Pipeline {
             process.standardError = pipe
 
             process.terminationHandler =
-                { [pipe, process] _ in
-                    guard process.terminationStatus != 0 else {
-                        return continuation.resume(returning: ())
-                    }
-                    let output = String(
-                        data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(),
-                        encoding: .utf8)
-                    let error = PipelineError.executeError(
-                        "Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'"
-                    )
-                    return continuation.resume(throwing: error)
+            { [pipe, process] _ in
+                guard process.terminationStatus != 0 else {
+                    return continuation.resume(returning: ())
                 }
+                let output = String(
+                    data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(),
+                    encoding: .utf8)
+                let error = PipelineError.executeError(
+                    "Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'"
+                )
+                return continuation.resume(throwing: error)
+            }
 
             do {
                 try process.run()
@@ -149,16 +149,15 @@ extension Deployment.Pipeline {
     }
 
     func pull() async throws {
-        try await execute("git pull", step: 1)
+        try await execute("git pull")
     }
 
     func build() async throws {
-        try await execute(
-            "swift build -c \(config.buildConfiguration) --product \(config.productName)", step: 2)
+        try await execute("swift build -c \(config.buildConfiguration)")
     }
 
     func restart() async throws {
-        try await execute("supervisorctl restart \(config.supervisorJob)", step: 4)
+        try await execute("supervisorctl restart \(config.supervisorJob)")
     }
 
     func move(using app: Application) async throws {

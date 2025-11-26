@@ -16,12 +16,6 @@ struct DeployCommand: AsyncCommand
                 supervisorJob: "deployer"
             )
         )
-
-        context.console.print("1. git pull")
-        try await pipeline.pull()
-        
-        context.console.print("2. swift build")
-        try await pipeline.build()
         
         context.console.print("3. move")
         try await pipeline.move(using: context.application)
