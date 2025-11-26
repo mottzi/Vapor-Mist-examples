@@ -8,7 +8,7 @@ struct DeployCommand: AsyncCommand
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
-        context.console.print("\nStart deploying Deployer:")
+        context.console.print("\nStart deploying...")
 
         let pipeline = Deployment.Pipeline(
             config: .init(
@@ -24,10 +24,10 @@ struct DeployCommand: AsyncCommand
             context.console.print("    #2 Restart Deployer")
             try await pipeline.restart()
             
-            context.console.print("Successfully deployed Deployer\n")
+            context.console.print("Successfully deployed.\n")
         }
         catch {
-            context.console.print("Error deploying Deployer: \(error.localizedDescription)\n")
+            context.console.print("Error deploying: \(error.localizedDescription).\n")
         }
     }
 }
