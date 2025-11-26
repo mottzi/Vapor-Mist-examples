@@ -175,7 +175,7 @@ extension Deployment.Pipeline {
             
             try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
-            // new build exists
+            // new build exists 
             guard fileManager.fileExists(atPath: buildPath) else {
                 throw PipelineError.moveError("New binary not found at \(buildPath)")
             }
