@@ -166,7 +166,8 @@ extension Deployment.Pipeline {
 
         let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
         let deployDir = "\(config.workingDirectory)/deploy"
-        let deployPath = "\(deployDir)/\(config.productName)"
+        let deployPath =                     "\(deployDir)/\(config.productName)"
+        let tempPath =                       "\(deployDir)/.\(config.productName).tmp.\(UUID().uuidString)"
 
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
@@ -177,12 +178,13 @@ extension Deployment.Pipeline {
                 attributes: nil
             )
 
-            if fileManager.fileExists(atPath: deployPath) {
-                try fileManager.removeItem(atPath: deployPath)
+            do {
+                try fileManager.moveItem(atPath: buildPath, toPath: tempPath)
+                try fileManager.moveItem(atPath: tempPath, toPath: deployPath)
+            } catch {
+                try? fileManager.removeItem(atPath: tempPath)
+                throw error
             }
-
-            try fileManager.copyItem(atPath: buildPath, toPath: deployPath)
-
         }.get()
     }
 }
