@@ -99,18 +99,15 @@ extension Deployment.Pipeline {
         case initiateError(String)
         case executeError(String)
         case moveError(String)
+        case successButBackupRemovalError(String)
 
         var errorDescription: String? {
             switch self
             {
-            case .initiateError(let message):
-                "Pipeline initiate error: \(message)"
-
-            case .executeError(let message):
-                "Pipeline execute error: \(message)"
-                    
-            case .moveError(let message):
-                "Pipeline move error: \(message)"
+                case .initiateError(let message): "Pipeline initiate error: \(message)"
+                case .executeError(let message): "Pipeline execute error: \(message)"
+                case .moveError(let message): "Pipeline move error: \(message)"
+                case .successButBackupRemovalError(let message): "Pipeline error: \(message)"
             }
         }
     }
@@ -189,29 +186,59 @@ extension Deployment.Pipeline {
             
             try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
+            // new build exists
             guard fileManager.fileExists(atPath: buildPath) else {
                 throw PipelineError.moveError("New binary not found at \(buildPath)")
             }
             
+            // remove backup
             if fileManager.fileExists(atPath: backupPath) {
-                try? fileManager.removeItem(atPath: backupPath)
+                try fileManager.removeItem(atPath: backupPath)
             }
             
+            // backup old build
             if fileManager.fileExists(atPath: deployPath) {
                 try fileManager.moveItem(atPath: deployPath, toPath: backupPath)
             }
             
             do {
+                // move new build to old build location
                 try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
                 
+                // remove backup
                 if fileManager.fileExists(atPath: backupPath) {
                     try? fileManager.removeItem(atPath: backupPath)
                 }
             } catch {
-                if !fileManager.fileExists(atPath: deployPath) && fileManager.fileExists(atPath: backupPath) {
-                    try? fileManager.moveItem(atPath: backupPath, toPath: deployPath)
+                let moveError = error
+                // ERROR!
+                // if we have a backup -> attempt ROLLBACK
+                if fileManager.fileExists(atPath: backupPath) {
+                    do {
+                        // remove old build
+                        if fileManager.fileExists(atPath: deployPath) {
+                            try fileManager.removeItem(atPath: deployPath)
+                        }
+                        // replace old build with backup
+                        try fileManager.moveItem(atPath: backupPath, toPath: deployPath)
+                    } catch {
+                        let rollbackError = error
+                        // if rollback fails:
+                        throw PipelineError.moveError(
+                            """
+                            Deployment failed: '\(moveError.localizedDescription)'. 
+                            Rollback failed: '\(rollbackError.localizedDescription)'.
+                            """
+                        )
+                    }
                 }
-                throw error
+                
+                throw PipelineError.moveError(
+                    """
+                    Deployment failed: '\(moveError.localizedDescription)'. 
+                    Rollback successfull.
+                    """
+                )
             }
         }.get()
     }
