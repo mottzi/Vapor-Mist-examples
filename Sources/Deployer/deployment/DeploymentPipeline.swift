@@ -191,12 +191,12 @@ extension Deployment.Pipeline {
                 throw PipelineError.moveError("New binary not found at \(buildPath)")
             }
             
-            // remove backup..
+            // remove backup
             if fileManager.fileExists(atPath: backupPath) {
                 try fileManager.removeItem(atPath: backupPath)
             }
             
-            // backup old build
+            // backup old build 
             if fileManager.fileExists(atPath: deployPath) {
                 try fileManager.moveItem(atPath: deployPath, toPath: backupPath)
             }
