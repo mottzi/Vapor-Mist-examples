@@ -1,8 +1,10 @@
 import Fluent
 import Vapor
 
-extension Deployment {
-    struct Configuration {
+extension Deployment
+{
+    struct Configuration
+    {
         var buildConfiguration: String = "debug"
         var productName: String = "Mottzi"
         var supervisorJob: String = "mottzi"
@@ -10,74 +12,85 @@ extension Deployment {
     }
 }
 
-extension Deployment {
-    struct Pipeline {
-        static let config = Configuration()
+extension Deployment
+{
+    struct Pipeline
+    {
+        var config: Configuration = Configuration()
 
-        // Creates and processes a new `Deployment`. After successfull deployment, this will check for previously cancelled deployments and re-runs the latest one found.
-        public static func start(message: String?, on app: Application) async {
-            await deploy(message: message, on: app)
+        public func start(with request: Request) async
+        {
+            await deploy(message: request.commitMessage, on: request.application)
         }
 
-        // Re-runs an existing `Deployment`.
-        private static func resume(existingDeployment: Deployment, on app: Application) async {
-            await deploy(existingDeployment: existingDeployment, on: app)
+        private func resume(existingDeployment existing: Deployment, on app: Application) async
+        {
+            await deploy(existingDeployment: existing, on: app)
         }
 
-        // Internal recursive deployment pipeline. It can re-process exisiting deployments or create and process new deployments.
-        private static func deploy(
-            existingDeployment: Deployment? = nil, message: String? = nil, on app: Application
-        ) async {
+        private func deploy(existingDeployment existing: Deployment? = nil, message: String? = nil, on app: Application) async
+        {
             let canDeploy = await Manager.shared.requestPipeline()
-
-            let deployment: Deployment
-
-            if let existingDeployment {
-                deployment = existingDeployment
-                deployment.startedAt = .now
-                deployment.status = canDeploy ? "running" : "canceled"
-            } else {
-                deployment = Deployment(
-                    status: canDeploy ? "running" : "canceled",
-                    message: message ?? ""
-                )
-            }
+            let status = canDeploy ? "running" : "canceled"
+            
+            let deployment = existing.map { 
+                $0.startedAt = .now
+                $0.status = status
+                return $0
+            } ?? Deployment(
+                status: status,
+                message: message ?? ""
+            )
 
             try? await deployment.save(on: app.db)
 
             guard canDeploy else { return }
 
             do {
-                try await pull()
-                try await build()
-                try await move(using: app)
-
-                deployment.status = "success"
-                deployment.finishedAt = .now
-                try? await deployment.save(on: app.db)
-                await Deployment.Pipeline.Manager.shared.endDeployment()
-
-                let canceledDeployment = try await Deployment.query(on: app.db)
-                    .filter(\.$status, .equal, "canceled")
-                    .filter(\.$startedAt, .greaterThan, deployment.startedAt)
-                    .sort(\.$startedAt, .descending)
-                    .first()
-
-                if let canceledDeployment {
-                    await resume(existingDeployment: canceledDeployment, on: app)
-                } else {
-                    try await deployment.setCurrent(on: app.db)
-                    try await restart()
-                }
+                try await run(deployment: deployment, on: app)
             } catch {
-                deployment.status = "failed"
-                deployment.finishedAt = .now
-                deployment.errorMessage = error.localizedDescription
-                try? await deployment.save(on: app.db)
-                await Deployment.Pipeline.Manager.shared.endDeployment()
-                Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")
+                await fail(deployment: deployment, on: app, error: error)
             }
         }
+    }
+}
+
+extension Deployment.Pipeline 
+{
+    private func run(deployment: Deployment, on app: Application) async throws 
+    {
+        try await pull()
+        try await build()
+        try await move(using: app)
+
+        deployment.status = "success"
+        deployment.finishedAt = .now
+        try await deployment.save(on: app.db)
+        await Deployment.Pipeline.Manager.shared.endDeployment()
+
+        let canceledDeployment = try await Deployment.query(on: app.db)
+            .filter(\.$status, .equal, "canceled")
+            .filter(\.$startedAt, .greaterThan, deployment.startedAt)
+            .sort(\.$startedAt, .descending)
+            .first()
+
+        if let canceledDeployment
+        {
+            await resume(existingDeployment: canceledDeployment, on: app)
+        } else {
+            try await deployment.setCurrent(on: app.db)
+            try await restart()
+        }
+    }
+
+    private func fail(deployment: Deployment, on app: Application, error: Error) async 
+    {
+        deployment.status = "failed"
+        deployment.finishedAt = .now
+        deployment.errorMessage = error.localizedDescription
+        try? await deployment.save(on: app.db)
+        await Deployment.Pipeline.Manager.shared.endDeployment()
+        Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")
     }
 }
 
@@ -98,7 +111,7 @@ extension Deployment.Pipeline {
         }
     }
 
-    private static func execute(_ command: String, step: Int) async throws {
+    private func execute(_ command: String, step: Int) async throws {
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
 
@@ -135,20 +148,20 @@ extension Deployment.Pipeline {
         }
     }
 
-    private static func pull() async throws {
+    func pull() async throws {
         try await execute("git pull", step: 1)
     }
 
-    private static func build() async throws {
+    func build() async throws {
         try await execute(
             "swift build -c \(config.buildConfiguration) --product \(config.productName)", step: 2)
     }
 
-    private static func restart() async throws {
+    func restart() async throws {
         try await execute("supervisorctl restart \(config.supervisorJob)", step: 4)
     }
 
-    private static func move(using app: Application) async throws {
+    func move(using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
@@ -174,18 +187,6 @@ extension Deployment.Pipeline {
             }
             try fileManager.moveItem(atPath: buildPathMottzi, toPath: deployPathMottzi)
         }.get()
-    }
-
-    public static func getCommitMessage(of request: Request) -> String? {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-        guard let bodyString = request.body.string,
-            let jsonData = bodyString.data(using: .utf8),
-            let payload = try? decoder.decode(Deployment.Webhook.Payload.self, from: jsonData)
-        else { return nil }
-
-        return payload.headCommit.message
     }
 }
 

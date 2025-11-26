@@ -3,8 +3,7 @@ import Vapor
 extension Application {
     func useWebhook() {
         Deployment.Webhook.register("pushevent", on: self) { request async in
-            let message = Deployment.Pipeline.getCommitMessage(of: request)
-            await Deployment.Pipeline.start(message: message, on: request.application)
+            await Deployment.Pipeline().start(with: request)
         }
     }
 }
@@ -62,6 +61,20 @@ extension Deployment.Webhook {
             let id: String
             let message: String
         }
+    }
+}
+
+extension Request {
+    var commitMessage: String? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        guard let bodyString = self.body.string,
+              let jsonData = bodyString.data(using: .utf8),
+              let payload = try? decoder.decode(Deployment.Webhook.Payload.self, from: jsonData)
+        else { return nil }
+        
+        return payload.headCommit.message
     }
 }
 
