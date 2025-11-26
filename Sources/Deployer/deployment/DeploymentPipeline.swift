@@ -240,13 +240,13 @@ extension Deployment.Pipeline {
 
         private(set) var isDeploying: Bool = false
 
-        func requestPipeline() async -> Bool {
+        func requestPipeline() -> Bool {
             guard isDeploying == false else { return false }
             isDeploying = true
             return true
         }
 
-        func endDeployment() async {
+        func endDeployment() {
             isDeploying = false
         }
     }
