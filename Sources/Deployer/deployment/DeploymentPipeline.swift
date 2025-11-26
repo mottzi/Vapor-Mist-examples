@@ -98,6 +98,7 @@ extension Deployment.Pipeline {
     private enum PipelineError: Error, LocalizedError {
         case initiateError(String)
         case executeError(String)
+        case moveError(String)
 
         var errorDescription: String? {
             switch self
@@ -107,6 +108,9 @@ extension Deployment.Pipeline {
 
             case .executeError(let message):
                 "Pipeline execute error: \(message)"
+                    
+            case .moveError(let message):
+                "Pipeline move error: \(message)"
             }
         }
     }
@@ -119,6 +123,26 @@ extension Deployment.Pipeline {
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = ["bash", "-c", command]
             process.currentDirectoryURL = URL(fileURLWithPath: config.workingDirectory)
+            
+            // --- FIX START ---
+            // Supervisor often strips environment variables.
+            // SwiftPM needs HOME to find the cache (~/.swiftpm) or it rebuilds everything.
+            var env = ProcessInfo.processInfo.environment
+            
+            // Force HOME to root (since you verified you run as root)
+            if env["HOME"] == nil {
+                env["HOME"] = "/root"
+            }
+            
+            // Ensure PATH includes swift (just in case)
+            if let path = env["PATH"] {
+                env["PATH"] = path + ":/usr/local/bin:/usr/bin:/bin"
+            } else {
+                env["PATH"] = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+            }
+            
+            process.environment = env
+            // --- FIX END ---
 
             let pipe = Pipe()
             process.standardOutput = pipe
@@ -163,25 +187,50 @@ extension Deployment.Pipeline {
     func move(using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
+        
         let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
         let deployDir = "\(config.workingDirectory)/deploy"
         let deployPath = "\(deployDir)/\(config.productName)"
+        let backupPath = "\(deployDir)/\(config.productName).old"
         
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
-            try fileManager.createDirectory(
-                atPath: deployDir,
-                withIntermediateDirectories: true,
-                attributes: nil
-            )
             
-            let buildURL = URL(fileURLWithPath: buildPath)
-            let deployURL = URL(fileURLWithPath: deployPath)
+            // 0. PRE-FLIGHT CHECKS
+            // Ensure the deploy directory exists
+            try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
+            // Critical: Don't touch the live app if the new build is missing!
+            guard fileManager.fileExists(atPath: buildPath) else {
+                throw PipelineError.moveError("New binary not found at \(buildPath)")
+            }
+            
+            // 1. SAFETY: Delete any existing 'old' backup
+            if fileManager.fileExists(atPath: backupPath) {
+                try? fileManager.removeItem(atPath: backupPath)
+            }
+            
+            // 2. BACKUP: Move current live app to backup (Atomic rename)
+            // The running process continues safely because it holds the inode.
             if fileManager.fileExists(atPath: deployPath) {
-                _ = try fileManager.replaceItemAt(deployURL, withItemAt: buildURL)
-            } else {
-                try fileManager.moveItem(at: buildURL, to: deployURL)
+                try fileManager.moveItem(atPath: deployPath, toPath: backupPath)
+            }
+            
+            do {
+                // 3. INSTALL: Move new binary to live path (Atomic rename)
+                try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
+                
+                // 4. CLEANUP: Delete the backup (Success)
+                if fileManager.fileExists(atPath: backupPath) {
+                    try? fileManager.removeItem(atPath: backupPath)
+                }
+            } catch {
+                // 5. ROLLBACK: Restore the old binary if installation failed
+                // Only restore if the live file is actually missing
+                if !fileManager.fileExists(atPath: deployPath) && fileManager.fileExists(atPath: backupPath) {
+                    try? fileManager.moveItem(atPath: backupPath, toPath: deployPath)
+                }
+                throw error
             }
         }.get()
     }
