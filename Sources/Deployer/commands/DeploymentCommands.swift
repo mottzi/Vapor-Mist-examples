@@ -8,7 +8,7 @@ struct DeployCommand: AsyncCommand
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
-        context.console.print("\nStart deploying Deployer")
+        context.console.print("\nStart deploying Deployer:")
 
         let pipeline = Deployment.Pipeline(
             config: .init(
@@ -18,10 +18,10 @@ struct DeployCommand: AsyncCommand
         )
         
         do {
-            context.console.print("#1 Move Deployer: build directory -> deploy directory")
+            context.console.print("    #1 Move Deployer: build directory -> deploy directory")
             try await pipeline.move(using: context.application)
             
-            context.console.print("#2 Restart Deployer")
+            context.console.print("    #2 Restart Deployer")
             try await pipeline.restart()
             
             context.console.print("\nSuccessfully deployed Deployer\n")
