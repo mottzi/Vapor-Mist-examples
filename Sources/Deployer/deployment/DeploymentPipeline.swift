@@ -196,37 +196,27 @@ extension Deployment.Pipeline {
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
             
-            // 0. PRE-FLIGHT CHECKS
-            // Ensure the deploy directory exists
             try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
-            // Critical: Don't touch the live app if the new build is missing!
             guard fileManager.fileExists(atPath: buildPath) else {
                 throw PipelineError.moveError("New binary not found at \(buildPath)")
             }
             
-            // 1. SAFETY: Delete any existing 'old' backup
             if fileManager.fileExists(atPath: backupPath) {
                 try? fileManager.removeItem(atPath: backupPath)
             }
             
-            // 2. BACKUP: Move current live app to backup (Atomic rename)
-            // The running process continues safely because it holds the inode.
             if fileManager.fileExists(atPath: deployPath) {
                 try fileManager.moveItem(atPath: deployPath, toPath: backupPath)
             }
             
             do {
-                // 3. INSTALL: Move new binary to live path (Atomic rename)
                 try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
                 
-                // 4. CLEANUP: Delete the backup (Success)
                 if fileManager.fileExists(atPath: backupPath) {
                     try? fileManager.removeItem(atPath: backupPath)
                 }
             } catch {
-                // 5. ROLLBACK: Restore the old binary if installation failed
-                // Only restore if the live file is actually missing
                 if !fileManager.fileExists(atPath: deployPath) && fileManager.fileExists(atPath: backupPath) {
                     try? fileManager.moveItem(atPath: backupPath, toPath: deployPath)
                 }
@@ -235,7 +225,7 @@ extension Deployment.Pipeline {
         }.get()
     }
 }
-///
+
 extension Deployment.Pipeline {
     actor Manager {
         static let shared = Manager()
