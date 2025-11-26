@@ -120,17 +120,6 @@ extension Deployment.Pipeline {
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = ["bash", "-c", command]
             process.currentDirectoryURL = URL(fileURLWithPath: config.workingDirectory)
-            
-            var env = ProcessInfo.processInfo.environment
-            if env["HOME"] == nil {
-                env["HOME"] = "/root"
-            }
-            if let path = env["PATH"] {
-                env["PATH"] = path + ":/usr/local/bin:/usr/bin:/bin"
-            } else {
-                env["PATH"] = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-            }
-            process.environment = env
 
             let pipe = Pipe()
             process.standardOutput = pipe
