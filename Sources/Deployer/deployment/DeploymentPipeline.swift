@@ -154,7 +154,7 @@ extension Deployment.Pipeline {
     }
 
     func build() async throws {
-        try await execute("swift build -c \(config.buildConfiguration)")
+        try await execute("swift build -c \(config.buildConfiguration) --product \(config.productName)")
     }
 
     func restart() async throws {

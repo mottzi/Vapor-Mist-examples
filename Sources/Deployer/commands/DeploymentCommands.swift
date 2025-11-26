@@ -18,10 +18,16 @@ struct DeployCommand: AsyncCommand
         )
         
         do {
-            context.console.print("    #1 Move Deployer")
+            context.console.print("    #1 Pull Deployer")
+            try await pipeline.pull()
+            
+            context.console.print("    #2 Build Deployer")
+            try await pipeline.build()
+            
+            context.console.print("    #3 Move Deployer")
             try await pipeline.move(using: context.application)
             
-            context.console.print("    #2 Restart Deployer")
+            context.console.print("    #4 Restart Deployer")
             try await pipeline.restart()
             
             context.console.print("Successfully deployed.\n")
