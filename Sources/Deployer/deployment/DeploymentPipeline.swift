@@ -184,6 +184,7 @@ extension Deployment.Pipeline {
                 try fileManager.removeItem(atPath: deployPath)
             }
             try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
+
         }.get()
     }
 }
