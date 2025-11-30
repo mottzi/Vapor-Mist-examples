@@ -8,6 +8,7 @@ struct DeployCommand: AsyncCommand
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
+        // wont work!!!! vapor commands are different processes
         guard await Deployment.Pipeline.Manager.shared.requestPipeline() else {
             context.console.print("⚠️  Deployment rejected: Another deployment is currently in progress.")
             return

@@ -11,7 +11,8 @@ public actor Clients
     
     let components: Components
     
-    init(components: Components) {
+    init(components: Components)
+    {
         self.components = components
     }
 }
@@ -27,15 +28,15 @@ extension Clients
     
     func addClient(id: UUID, socket: WebSocket)
     {
-        return clients.append(Client(id: id, socket: socket))
+        clients.append(Client(id: id, socket: socket))
     }
     
     func removeClient(id: UUID)
     {
         guard let clientIndex = clients.firstIndex(where: { $0.id == id }) else { return }
-        let clientSubscriptions = clients[clientIndex].subscriptions
         
-        for component in clientSubscriptions {
+        for component in clients[clientIndex].subscriptions
+        {
             guard var subscribers = componentToClients[component] else { continue }
             subscribers.remove(id)
             componentToClients[component] = subscribers.isEmpty ? nil : subscribers
@@ -50,7 +51,6 @@ extension Clients
         guard let subscriberIDs = componentToClients[component] else { return [] }
         return clients.filter { subscriberIDs.contains($0.id) }
     }
-    
 }
 
 extension Clients
@@ -74,13 +74,11 @@ extension Clients
         {
             var state = sessionState[clientID] ?? [:]
             state.removeValue(forKey: componentID)
-            if state.isEmpty
+            
+            switch state.isEmpty
             {
-                sessionState[clientID] = nil
-            }
-            else
-            {
-                sessionState[clientID] = state
+                case true: sessionState[clientID] = nil
+                case false: sessionState[clientID] = state
             }
         }
     }

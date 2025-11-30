@@ -34,9 +34,11 @@ extension MistDemoModel1
         String(id?.uuidString.prefix(8) ?? "")
     }
     
-    func contextExtras() -> [String: any Encodable]
+    var contextExtras: [String: any Encodable]
     {
-        ["shortID": shortID]
+        [
+            "shortID": shortID
+        ]
     }
 }
 

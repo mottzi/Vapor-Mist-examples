@@ -2,11 +2,11 @@ import LeafKit
 import NIOCore
 import Vapor
 
-func configure(
-    _ components: [any Component], on application: Application
-) async {
+func configure(_ components: [any Component], on application: Application) async
+{
     let inlineTemplates = TemplateSource()
-    for component in components {
+    for component in components
+    {
         guard case .inline(let template) = component.template else { continue }
         await inlineTemplates.register(name: component.name, template: template)
     }
@@ -22,26 +22,22 @@ func configure(
     websocket.register(on: application)
 }
 
-public actor TemplateSource: LeafSource {
+public actor TemplateSource: LeafSource
+{
     private var templates: [String: String] = [:]
 
     public init() {}
 
-    public func register(name: String, template: String) {
+    public func register(name: String, template: String)
+    {
         self.templates[name] = template
     }
 
-    public nonisolated func file(
-        template: String,
-        escape: Bool,
-        on eventLoop: any EventLoop
-    )
-        throws -> EventLoopFuture<ByteBuffer>
+    public nonisolated func file(template: String, escape: Bool, on eventLoop: any EventLoop) throws -> EventLoopFuture<ByteBuffer>
     {
-        return eventLoop.makeFutureWithTask {
-            guard let content = await self.templates[template] else {
-                throw LeafError(.noTemplateExists(template))
-            }
+        return eventLoop.makeFutureWithTask
+        {
+            guard let content = await self.templates[template] else { throw LeafError(.noTemplateExists(template)) }
             var buffer = ByteBufferAllocator().buffer(capacity: content.utf8.count)
             buffer.writeString(content)
             return buffer
@@ -50,14 +46,15 @@ public actor TemplateSource: LeafSource {
 
 }
 
-extension Application.Leaf {
-    var defaultSource: NIOLeafFiles {
-        return NIOLeafFiles(
-            fileio: self.application.fileio,
+extension Application.Leaf
+{
+    var defaultSource: NIOLeafFiles 
+    { 
+        NIOLeafFiles(
+            fileio: application.fileio,
             limits: .default,
-            sandboxDirectory: self.configuration.rootDirectory,
-            viewDirectory: self.configuration.rootDirectory
+            sandboxDirectory: configuration.rootDirectory,
+            viewDirectory: configuration.rootDirectory
         )
     }
-
 }

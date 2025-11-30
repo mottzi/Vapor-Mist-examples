@@ -26,13 +26,12 @@ extension Deployment {
             }
         }
 
-        private static func validateSignature(of request: Request) -> Bool {
+        private static func validateSignature(of request: Request) -> Bool 
+        {
             let secret = Environment.Variables.GITHUB_WEBHOOK_SECRET.value
             guard let secretData = secret.data(using: .utf8) else { return false }
 
-            guard let signatureHeader = request.headers.first(name: "X-Hub-Signature-256") else {
-                return false
-            }
+            guard let signatureHeader = request.headers.first(name: "X-Hub-Signature-256") else { return false }
             guard signatureHeader.hasPrefix("sha256=") else { return false }
             let signatureHex = String(signatureHeader.dropFirst("sha256=".count))
 

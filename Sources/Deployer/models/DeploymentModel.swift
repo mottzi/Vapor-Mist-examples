@@ -2,7 +2,8 @@ import Fluent
 import Mist
 import Vapor
 
-final class Deployment: Mist.Model, Content, @unchecked Sendable {
+final class Deployment: Mist.Model, Content, @unchecked Sendable
+{
     static let schema = "deployments"
 
     @ID(key: .id) var id: UUID?
@@ -15,7 +16,8 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable {
 
     init() {}
 
-    init(status: String, message: String) {
+    init(status: String, message: String)
+    {
         self.status = status
         self.message = message
         self.isCurrent = false
@@ -23,9 +25,12 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable {
     }
 }
 
-extension Deployment {
-    struct Table: AsyncMigration {
-        func prepare(on database: Database) async throws {
+extension Deployment
+{
+    struct Table: AsyncMigration
+    {
+        func prepare(on database: Database) async throws
+        {
             try await database.schema(Deployment.schema)
                 .id()
                 .field("status", .string, .required)
@@ -37,14 +42,17 @@ extension Deployment {
                 .create()
         }
 
-        func revert(on database: Database) async throws {
+        func revert(on database: Database) async throws
+        {
             try await database.schema(Deployment.schema).delete()
         }
     }
 }
 
-extension Deployment {
-    func contextExtras() -> [String: any Encodable] {
+extension Deployment
+{
+    var contextExtras: [String: any Encodable]
+    {
         [
             "durationString": durationString,
             "displayStatus": displayStatus,
@@ -52,26 +60,29 @@ extension Deployment {
         ]
     }
 
-    var durationString: String? {
+    var durationString: String?
+    {
         guard let finishedAt, let startedAt else { return nil }
         return String(format: "%.1fs", finishedAt.timeIntervalSince(startedAt))
     }
 
-    var shortID: String {
-        String(id?.uuidString.prefix(8) ?? "")
-    }
+    var shortID: String { String(id?.uuidString.prefix(8) ?? "") }
 
-    var displayStatus: String {
+    var displayStatus: String
+    {
         guard status == "running",
-            let startedAt = startedAt,
-            Date.now.timeIntervalSince(startedAt) > 1800
+              let startedAt = startedAt,
+              Date.now.timeIntervalSince(startedAt) > 1800
         else { return status }
+        
         return "stale"
     }
 }
 
-extension Deployment {
-    func setCurrent(on database: Database) async throws {
+extension Deployment
+{
+    func setCurrent(on database: Database) async throws
+    {
         // set the new deployment as current
         self.isCurrent = true
         self.status = "deployed"
@@ -83,20 +94,23 @@ extension Deployment {
             .filter(\.$id, .notEqual, self.id!)
             .all()
 
-        for deployment in oldCurrentDeployments {
+        for deployment in oldCurrentDeployments
+        {
             deployment.isCurrent = false
             deployment.status = "success"
             try await deployment.save(on: database)
         }
     }
 
-    static func getCurrent(on database: Database) async throws -> Deployment? {
-        try await Deployment.query(on: database)
+    static func getCurrent(on database: Database) async throws -> Deployment?
+    {
+        return try await Deployment.query(on: database)
             .filter(\.$isCurrent, .equal, true)
             .first()
     }
 
-    static func clearCurrent(on database: Database) async throws {
+    static func clearCurrent(on database: Database) async throws
+    {
         try await Deployment.query(on: database)
             .set(\.$isCurrent, to: false)
             .filter(\.$isCurrent, .equal, true)

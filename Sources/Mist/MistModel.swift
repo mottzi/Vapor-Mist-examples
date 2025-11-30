@@ -4,15 +4,12 @@ import Logging
 
 public protocol Model: Fluent.Model where IDValue == UUID
 {
-    func contextExtras() -> [String: any Encodable]
+    var contextExtras: [String: any Encodable] { get }
 }
 
 public extension Model
 {
-    func contextExtras() -> [String: any Encodable]
-    {
-        return [:]
-    }
+    var contextExtras: [String: any Encodable] { [:] }
     
     static func find(id: UUID, on database: Database) async -> (any Model)?
     {
@@ -47,7 +44,7 @@ public struct ModelContainer: Encodable
         
         for (key, value) in models
         {
-            let extras = value.contextExtras()
+            let extras = value.contextExtras
             
             if extras.isEmpty
             {

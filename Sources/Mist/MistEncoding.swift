@@ -9,7 +9,6 @@ enum MistError: Error
 struct MergingEncoder: Encodable
 {
     private static let jsonEncoder = JSONEncoder()
-//    let logger = Logger(label: "Mist.MergingEncoder")
     
     let base: any Encodable
     let extras: [String: any Encodable]
@@ -20,12 +19,8 @@ struct MergingEncoder: Encodable
         guard var dict = try JSONSerialization.jsonObject(with: json) as? [String: Any] 
         else { throw MistError.encoding("Base model did not encode to JSON dictionary") }
         
-//        logger.warning("📝 Base properties: \(dict.keys.sorted())")
-
         for (key, value) in extras
-        {
-//            logger.warning("🔄 Processing extra '\(key)' (type: \(type(of: value)))")
-            
+        {            
             switch value 
             {
                 case is String: encodePrimitive(key: key, value: value, into: &dict)
@@ -36,8 +31,6 @@ struct MergingEncoder: Encodable
             }
         }
         
-//        logger.warning("📋 Final properties: \(dict.keys.sorted())")
-
         var container = encoder.container(keyedBy: StringCodingKey.self)
         for (key, value) in dict { try container.encode(AnyEncodable(value), forKey: StringCodingKey(key)) }
     }
@@ -45,16 +38,13 @@ struct MergingEncoder: Encodable
     func encodePrimitive(key: String, value: Any, into dict: inout [String: Any])
     {
         dict[key] = value
-//        logger.warning("➕ Added primitive extra '\(key)': \(value)")
     }
 
     func encodeOther(key: String, value: Any, into dict: inout [String: Any])
     {
-        guard let extraData = try? Self.jsonEncoder.encode(AnyEncodable(value)),
-              let decodedExtra = try? JSONSerialization.jsonObject(with: extraData, options: [.allowFragments])
-        else { return /*logger.warning("⚠️ Skipping complex extra '\(key)' - failed to encode")*/ }
+        guard let extraData = try? Self.jsonEncoder.encode(AnyEncodable(value)) else { return }
+        guard let decodedExtra = try? JSONSerialization.jsonObject(with: extraData, options: [.allowFragments]) else { return }
         dict[key] = decodedExtra
-//        logger.warning("➕ Added complex extra '\(key)': \(decodedExtra)")
     }
 }
 
@@ -103,7 +93,8 @@ private extension AnyEncodable
     func encodeArray(_ array: [Any], to encoder: Encoder) throws 
     {
         var container = encoder.unkeyedContainer()
-        for item in array {
+        for item in array
+        {
             try container.encode(AnyEncodable(item))
         }
     }
@@ -111,7 +102,8 @@ private extension AnyEncodable
     func encodeDictionary(_ dict: [String: Any], to encoder: Encoder) throws 
     {
         var container = encoder.container(keyedBy: StringCodingKey.self)
-        for (key, value) in dict {
+        for (key, value) in dict
+        {
             try container.encode(AnyEncodable(value), forKey: StringCodingKey(key))
         }
     }

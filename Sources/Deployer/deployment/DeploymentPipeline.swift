@@ -169,10 +169,9 @@ extension Deployment.Pipeline {
         let deployDir = "\(config.workingDirectory)/deploy"
         let deployPath = "\(deployDir)/\(config.productName)"
         let backupPath = "\(deployDir)/\(config.productName).old"
-        
+    
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
-            
             try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
             // new build exists
