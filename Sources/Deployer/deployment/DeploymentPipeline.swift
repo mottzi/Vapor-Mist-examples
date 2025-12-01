@@ -16,7 +16,7 @@ extension Deployment
 {
     struct Pipeline
     {
-        var config: Configuration
+        let config: Configuration
         
         init(config: Configuration = Configuration())
         {
@@ -56,11 +56,8 @@ extension Deployment
 
             guard canDeploy else { return }
 
-            do {
-                try await run(deployment: deployment, on: app)
-            } catch {
-                await fail(deployment: deployment, on: app, error: error)
-            }
+            do { try await run(deployment: deployment, on: app) }
+            catch { await fail(deployment: deployment, on: app, error: error) }
         }
     }
 }
@@ -72,22 +69,24 @@ extension Deployment.Pipeline
         try await pull()
         try await build()
         try await move(using: app)
-
+        
         deployment.status = "success"
         deployment.finishedAt = .now
         try await deployment.save(on: app.db)
         await Deployment.Pipeline.Manager.shared.endDeployment()
-
+        
         let canceledDeployment = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
             .filter(\.$startedAt, .greaterThan, deployment.startedAt)
             .sort(\.$startedAt, .descending)
             .first()
-
+        
         if let canceledDeployment
         {
             await resume(existingDeployment: canceledDeployment, on: app)
-        } else {
+        }
+        else
+        {
             try await deployment.setCurrent(on: app.db)
             try await restart()
         }
@@ -104,14 +103,17 @@ extension Deployment.Pipeline
     }
 }
 
-extension Deployment.Pipeline {
-    private enum PipelineError: Error, LocalizedError {
+extension Deployment.Pipeline
+{
+    private enum PipelineError: Error, LocalizedError
+    {
         case initiateError(String)
         case executeError(String)
         case moveError(String)
         case successButBackupRemovalError(String)
 
-        var errorDescription: String? {
+        var errorDescription: String?
+        {
             switch self
             {
                 case .initiateError(let message): "Pipeline initiate error: \(message)"
@@ -122,9 +124,10 @@ extension Deployment.Pipeline {
         }
     }
 
-    private func execute(_ command: String) async throws {
-        try await withCheckedThrowingContinuation {
-            (continuation: CheckedContinuation<Void, Error>) in
+    private func execute(_ command: String) async throws
+    {
+        try await withCheckedThrowingContinuation
+        { (continuation: CheckedContinuation<Void, Error>) in
 
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
@@ -137,41 +140,33 @@ extension Deployment.Pipeline {
 
             process.terminationHandler =
             { [pipe, process] _ in
-                guard process.terminationStatus != 0 else {
-                    return continuation.resume(returning: ())
-                }
-                let output = String(
-                    data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(),
-                    encoding: .utf8)
-                let error = PipelineError.executeError(
-                    "Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'"
-                )
+                
+                guard process.terminationStatus != 0 else { return continuation.resume(returning: ()) }
+                let output = String(data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(), encoding: .utf8)
+                let error = PipelineError.executeError("Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'")
                 return continuation.resume(throwing: error)
             }
 
-            do {
+            do
+            {
                 try process.run()
-            } catch {
-                let error = PipelineError.initiateError(
-                    "Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
+            }
+            catch
+            {
+                let error = PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
                 continuation.resume(throwing: error)
             }
         }
     }
 
-    func pull() async throws {
-        try await execute("git pull")
-    }
+    func pull() async throws { try await execute("git pull") }
 
-    func build() async throws {
-        try await execute("swift build -c \(config.buildConfiguration) --product \(config.productName)")
-    }
+    func build() async throws { try await execute("swift build -c \(config.buildConfiguration) --product \(config.productName)") }
 
-    func restart() async throws {
-        try await execute("supervisorctl restart \(config.supervisorJob)")
-    }
+    func restart() async throws { try await execute("supervisorctl restart \(config.supervisorJob)") }
 
-    func move(using app: Application) async throws {
+    func move(using app: Application) async throws
+    {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
         
@@ -180,48 +175,36 @@ extension Deployment.Pipeline {
         let deployPath = "\(deployDir)/\(config.productName)"
         let backupPath = "\(deployDir)/\(config.productName).old"
     
-        try await threadPool.runIfActive(eventLoop: eventLoop) {
+        try await threadPool.runIfActive(eventLoop: eventLoop)
+        {
             let fileManager = FileManager.default
             try fileManager.createDirectory(atPath: deployDir, withIntermediateDirectories: true)
             
-            // new build exists
-            guard fileManager.fileExists(atPath: buildPath) else {
-                throw PipelineError.moveError("New binary not found at \(buildPath)")
-            }
+            guard fileManager.fileExists(atPath: buildPath) else { throw PipelineError.moveError("New binary not found at \(buildPath)") }
             
-            // remove backup
-            if fileManager.fileExists(atPath: backupPath) {
-                try fileManager.removeItem(atPath: backupPath)
-            }
+            if fileManager.fileExists(atPath: backupPath) { try fileManager.removeItem(atPath: backupPath) }
+            if fileManager.fileExists(atPath: deployPath) { try fileManager.moveItem(atPath: deployPath, toPath: backupPath) }
             
-            // backup old build
-            if fileManager.fileExists(atPath: deployPath) {
-                try fileManager.moveItem(atPath: deployPath, toPath: backupPath)
-            }
-            
-            do {
-                // move new build to old build location
+            do
+            {
                 try fileManager.moveItem(atPath: buildPath, toPath: deployPath)
-                
-                // remove backup 
-                if fileManager.fileExists(atPath: backupPath) {
-                    try? fileManager.removeItem(atPath: backupPath)
-                }
-            } catch {
+                if fileManager.fileExists(atPath: backupPath) { try? fileManager.removeItem(atPath: backupPath) }
+            }
+            catch
+            {
                 let moveError = error
-                // ERROR!
-                // if we have a backup -> attempt ROLLBACK
-                if fileManager.fileExists(atPath: backupPath) {
-                    do {
-                        // remove old build
-                        if fileManager.fileExists(atPath: deployPath) {
-                            try fileManager.removeItem(atPath: deployPath)
-                        }
-                        // replace old build with backup
+
+                if fileManager.fileExists(atPath: backupPath)
+                {
+                    do
+                    {
+                        if fileManager.fileExists(atPath: deployPath) { try fileManager.removeItem(atPath: deployPath) }
                         try fileManager.moveItem(atPath: backupPath, toPath: deployPath)
-                    } catch {
+                    }
+                    catch
+                    {
                         let rollbackError = error
-                        // if rollback fails:
+
                         throw PipelineError.moveError(
                             """
                             Deployment failed: '\(moveError.localizedDescription)'. 
@@ -241,21 +224,25 @@ extension Deployment.Pipeline {
         }.get()
     }
 }
-//2
-extension Deployment.Pipeline {
-    actor Manager {
+
+extension Deployment.Pipeline
+{
+    actor Manager
+    {
         static let shared = Manager()
         private init() {}
 
         private(set) var isDeploying: Bool = false
 
-        func requestPipeline() -> Bool {
+        func requestPipeline() -> Bool
+        {
             guard isDeploying == false else { return false }
             isDeploying = true
             return true
         }
 
-        func endDeployment() {
+        func endDeployment()
+        {
             isDeploying = false
         }
     }

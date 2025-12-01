@@ -1,25 +1,30 @@
 import Vapor
 
-extension Application {
-    func useWebhook() {
-        Deployment.Webhook.register("pushevent", on: self) { request async in
-            await Deployment.Pipeline().start(with: request)
+extension Application
+{
+    func useWebhook()
+    {
+        Deployment.Webhook.register("pushevent", on: self)
+        { request async in
+            
+            let pipeline = Deployment.Pipeline(productName: "Mottzi", supervisorJob: "mottzi")
+            await pipeline.start(with: request)
         }
     }
 }
 
-extension Deployment {
-    struct Webhook {
-        static func register(
-            _ endpoint: PathComponent..., on app: Application,
-            action: @Sendable @escaping (Request) async -> Void
-        ) {
-            let accepted = Response(
-                status: .ok, body: .init(stringLiteral: "[mottzi] Push event accepted."))
-            let denied = Response(
-                status: .forbidden, body: .init(stringLiteral: "[mottzi] Push event denied."))
+extension Deployment
+{
+    struct Webhook
+    {
+        static func register(_ endpoint: PathComponent..., on app: Application, action: @Sendable @escaping (Request) async -> Void)
+        {
+            let accepted = Response(status: .ok, body: .init(stringLiteral: "[mottzi] Push event accepted."))
+            let denied = Response(status: .forbidden, body: .init(stringLiteral: "[mottzi] Push event denied."))
 
-            app.post(endpoint) { request async -> Response in
+            app.post(endpoint)
+            { request async -> Response in
+                
                 guard validateSignature(of: request) else { return denied }
                 Task.detached { await action(request) }
                 return accepted
@@ -52,37 +57,44 @@ extension Deployment {
     }
 }
 
-extension Deployment.Webhook {
-    struct Payload: Codable {
+extension Deployment.Webhook
+{
+    struct Payload: Codable
+    {
         let headCommit: Commit
 
-        struct Commit: Codable {
+        struct Commit: Codable
+        {
             let id: String
             let message: String
         }
     }
 }
 
-extension Request {
-    var commitMessage: String? {
+extension Request
+{
+    var commitMessage: String?
+    {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
-        guard let bodyString = self.body.string,
-              let jsonData = bodyString.data(using: .utf8),
-              let payload = try? decoder.decode(Deployment.Webhook.Payload.self, from: jsonData)
-        else { return nil }
+        guard let bodyString = self.body.string else { return nil }
+        guard let jsonData = bodyString.data(using: .utf8) else { return nil }
+        guard let payload = try? decoder.decode(Deployment.Webhook.Payload.self, from: jsonData) else { return nil }
         
         return payload.headCommit.message
     }
 }
 
-extension String {
-    var hexadecimal: Data? {
+extension String
+{
+    var hexadecimal: Data?
+    {
         var data = Data(capacity: count / 2)
         let regex = try! NSRegularExpression(pattern: "[0-9a-f]{1,2}", options: .caseInsensitive)
 
-        regex.enumerateMatches(in: self, range: NSRange(startIndex..., in: self)) { match, _, _ in
+        regex.enumerateMatches(in: self, range: NSRange(startIndex..., in: self))
+        { match, _, _ in
             let byteString = (self as NSString).substring(with: match!.range)
             let num = UInt8(byteString, radix: 16)!
             data.append(num)
