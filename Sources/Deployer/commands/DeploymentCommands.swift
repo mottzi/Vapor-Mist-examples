@@ -5,7 +5,7 @@ struct DeployCommand: AsyncCommand
     struct Signature: CommandSignature {}
 
     let help: String = "Pulls, builds, moves and restarts Deployer."
-
+//
     func run(using context: CommandContext, signature: Signature) async throws
     {
         guard let runningCount = try? await Deployment.query(on: context.application.db)
