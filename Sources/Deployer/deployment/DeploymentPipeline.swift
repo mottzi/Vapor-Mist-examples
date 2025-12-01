@@ -126,7 +126,7 @@ extension Deployment.Pipeline
 
     private func execute(_ command: String) async throws
     {
-        try await withCheckedThrowingContinuation
+        try await withCheckedThrowingContinuation()
         { (continuation: CheckedContinuation<Void, Error>) in
 
             let process = Process()
