@@ -4,26 +4,21 @@ struct DeployCommand: AsyncCommand
 {
     struct Signature: CommandSignature {}
 
-    let help: String = ">:D Deploys (pull, build, move and restart) Deployer."
+    let help: String = "Pulls, builds, moves and restarts Deployer."
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
-        let runningCount = try await Deployment.query(on: context.application.db)
+        guard let runningCount = try? await Deployment.query(on: context.application.db)
             .filter(\.$status, .equal, "running")
             .filter(\.$startedAt, .greaterThanOrEqual, Date.now.addingTimeInterval(-1800))
             .count()
+        else { return context.console.print("Error: Could not check availability of Deployer!") }
         
-        guard runningCount == 0 else { return context.console.print("⚠️  Deployment rejected: Another deployment is currently in progress.") }
-                
+        guard runningCount == 0 else { return context.console.print("Error: Deployer is already running!") }
+        
         context.console.print("\nStart deploying...")
+        let pipeline = Deployment.Pipeline(productName: "Deployer", supervisorJob: "deployer")
 
-        let config = Deployment.Configuration(
-            productName: "Deployer",
-            supervisorJob: "deployer"
-        )
-        
-        let pipeline = Deployment.Pipeline(config: config)
-        
         do
         {
             context.console.print("    #1 Pull Deployer")

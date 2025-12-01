@@ -16,7 +16,17 @@ extension Deployment
 {
     struct Pipeline
     {
-        var config: Configuration = Configuration()
+        var config: Configuration
+        
+        init(config: Configuration = Configuration())
+        {
+            self.config = config
+        }
+        
+        init(productName: String, supervisorJob: String)
+        {
+            self.config = Configuration(productName: productName, supervisorJob: supervisorJob)
+        }
 
         public func start(with request: Request) async
         {
