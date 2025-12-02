@@ -6,9 +6,9 @@ extension Deployment
     struct Configuration
     {
         var buildConfiguration: String = "debug"
-        var productName: String = "Mottzi"
-        var supervisorJob: String = "mottzi"
         var workingDirectory: String = "/var/www/mottzi"
+        var productName: String
+        var supervisorJob: String
     }
 }
 
@@ -18,7 +18,7 @@ extension Deployment
     {
         let config: Configuration
         
-        init(config: Configuration = Configuration())
+        init(config: Configuration)
         {
             self.config = config
         }
@@ -56,8 +56,14 @@ extension Deployment
 
             guard canDeploy else { return }
 
-            do { try await run(deployment: deployment, on: app) }
-            catch { await fail(deployment: deployment, on: app, error: error) }
+            do
+            {
+                try await run(deployment: deployment, on: app)
+            }
+            catch
+            {
+                await fail(deployment: deployment, on: app, error: error)
+            }
         }
     }
 }
@@ -230,7 +236,7 @@ extension Deployment.Pipeline
     actor Manager
     {
         static let shared = Manager()
-        private init() {}
+        public init() {}
 
         private(set) var isDeploying: Bool = false
 
