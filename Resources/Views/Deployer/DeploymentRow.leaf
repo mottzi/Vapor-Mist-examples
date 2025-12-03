@@ -7,7 +7,7 @@
 
     <!-- deployment product -->
     <td class="deployment-td">
-        <span class="deployment-text-message">hmm #(component.deployment.productName)</span>
+        <span class="deployment-text-message">#(component.deployment.productName)</span>
     </td>
     
     <!-- deployment commit message -->
