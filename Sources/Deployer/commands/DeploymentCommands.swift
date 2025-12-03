@@ -12,7 +12,7 @@ struct DeployCommand: AsyncCommand
     
         let response = try await context.application.client.post(uri) 
         { request in
-            request.headers.add(name: "X-Deploy-Secret", value: "your-secret-here")
+            request.headers.add(name: "X-Deploy-Secret", value: "4132Muttenz")
         }
     
         context.console.print("Status: \(response.status)")
