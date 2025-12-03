@@ -9,7 +9,7 @@ struct DeploymentStatus: QueryComponent
     
     func queryModel(on db: Database) async -> (any Mist.Model)?
     {
-        return try? await Deployment.getCurrent(on: db)
+        return try? await Deployment.getCurrent(named: "Deployer", on: db)
     }
 }
 

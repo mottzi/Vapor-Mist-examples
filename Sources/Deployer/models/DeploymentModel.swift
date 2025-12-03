@@ -7,6 +7,8 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
     static let schema = "deployments"
 
     @ID(key: .id) var id: UUID?
+    @Field(key: "product_name") var productName: String
+    @Field(key: "supervisor_job") var supervisorJob: String
     @Field(key: "status") var status: String
     @Field(key: "message") var message: String
     @Field(key: "is_current") var isCurrent: Bool
@@ -16,8 +18,10 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
 
     init() {}
 
-    init(status: String, message: String)
+    init(productName: String, supervisorJob: String, status: String, message: String)
     {
+        self.productName = productName
+        self.supervisorJob = supervisorJob
         self.status = status
         self.message = message
         self.isCurrent = false
@@ -33,6 +37,8 @@ extension Deployment
         {
             try await database.schema(Deployment.schema)
                 .id()
+                .field("product_name", .string, .required)
+                .field("supervisor_job", .string, .required)
                 .field("status", .string, .required)
                 .field("message", .string, .required)
                 .field("is_current", .bool, .required, .sql(.default(false)))
@@ -91,6 +97,7 @@ extension Deployment
         // unset the old ones
         let oldCurrentDeployments = try await Deployment.query(on: database)
             .filter(\.$isCurrent, .equal, true)
+            .filter(\.$productName, .equal, self.productName)
             .filter(\.$id, .notEqual, self.id!)
             .all()
 
@@ -101,11 +108,12 @@ extension Deployment
             try await deployment.save(on: database)
         }
     }
-
-    static func getCurrent(on database: Database) async throws -> Deployment?
+    
+    static func getCurrent(named productName: String, on database: Database) async throws -> Deployment?
     {
         return try await Deployment.query(on: database)
             .filter(\.$isCurrent, .equal, true)
+            .filter(\.$productName, .equal, productName)
             .first()
     }
 

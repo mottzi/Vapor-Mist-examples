@@ -10,7 +10,7 @@ extension Application
         self.get("Deployer")
         { request async throws -> View in
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
-            let currentDeployment = try? await Deployment.getCurrent(on: request.db)
+            let currentDeployment = try? await Deployment.getCurrent(named: "Mottzi", on: request.db)
 
             let statusComponent = currentDeployment.map 
             { 
