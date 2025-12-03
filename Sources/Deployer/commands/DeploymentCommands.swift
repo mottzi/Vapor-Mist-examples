@@ -8,7 +8,7 @@ struct DeployCommand: AsyncCommand
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
-        let uri = URI(string: "http://localhost:8081/deployer/deploy")
+        let uri = URI(string: "http://localhost:8081/Deployer/deploy")
     
         let response = try await context.application.client.post(uri) 
         { request in
