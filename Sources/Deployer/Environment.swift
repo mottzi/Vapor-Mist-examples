@@ -5,6 +5,7 @@ extension Environment
     enum Variables: String, CaseIterable
     {
         case GITHUB_WEBHOOK_SECRET
+        case DEPLOY_SECRET
 
         var value: String { Environment.get(self.rawValue)! }
     }

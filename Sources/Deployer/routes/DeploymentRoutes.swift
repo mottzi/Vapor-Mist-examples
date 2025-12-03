@@ -32,5 +32,17 @@ extension Application
 
             return try await request.view.render("Deployer/DeploymentPanel", context)
         }
+
+        self.post("Deployer", "deploy") 
+        { request async throws -> String in
+
+            let providedSecret = request.headers.first(name: "X-Deploy-Secret")
+            let expectedSecret = Environment.get("DEPLOY_SECRET")
+
+            guard providedSecret == expectedSecret 
+            else { throw Abort(.unauthorized, reason: "Invalid Deployer Secret") }
+        
+            return "Deployment started ;D"
+        }
     }
 }
