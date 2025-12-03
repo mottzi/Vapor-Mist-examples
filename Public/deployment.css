@@ -245,6 +245,7 @@ body {
 .deployment-text-id {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.875rem;
+  color: #374151;
   text-decoration: none;
   cursor: pointer;
   transition: color 150ms;
@@ -252,6 +253,12 @@ body {
 
 .deployment-text-id:hover {
   text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .deployment-text-id {
+    color: #d4d4d8;
+  }
 }
 
 .deployment-text-started {
