@@ -15,6 +15,6 @@ struct DeployCommand: AsyncCommand
             request.headers.add(name: "X-Deploy-Secret", value: "4132Muttenz")
         }
     
-        context.console.print("Status: \(response.status)")
+        context.console.print("Deployer Response: \(response.status).")
     }
 }
