@@ -3,7 +3,7 @@ import Vapor
 extension Application {
     func useMistDemo() {
         self.get("test") { _ in
-            return "123"
+            return "666"
         }
 
         self.get("MistDemo")
