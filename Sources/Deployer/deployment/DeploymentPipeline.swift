@@ -17,9 +17,9 @@ extension Deployment
             self.config = Configuration(productName: productName, supervisorJob: supervisorJob)
         }
         
-        public func start(with request: Request) async
+        public func start(with message: String? = nil, on app: Application) async
         {
-            await deploy(message: request.commitMessage, on: request.application)
+            await deploy(message: message, on: app)
         }
     }
 }

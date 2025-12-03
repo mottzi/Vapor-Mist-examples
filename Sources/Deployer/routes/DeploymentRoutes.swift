@@ -9,6 +9,7 @@ extension Application
     {
         self.get("Deployer")
         { request async throws -> View in
+            
             let componentsContext = await DeploymentRow().makeContext(ofAll: request.db)
             let currentDeployment = try? await Deployment.getCurrent(named: "Mottzi", on: request.db)
 
@@ -36,13 +37,20 @@ extension Application
         self.post("Deployer", "deploy") 
         { request async throws -> String in
 
-            let providedSecret = request.headers.first(name: "X-Deploy-Secret")
-            let expectedSecret = Environment.get("DEPLOY_SECRET")
+            guard let providedSecret = request.headers.first(name: "X-Deploy-Secret"),
+                  let expectedSecret = Environment.get(Environment.Variables.DEPLOY_SECRET.rawValue)
+            else { throw Abort(.unauthorized, reason: "Could not obtain secrets to compare.") }
 
             guard providedSecret == expectedSecret 
-            else { throw Abort(.unauthorized, reason: "Invalid Deployer Secret") }
-        
-            return "Deployment started ;D"
+            else { throw Abort(.unauthorized, reason: "Secrets didn't match.") }
+            
+            Task.detached
+            {
+                let pipeline = Deployment.Pipeline(productName: "Deployer", supervisorJob: "deployer")
+                await pipeline.start(with: "CLI deployment of Deployer", on: self)
+            }
+
+            return "Started deployment pipeline ;D"
         }
     }
 }

@@ -8,7 +8,7 @@ extension Application
         { request async in
             
             let pipeline = Deployment.Pipeline(productName: "Mottzi", supervisorJob: "mottzi")
-            await pipeline.start(with: request)
+            await pipeline.start(with: request.commitMessage, on: self)
         }
     }
 }
