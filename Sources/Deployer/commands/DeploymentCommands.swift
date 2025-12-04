@@ -4,7 +4,7 @@ struct DeployCommand: AsyncCommand
 {
     struct Signature: CommandSignature {}
 
-    let help: String = "Pulls, builds, moves and restarts Deployer."
+    let help: String = ";D Pulls, builds, moves and restarts Deployer."
 
     func run(using context: CommandContext, signature: Signature) async throws
     {
