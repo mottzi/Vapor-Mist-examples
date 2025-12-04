@@ -128,7 +128,7 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    func findNextDeployment2(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    func findNextDeployment1(after deployment: Deployment, on app: Application) async throws -> Deployment?
     {
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
@@ -152,7 +152,7 @@ extension Deployment.Pipeline
         ?? cancelledDeploymentByProduct["Deployer"]
     }
     
-    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    func findNextDeployment2(after deployment: Deployment, on app: Application) async throws -> Deployment?
     {
         // 1. Query ALL canceled deployments (Look back in time)
         let cancelledDeployments = try await Deployment.query(on: app.db)
@@ -188,6 +188,60 @@ extension Deployment.Pipeline
             .first
         // Priority C: Deployer Fallback (Lowest Priority)
         ?? cancelledDeploymentByProduct["Deployer"]
+    }
+
+    // Sources/Deployer/deployment/DeploymentPipeline.swift
+
+    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment? 
+    {
+        // 1. Query ALL canceled deployments (Time filter REMOVED to allow cross-product visibility)
+        let cancelledDeployments = try await Deployment.query(on: app.db)
+            .filter(\.$status, .equal, "canceled")
+            .sort(\.$startedAt, .descending) // Strict Newest-First ordering
+            .all()
+        
+        // 2. Group by product (Keep only the single newest candidate per product)
+        var candidates: [ProductName: Deployment] = [:]
+        for dep in cancelledDeployments {
+            if candidates[dep.productName] == nil { candidates[dep.productName] = dep }
+        }
+        
+        // --- SELECTION LOGIC ---
+
+        // Priority 1: Batching (Same Product)
+        // STRICT RULE: Must be newer. This prevents d4 -> d3.
+        if let sameProduct = candidates[deployment.productName] {
+            if let nextStart = sameProduct.startedAt, 
+            let currentStart = deployment.startedAt, 
+            nextStart > currentStart 
+            {
+                return sameProduct
+            }
+        }
+        
+        // Priority 2: Other Products (High Priority e.g. Mottzi)
+        // We explicitly exclude "Deployer" here to keep it deprioritized.
+        let otherApp = candidates.values
+            .filter { $0.productName != "Deployer" && $0.productName != deployment.productName }
+            .sorted { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast }
+            .first
+        
+        if let otherApp { return otherApp }
+
+        // Priority 3: Deployer (Low Priority / Context Switch)
+        // We only switch to Deployer if we are NOT currently running a newer Deployer version.
+        if let deployer = candidates["Deployer"] {
+            // If we ARE Deployer, we already checked "Priority 1", so if we are here, 
+            // it means the candidate is OLDER. We must reject it.
+            if deployment.productName == "Deployer" {
+                return nil 
+            }
+            
+            // If we are Mottzi, we can switch to Deployer (even if it's older than Mottzi).
+            return deployer
+        }
+
+        return nil
     }
 }
 
