@@ -43,7 +43,7 @@ extension Deployment.Pipeline
     {
         guard await Manager.shared.requestPipeline() else { return }
         
-        deployment.startedAt = .now
+        // deployment.startedAt = .now  // !
         deployment.status = "running"
         try? await deployment.save(on: app.db)
         
