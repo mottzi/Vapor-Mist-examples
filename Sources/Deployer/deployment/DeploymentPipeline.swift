@@ -80,8 +80,8 @@ extension Deployment.Pipeline {
 
         if !isRestartOnly {
             try await pull()
-            try await build()
-            try await move(using: app)
+            try await build(deployment)
+            try await move(deployment, using: app)
         }
 
         deployment.status = "success"
@@ -115,13 +115,13 @@ extension Deployment.Pipeline {
                 // Different product (and current is not Deployer).
                 // Safe to restart current and then proceed.
                 try await deployment.setCurrent(on: app.db)
-                try await restart()
+                try await restart(deployment)
                 await resume(existing: nextDeployment, on: app)
             }
         } else {
             // Queue is empty.
             try await deployment.setCurrent(on: app.db)
-            try await restart()
+            try await restart(deployment)
         }
     }
 
@@ -236,24 +236,24 @@ extension Deployment.Pipeline {
         try await execute("git pull")
     }
 
-    func build() async throws {
+    func build(_ deployment: Deployment) async throws {
         try await execute(
-            "swift build -c \(config.buildConfiguration) --product \(config.productName)")
+            "swift build -c \(config.buildConfiguration) --product \(deployment.productName)")
     }
 
-    func restart() async throws {
-        try await execute("supervisorctl restart \(config.supervisorJob)")
+    func restart(_ deployment: Deployment) async throws {
+        try await execute("supervisorctl restart \(deployment.supervisorJob)")
     }
 
-    func move(using app: Application) async throws {
+    func move(_ deployment: Deployment, using app: Application) async throws {
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
         let buildPath =
-            "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(config.productName)"
+            "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(deployment.productName)"
         let deployDir = "\(config.workingDirectory)/deploy"
-        let deployPath = "\(deployDir)/\(config.productName)"
-        let backupPath = "\(deployDir)/\(config.productName).old"
+        let deployPath = "\(deployDir)/\(deployment.productName)"
+        let backupPath = "\(deployDir)/\(deployment.productName).old"
 
         try await threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
@@ -289,7 +289,7 @@ extension Deployment.Pipeline {
 
                         throw PipelineError.moveError(
                             """
-                            Deployment failed: '\(moveError.localizedDescription)'. 
+                            Deployment failed: '\(moveError.localizedDescription)'.
                             Rollback failed: '\(rollbackError.localizedDescription)'.
                             """
                         )
@@ -298,7 +298,7 @@ extension Deployment.Pipeline {
 
                 throw PipelineError.moveError(
                     """
-                    Deployment failed: '\(moveError.localizedDescription)'. 
+                    Deployment failed: '\(moveError.localizedDescription)'.
                     Rollback successfull.
                     """
                 )
