@@ -41,7 +41,7 @@ extension Deployment.Pipeline
 {
     private func resume(existing deployment: Deployment, on app: Application) async
     {
-        guard await Manager.shared.requestPipeline() else { return }
+        // NO LOCK CHECK HERE. We are already inside a running pipeline.
         
         //deployment.startedAt = .now
         deployment.status = "running"
@@ -94,7 +94,8 @@ extension Deployment.Pipeline
         deployment.status = "success"
         deployment.finishedAt = .now
         try await deployment.save(on: app.db)
-        await Deployment.Pipeline.Manager.shared.endDeployment()
+        
+        // LOCK REMAINS HELD until the entire chain is finished.
         
         // 1. Find what's next (using the "Zombie-proof" function)
         let nextDeployment = try await findNextDeployment(after: deployment, on: app)
@@ -116,17 +117,18 @@ extension Deployment.Pipeline
             
             try await deployment.setCurrent(on: app.db)
             
-            // [CRITICAL FIX]
-            // If we are Mottzi, we must restart NOW. It is safe and necessary.
-            if !isDeployer {
+            // If we are Mottzi, we must restart NOW. It is safe because we are separate processes.
+            if !isDeployer 
+            {
                 try await restart()
             }
             
             // Run the next job (Recursion)
             await resume(existing: nextDeployment, on: app)
             
-            // If we are Deployer, we restart NOW (Last action).
-            if isDeployer {
+            // If we are Deployer, we restart NOW (Last action, kills process).
+            if isDeployer 
+            {
                 try await restart()
             }
         }
@@ -134,6 +136,10 @@ extension Deployment.Pipeline
         {
             // Case C: Queue Empty
             try await deployment.setCurrent(on: app.db)
+            
+            // Unlock Manager before we potentially die
+            await Deployment.Pipeline.Manager.shared.endDeployment()
+            
             try await restart()
         }
     }
@@ -154,18 +160,17 @@ extension Deployment.Pipeline
     func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment? 
     {
         // 1. Fetch Context: What is currently LIVE? (e.g. d3 is live)
-        // We need this to identify "Zombies" (e.g. d2).
         let liveDeployments = try await Deployment.query(on: app.db)
             .filter(\.$isCurrent, .equal, true)
             .all()
             
         var liveDates: [String: Date] = [:]
-        for live in liveDeployments {
+        for live in liveDeployments 
+        {
             if let date = live.startedAt { liveDates[live.productName] = date }
         }
 
         // 2. Fetch Queue: All canceled jobs, newest first.
-        // We do NOT filter by time here, because we need to see cross-product updates.
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
             .sort(\.$startedAt, .descending)
@@ -181,9 +186,7 @@ extension Deployment.Pipeline
             // A. Deduplication: We only want the newest canceled commit per product.
             guard candidates[name] == nil else { continue }
             
-            // B. Zombie Check: 
-            // If the LIVE version is newer than this candidate, the candidate is a zombie.
-            // Example: Live is d3 (10:00). Candidate is d2 (09:00). SKIP d2.
+            // B. Zombie Check: If LIVE > Candidate, candidate is dead.
             if let liveDate = liveDates[name],
                let candidateDate = dep.startedAt,
                liveDate > candidateDate 
@@ -197,9 +200,8 @@ extension Deployment.Pipeline
         // --- SELECTION HIERARCHY ---
 
         // Priority 1: Batching (Same Product)
-        // Rule: You can only pick your own product if it is NEWER than what you are running right now.
-        // Prevents infinite loops (d4 -> d3).
-        if let sameProduct = candidates[deployment.productName] {
+        if let sameProduct = candidates[deployment.productName] 
+        {
             if let nextStart = sameProduct.startedAt, 
                let currentStart = deployment.startedAt, 
                nextStart > currentStart 
@@ -209,8 +211,6 @@ extension Deployment.Pipeline
         }
         
         // Priority 2: Other Products (High Priority)
-        // We prefer switching to "Mottzi" over restarting "Deployer".
-        // We assume any remaining candidate here is valid (passed Zombie check).
         let otherApp = candidates.values
             .filter { $0.productName != "Deployer" && $0.productName != deployment.productName }
             .sorted { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast }
@@ -219,10 +219,9 @@ extension Deployment.Pipeline
         if let otherApp { return otherApp }
 
         // Priority 3: Deployer (Low Priority)
-        // We switch to Deployer ONLY if we are currently running something else.
-        if let deployer = candidates["Deployer"] {
-            // If we ARE Deployer, and we reached this point, it means P1 failed.
-            // Therefore, this candidate is NOT newer. It is older or same. Re-reject it.
+        if let deployer = candidates["Deployer"] 
+        {
+            // If we ARE Deployer, and reached here, P1 failed (candidate is older). Reject.
             if deployment.productName == "Deployer" { return nil }
             
             return deployer
