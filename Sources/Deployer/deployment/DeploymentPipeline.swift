@@ -96,42 +96,43 @@ extension Deployment.Pipeline
         try await deployment.save(on: app.db)
         await Deployment.Pipeline.Manager.shared.endDeployment()
         
+        // 1. Find what's next (using the "Zombie-proof" function)
         let nextDeployment = try await findNextDeployment(after: deployment, on: app)
-                
-        // CASE 1: BATCHING (Same Product)
+        
+        // 2. Identify who WE are
+        let isDeployer = (deployment.productName == "Deployer")
+
+        // --- BRANCHING LOGIC ---
+
         if let nextDeployment, nextDeployment.productName == deployment.productName
         {
-            // Skip intermediate restart. Just recurse.
+            // Case A: Batching (Same Product)
+            // Skip restart, just process the newer version.
             await resume(existing: nextDeployment, on: app)
         }
-        
-        // CASE 2: CONTEXT SWITCH (Different Product)
         else if let nextDeployment
         {
+            // Case B: Context Switch (Different Product)
+            
             try await deployment.setCurrent(on: app.db)
             
-            // CHECK: Are we the "Suicide" job (Deployer)?
-            let isDeployer = (deployment.productName == "Deployer")
-            
-            // A. If we are NOT Deployer (e.g. Mottzi), RESTART NOW.
-            // It is safe, and we must do it before handing off control.
+            // [CRITICAL FIX]
+            // If we are Mottzi, we must restart NOW. It is safe and necessary.
             if !isDeployer {
                 try await restart()
             }
             
-            // B. Run the next job (Recursion)
+            // Run the next job (Recursion)
             await resume(existing: nextDeployment, on: app)
             
-            // C. If we ARE Deployer, RESTART LATER.
-            // We waited until the child job finished. Now we can die.
+            // If we are Deployer, we restart NOW (Last action).
             if isDeployer {
                 try await restart()
             }
         }
-        
-        // CASE 3: QUEUE EMPTY
         else
         {
+            // Case C: Queue Empty
             try await deployment.setCurrent(on: app.db)
             try await restart()
         }
