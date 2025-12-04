@@ -100,16 +100,26 @@ extension Deployment.Pipeline
                 
         if let nextDeployment, nextDeployment.productName == deployment.productName
         {
+            // Case 1: Batching (Same Product)
+            // Resume next immediately. Do NOT restart service yet (skip intermediate).
             await resume(existing: nextDeployment, on: app)
         }
         else if let nextDeployment
         {
+            // Case 2: Context Switch (e.g. Deployer -> Mottzi)
             try await deployment.setCurrent(on: app.db)
-            try await restart()
+            
+            // 1. Run the OTHER product first (Recursion)
+            // The current process must stay alive to manage this.
             await resume(existing: nextDeployment, on: app)
+            
+            // 2. NOW Restart self (Deployer)
+            // Everything else is done. Now we can die/update.
+            try await restart()
         }
         else
         {
+            // Case 3: Queue Empty
             try await deployment.setCurrent(on: app.db)
             try await restart()
         }
@@ -128,70 +138,6 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    func findNextDeployment1(after deployment: Deployment, on app: Application) async throws -> Deployment?
-    {
-        let cancelledDeployments = try await Deployment.query(on: app.db)
-            .filter(\.$status, .equal, "canceled")
-            .filter(\.$startedAt, .greaterThan, deployment.startedAt)
-            .sort(\.$startedAt, .descending)
-            .all()
-        
-        var cancelledDeploymentByProduct: [ProductName: Deployment] = [:]
-        
-        for cancelledDeployment in cancelledDeployments
-        {
-            guard cancelledDeploymentByProduct[cancelledDeployment.productName] == nil else { continue }
-            cancelledDeploymentByProduct[cancelledDeployment.productName] = cancelledDeployment
-        }
-        
-        return cancelledDeploymentByProduct[deployment.productName]
-        ?? cancelledDeploymentByProduct.values
-            .filter({ $0.productName != "Deployer" && $0.productName != deployment.productName })
-            .sorted(by: { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast })
-            .first
-        ?? cancelledDeploymentByProduct["Deployer"]
-    }
-    
-    func findNextDeployment2(after deployment: Deployment, on app: Application) async throws -> Deployment?
-    {
-        // 1. Query ALL canceled deployments (Look back in time)
-        let cancelledDeployments = try await Deployment.query(on: app.db)
-            .filter(\.$status, .equal, "canceled")
-        // .filter(\.$startedAt, .greaterThan, deployment.startedAt) <--- REMOVED
-            .sort(\.$startedAt, .descending) // Newest first
-            .all()
-        
-        // 2. Group by product (only keep the newest pending version per product)
-        var cancelledDeploymentByProduct: [ProductName: Deployment] = [:]
-        for cancelledDeployment in cancelledDeployments
-        {
-            guard cancelledDeploymentByProduct[cancelledDeployment.productName] == nil else { continue }
-            cancelledDeploymentByProduct[cancelledDeployment.productName] = cancelledDeployment
-        }
-        
-        // 3. SAFE SELECTION LOGIC
-        
-        // Priority A: Same Product (MUST be newer than current)
-        if let sameProduct = cancelledDeploymentByProduct[deployment.productName],
-           let pendingTime = sameProduct.startedAt,
-           let currentTime = deployment.startedAt,
-           pendingTime > currentTime
-        {
-            return sameProduct
-        }
-        
-        // Priority B: Different Products (Can be older than current)
-        // We filter out the current product (already handled/rejected above) and "Deployer"
-        return cancelledDeploymentByProduct.values
-            .filter({ $0.productName != "Deployer" && $0.productName != deployment.productName })
-            .sorted(by: { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast })
-            .first
-        // Priority C: Deployer Fallback (Lowest Priority)
-        ?? cancelledDeploymentByProduct["Deployer"]
-    }
-
-    // Sources/Deployer/deployment/DeploymentPipeline.swift
-
     func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment? 
     {
         // 1. Query ALL canceled deployments (Time filter REMOVED to allow cross-product visibility)
