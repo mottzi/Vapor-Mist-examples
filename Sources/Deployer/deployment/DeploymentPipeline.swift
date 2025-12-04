@@ -98,28 +98,40 @@ extension Deployment.Pipeline
         
         let nextDeployment = try await findNextDeployment(after: deployment, on: app)
                 
+        // CASE 1: BATCHING (Same Product)
         if let nextDeployment, nextDeployment.productName == deployment.productName
         {
-            // Case 1: Batching (Same Product)
-            // Resume next immediately. Do NOT restart service yet (skip intermediate).
+            // Skip intermediate restart. Just recurse.
             await resume(existing: nextDeployment, on: app)
         }
+        
+        // CASE 2: CONTEXT SWITCH (Different Product)
         else if let nextDeployment
         {
-            // Case 2: Context Switch (e.g. Deployer -> Mottzi)
             try await deployment.setCurrent(on: app.db)
             
-            // 1. Run the OTHER product first (Recursion)
-            // The current process must stay alive to manage this.
+            // CHECK: Are we the "Suicide" job (Deployer)?
+            let isDeployer = (deployment.productName == "Deployer")
+            
+            // A. If we are NOT Deployer (e.g. Mottzi), RESTART NOW.
+            // It is safe, and we must do it before handing off control.
+            if !isDeployer {
+                try await restart()
+            }
+            
+            // B. Run the next job (Recursion)
             await resume(existing: nextDeployment, on: app)
             
-            // 2. NOW Restart self (Deployer)
-            // Everything else is done. Now we can die/update.
-            try await restart()
+            // C. If we ARE Deployer, RESTART LATER.
+            // We waited until the child job finished. Now we can die.
+            if isDeployer {
+                try await restart()
+            }
         }
+        
+        // CASE 3: QUEUE EMPTY
         else
         {
-            // Case 3: Queue Empty
             try await deployment.setCurrent(on: app.db)
             try await restart()
         }
