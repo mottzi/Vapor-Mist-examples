@@ -140,33 +140,64 @@ extension Deployment.Pipeline
 {
     func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment? 
     {
-        // 1. Query ALL canceled deployments (Time filter REMOVED to allow cross-product visibility)
+        // 1. Fetch Context: What is currently LIVE? (e.g. d3 is live)
+        // We need this to identify "Zombies" (e.g. d2).
+        let liveDeployments = try await Deployment.query(on: app.db)
+            .filter(\.$isCurrent, .equal, true)
+            .all()
+            
+        var liveDates: [String: Date] = [:]
+        for live in liveDeployments {
+            if let date = live.startedAt { liveDates[live.productName] = date }
+        }
+
+        // 2. Fetch Queue: All canceled jobs, newest first.
+        // We do NOT filter by time here, because we need to see cross-product updates.
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
-            .sort(\.$startedAt, .descending) // Strict Newest-First ordering
+            .sort(\.$startedAt, .descending)
             .all()
         
-        // 2. Group by product (Keep only the single newest candidate per product)
+        // 3. Filter Candidates: Deduplicate & Kill Zombies
         var candidates: [ProductName: Deployment] = [:]
-        for dep in cancelledDeployments {
-            if candidates[dep.productName] == nil { candidates[dep.productName] = dep }
+        
+        for dep in cancelledDeployments 
+        {
+            let name = dep.productName
+            
+            // A. Deduplication: We only want the newest canceled commit per product.
+            guard candidates[name] == nil else { continue }
+            
+            // B. Zombie Check: 
+            // If the LIVE version is newer than this candidate, the candidate is a zombie.
+            // Example: Live is d3 (10:00). Candidate is d2 (09:00). SKIP d2.
+            if let liveDate = liveDates[name],
+               let candidateDate = dep.startedAt,
+               liveDate > candidateDate 
+            {
+                continue 
+            }
+            
+            candidates[name] = dep
         }
         
-        // --- SELECTION LOGIC ---
+        // --- SELECTION HIERARCHY ---
 
         // Priority 1: Batching (Same Product)
-        // STRICT RULE: Must be newer. This prevents d4 -> d3.
+        // Rule: You can only pick your own product if it is NEWER than what you are running right now.
+        // Prevents infinite loops (d4 -> d3).
         if let sameProduct = candidates[deployment.productName] {
             if let nextStart = sameProduct.startedAt, 
-            let currentStart = deployment.startedAt, 
-            nextStart > currentStart 
+               let currentStart = deployment.startedAt, 
+               nextStart > currentStart 
             {
                 return sameProduct
             }
         }
         
-        // Priority 2: Other Products (High Priority e.g. Mottzi)
-        // We explicitly exclude "Deployer" here to keep it deprioritized.
+        // Priority 2: Other Products (High Priority)
+        // We prefer switching to "Mottzi" over restarting "Deployer".
+        // We assume any remaining candidate here is valid (passed Zombie check).
         let otherApp = candidates.values
             .filter { $0.productName != "Deployer" && $0.productName != deployment.productName }
             .sorted { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast }
@@ -174,16 +205,13 @@ extension Deployment.Pipeline
         
         if let otherApp { return otherApp }
 
-        // Priority 3: Deployer (Low Priority / Context Switch)
-        // We only switch to Deployer if we are NOT currently running a newer Deployer version.
+        // Priority 3: Deployer (Low Priority)
+        // We switch to Deployer ONLY if we are currently running something else.
         if let deployer = candidates["Deployer"] {
-            // If we ARE Deployer, we already checked "Priority 1", so if we are here, 
-            // it means the candidate is OLDER. We must reject it.
-            if deployment.productName == "Deployer" {
-                return nil 
-            }
+            // If we ARE Deployer, and we reached this point, it means P1 failed.
+            // Therefore, this candidate is NOT newer. It is older or same. Re-reject it.
+            if deployment.productName == "Deployer" { return nil }
             
-            // If we are Mottzi, we can switch to Deployer (even if it's older than Mottzi).
             return deployer
         }
 
