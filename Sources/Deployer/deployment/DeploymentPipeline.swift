@@ -39,22 +39,18 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    private func resume(existing deployment: Deployment, on app: Application) async
+    private func resume(existing deployment: Deployment, on app: Application, isRoot: Bool) async
     {
-        // Removed lock check to allow recursion (The parent already holds the lock)
-        // guard await Manager.shared.requestPipeline() else { return }
-        
-        //deployment.startedAt = .now
         deployment.status = "running"
         try? await deployment.save(on: app.db)
         
         do
         {
-            try await run(deployment, on: app)
+            try await run(deployment, on: app, isRoot: isRoot)
         }
         catch
         {
-            await fail(deployment, with: error, on: app)
+            await fail(deployment, with: error, on: app, isRoot: isRoot)
         }
     }
     
@@ -75,18 +71,18 @@ extension Deployment.Pipeline
         
         do
         {
-            try await run(deployment, on: app)
+            try await run(deployment, on: app, isRoot: true)
         }
         catch
         {
-            await fail(deployment, with: error, on: app)
+            await fail(deployment, with: error, on: app, isRoot: true)
         }
     }
 }
 
 extension Deployment.Pipeline
 {
-    private func run(_ deployment: Deployment, on app: Application) async throws
+    private func run(_ deployment: Deployment, on app: Application, isRoot: Bool) async throws
     {
         try await pull()
         try await build()
@@ -96,13 +92,7 @@ extension Deployment.Pipeline
         deployment.finishedAt = .now
         try await deployment.save(on: app.db)
         
-        // Removed early unlock. We hold the lock until the entire chain finishes (Case C).
-        // await Deployment.Pipeline.Manager.shared.endDeployment()
-        
-        // 1. Find what's next (using the "Zombie-proof" function)
         let nextDeployment = try await findNextDeployment(after: deployment, on: app)
-        
-        // 2. Identify who WE are
         let isDeployer = (deployment.productName == "Deployer")
 
         // --- BRANCHING LOGIC ---
@@ -111,7 +101,7 @@ extension Deployment.Pipeline
         {
             // Case A: Batching (Same Product)
             // Skip restart, just process the newer version.
-            await resume(existing: nextDeployment, on: app)
+            await resume(existing: nextDeployment, on: app, isRoot: isRoot)
         }
         else if let nextDeployment
         {
@@ -119,17 +109,17 @@ extension Deployment.Pipeline
             
             try await deployment.setCurrent(on: app.db)
             
-            // [CRITICAL FIX]
-            // If we are Mottzi, we must restart NOW. It is safe and necessary.
+            // If we're NOT Deployer (i.e., Mottzi), restart immediately
             if !isDeployer {
                 try await restart()
             }
             
-            // Run the next job (Recursion)
-            await resume(existing: nextDeployment, on: app)
+            // Run the next job (pass isRoot=false, as this is a recursive call)
+            await resume(existing: nextDeployment, on: app, isRoot: false)
             
-            // If we are Deployer, we restart NOW (Last action).
-            if isDeployer {
+            // If we ARE Deployer AND we're the root, restart after entire chain completes
+            if isDeployer && isRoot {
+                await Deployment.Pipeline.Manager.shared.endDeployment()
                 try await restart()
             }
         }
@@ -138,20 +128,32 @@ extension Deployment.Pipeline
             // Case C: Queue Empty
             try await deployment.setCurrent(on: app.db)
             
-            // Unlock the manager now that the entire chain is complete
-            await Deployment.Pipeline.Manager.shared.endDeployment()
+            // Only the root should unlock the manager
+            if isRoot {
+                await Deployment.Pipeline.Manager.shared.endDeployment()
+            }
             
-            try await restart()
+            // Restart logic:
+            // - Always restart if NOT Deployer (Mottzi can always restart)
+            // - Only restart Deployer if we're the root
+            if !isDeployer || isRoot {
+                try await restart()
+            }
         }
     }
     
-    private func fail(_ deployment: Deployment, with error: Error, on app: Application) async
+    private func fail(_ deployment: Deployment, with error: Error, on app: Application, isRoot: Bool) async
     {
         deployment.status = "failed"
         deployment.finishedAt = .now
         deployment.errorMessage = error.localizedDescription
         try? await deployment.save(on: app.db)
-        await Deployment.Pipeline.Manager.shared.endDeployment()
+        
+        // Only unlock if we're the root
+        if isRoot {
+            await Deployment.Pipeline.Manager.shared.endDeployment()
+        }
+        
         Logger(label: "Mottzi.Deployment.Pipeline").error("\(error.localizedDescription)")
     }
 }
@@ -160,8 +162,7 @@ extension Deployment.Pipeline
 {
     func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment? 
     {
-        // 1. Fetch Context: What is currently LIVE? (e.g. d3 is live)
-        // We need this to identify "Zombies" (e.g. d2).
+        // 1. Fetch Context: What is currently LIVE?
         let liveDeployments = try await Deployment.query(on: app.db)
             .filter(\.$isCurrent, .equal, true)
             .all()
@@ -171,8 +172,7 @@ extension Deployment.Pipeline
             if let date = live.startedAt { liveDates[live.productName] = date }
         }
 
-        // 2. Fetch Queue: All canceled jobs, newest first.
-        // We do NOT filter by time here, because we need to see cross-product updates.
+        // 2. Fetch Queue: All canceled jobs, newest first
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
             .sort(\.$startedAt, .descending)
@@ -185,12 +185,10 @@ extension Deployment.Pipeline
         {
             let name = dep.productName
             
-            // A. Deduplication: We only want the newest canceled commit per product.
+            // A. Deduplication: Only the newest canceled commit per product
             guard candidates[name] == nil else { continue }
             
-            // B. Zombie Check: 
-            // If the LIVE version is newer than this candidate, the candidate is a zombie.
-            // Example: Live is d3 (10:00). Candidate is d2 (09:00). SKIP d2.
+            // B. Zombie Check: Skip if live version is newer than candidate
             if let liveDate = liveDates[name],
                let candidateDate = dep.startedAt,
                liveDate > candidateDate 
@@ -204,8 +202,7 @@ extension Deployment.Pipeline
         // --- SELECTION HIERARCHY ---
 
         // Priority 1: Batching (Same Product)
-        // Rule: You can only pick your own product if it is NEWER than what you are running right now.
-        // Prevents infinite loops (d4 -> d3).
+        // Only pick same product if it's NEWER than current
         if let sameProduct = candidates[deployment.productName] {
             if let nextStart = sameProduct.startedAt, 
                let currentStart = deployment.startedAt, 
@@ -216,8 +213,7 @@ extension Deployment.Pipeline
         }
         
         // Priority 2: Other Products (High Priority)
-        // We prefer switching to "Mottzi" over restarting "Deployer".
-        // We assume any remaining candidate here is valid (passed Zombie check).
+        // Prefer switching to non-Deployer products
         let otherApp = candidates.values
             .filter { $0.productName != "Deployer" && $0.productName != deployment.productName }
             .sorted { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast }
@@ -226,12 +222,9 @@ extension Deployment.Pipeline
         if let otherApp { return otherApp }
 
         // Priority 3: Deployer (Low Priority)
-        // We switch to Deployer ONLY if we are currently running something else.
+        // Only switch to Deployer if we're currently running something else
         if let deployer = candidates["Deployer"] {
-            // If we ARE Deployer, and we reached this point, it means P1 failed.
-            // Therefore, this candidate is NOT newer. It is older or same. Re-reject it.
             if deployment.productName == "Deployer" { return nil }
-            
             return deployer
         }
 
@@ -289,7 +282,7 @@ extension Deployment.Pipeline
             }
             catch
             {
-                let error = PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
+                let error = PipelineError.initiateError("Start of '\(command)' failed with output:\n'\(error.localizedDescription)'")
                 continuation.resume(throwing: error)
             }
         }
@@ -362,7 +355,7 @@ extension Deployment.Pipeline
                 throw PipelineError.moveError(
                     """
                     Deployment failed: '\(moveError.localizedDescription)'. 
-                    Rollback successfull.
+                    Rollback successful.
                     """
                 )
             }
