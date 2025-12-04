@@ -128,7 +128,7 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    func findNextDeployment2(after deployment: Deployment, on app: Application) async throws -> Deployment?
     {
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
@@ -149,6 +149,44 @@ extension Deployment.Pipeline
             .filter({ $0.productName != "Deployer" && $0.productName != deployment.productName })
             .sorted(by: { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast })
             .first
+        ?? cancelledDeploymentByProduct["Deployer"]
+    }
+    
+    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    {
+        // 1. Query ALL canceled deployments (Look back in time)
+        let cancelledDeployments = try await Deployment.query(on: app.db)
+            .filter(\.$status, .equal, "canceled")
+        // .filter(\.$startedAt, .greaterThan, deployment.startedAt) <--- REMOVED
+            .sort(\.$startedAt, .descending) // Newest first
+            .all()
+        
+        // 2. Group by product (only keep the newest pending version per product)
+        var cancelledDeploymentByProduct: [ProductName: Deployment] = [:]
+        for cancelledDeployment in cancelledDeployments
+        {
+            guard cancelledDeploymentByProduct[cancelledDeployment.productName] == nil else { continue }
+            cancelledDeploymentByProduct[cancelledDeployment.productName] = cancelledDeployment
+        }
+        
+        // 3. SAFE SELECTION LOGIC
+        
+        // Priority A: Same Product (MUST be newer than current)
+        if let sameProduct = cancelledDeploymentByProduct[deployment.productName],
+           let pendingTime = sameProduct.startedAt,
+           let currentTime = deployment.startedAt,
+           pendingTime > currentTime
+        {
+            return sameProduct
+        }
+        
+        // Priority B: Different Products (Can be older than current)
+        // We filter out the current product (already handled/rejected above) and "Deployer"
+        return cancelledDeploymentByProduct.values
+            .filter({ $0.productName != "Deployer" && $0.productName != deployment.productName })
+            .sorted(by: { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast })
+            .first
+        // Priority C: Deployer Fallback (Lowest Priority)
         ?? cancelledDeploymentByProduct["Deployer"]
     }
 }
