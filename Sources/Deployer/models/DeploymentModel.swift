@@ -2,11 +2,21 @@ import Fluent
 import Mist
 import Vapor
 
+extension Deployment
+{
+    enum Mode: String, Codable 
+    {
+        case standard
+        case restartOnly
+    }
+}
+
 final class Deployment: Mist.Model, Content, @unchecked Sendable
 {
     static let schema = "deployments"
 
     @ID(key: .id) var id: UUID?
+    @Enum(key: "mode") var mode: Mode
     @Field(key: "product_name") var productName: String
     @Field(key: "supervisor_job") var supervisorJob: String
     @Field(key: "status") var status: String
@@ -18,7 +28,7 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
 
     init() {}
 
-    init(productName: String, supervisorJob: String, status: String, message: String)
+    init(productName: String, supervisorJob: String, status: String, message: String, mode: Mode = .standard)
     {
         self.productName = productName
         self.supervisorJob = supervisorJob
@@ -26,6 +36,7 @@ final class Deployment: Mist.Model, Content, @unchecked Sendable
         self.message = message
         self.isCurrent = false
         self.errorMessage = nil
+        self.mode = mode
     }
 }
 
@@ -45,6 +56,7 @@ extension Deployment
                 .field("error_message", .string)
                 .field("started_at", .datetime)
                 .field("finished_at", .datetime)
+                .field("mode", .string, .required, .sql(.default(Mode.standard.rawValue)))
                 .create()
         }
 

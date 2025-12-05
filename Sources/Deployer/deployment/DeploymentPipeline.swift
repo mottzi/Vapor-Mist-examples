@@ -5,7 +5,6 @@ extension Deployment
 {
     struct Pipeline
     {
-        let restartPrefix = "[RESTART_PENDING]"
         let config: Configuration
 
         init(config: Configuration)
@@ -97,12 +96,7 @@ extension Deployment.Pipeline
 {
     private func run(_ deployment: Deployment, on app: Application) async throws
     {
-        if deployment.message.hasPrefix(restartPrefix)
-        {
-            deployment.message = String(deployment.message.dropFirst(restartPrefix.count))
-            try await deployment.save(on: app.db)
-        }
-        else
+        if deployment.mode == .standard
         {
             try await pull()
             try await build(deployment)
@@ -176,7 +170,8 @@ extension Deployment.Pipeline
                 productName: deployment.productName,
                 supervisorJob: deployment.supervisorJob,
                 status: "canceled",
-                message: "\(restartPrefix) \(deployment.message)"
+                message: deployment.message,
+                mode: .restartOnly
             )
             
             try await deferredDeployment.save(on: app.db)
