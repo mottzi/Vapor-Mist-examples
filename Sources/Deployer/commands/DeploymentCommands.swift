@@ -3,7 +3,7 @@ import Vapor
 struct DeployCommand: AsyncCommand {
     struct Signature: CommandSignature {}
 
-    let help: String = "444 Pulls, builds, moves and restarts Deployer."
+    let help: String = "Pulls, builds, moves and restarts Deployer."
 
     func run(using context: CommandContext, signature: Signature) async throws {
         let uri = URI(string: "http://localhost:8081/Deployer/deploy")

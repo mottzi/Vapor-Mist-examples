@@ -166,15 +166,25 @@ extension Deployment.Pipeline
         
         if isDeployer && !isSameProduct
         {
-            let deferredDeployment = Deployment(
-                productName: deployment.productName,
-                supervisorJob: deployment.supervisorJob,
-                status: "canceled",
-                message: deployment.message,
-                mode: .restartOnly
-            )
-            
-            try await deferredDeployment.save(on: app.db)
+            // Ensure we only queue a single restart-only entry for the deployer
+            let hasPendingDeployerRestart = try await Deployment.query(on: app.db)
+                .filter(\.$productName, .equal, "Deployer")
+                .filter(\.$status, .equal, "canceled")
+                .filter(\.$mode, .equal, Deployment.Mode.restartOnly)
+                .first() != nil
+
+            if hasPendingDeployerRestart == false
+            {
+                let deferredDeployment = Deployment(
+                    productName: deployment.productName,
+                    supervisorJob: deployment.supervisorJob,
+                    status: "canceled",
+                    message: deployment.message,
+                    mode: .restartOnly
+                )
+                
+                try await deferredDeployment.save(on: app.db)
+            }
             
             await resume(nextDeployment, on: app)
         }
