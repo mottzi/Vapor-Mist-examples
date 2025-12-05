@@ -4,10 +4,16 @@ extension Application
 {
     func useWebhook()
     {
-        Deployment.Webhook.register("pushevent", on: self)
+        Deployment.Webhook.register("pushevent", "mottzi", on: self)
         { request async in
             
-            let pipeline = Deployment.Pipeline(productName: "Mottzi", supervisorJob: "mottzi")
+            let pipeline = Deployment.Pipeline(
+                productName: "Mottzi",
+                supervisorJob: "mottzi",
+                workingDirectory: "/var/www/mottzi",
+                buildConfiguration: "debug"
+            )
+            
             await pipeline.deploy(message: request.commitMessage, on: self)
         }
     }

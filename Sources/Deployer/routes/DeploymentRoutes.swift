@@ -46,7 +46,13 @@ extension Application
             
             Task.detached
             {
-                let pipeline = Deployment.Pipeline(productName: "Deployer", supervisorJob: "deployer")
+                let pipeline = Deployment.Pipeline(
+                    productName: "Deployer",
+                    supervisorJob: "deployer",
+                    workingDirectory: "/var/www/mottzi",
+                    buildConfiguration: "debug"
+                )
+                
                 await pipeline.deploy(message: "[CLI] Deployer", on: self)
             }
 

@@ -5,17 +5,12 @@ extension Deployment
 {
     struct Pipeline
     {
-        let config: Configuration
-
-        init(config: Configuration)
-        {
-            self.config = config
-        }
-
-        init(productName: String, supervisorJob: String)
-        {
-            self.config = Configuration(productName: productName, supervisorJob: supervisorJob)
-        }
+        let productName: String
+        let supervisorJob: String
+        let workingDirectory: String
+        let buildConfiguration: String
+        
+        typealias ProductName = String
 
         public func deploy(message: String? = nil, on app: Application) async
         {
@@ -26,26 +21,13 @@ extension Deployment
 
 extension Deployment.Pipeline
 {
-    typealias ProductName = String
-
-    struct Configuration
-    {
-        var buildConfiguration: String = "debug"
-        var workingDirectory: String = "/var/www/mottzi"
-        var productName: String
-        var supervisorJob: String
-    }
-}
-
-extension Deployment.Pipeline
-{
     private func start(message: String?, on app: Application) async
     {
         let canDeploy = await Manager.shared.requestPipeline()
 
         let newDeployment = Deployment(
-            productName: config.productName,
-            supervisorJob: config.supervisorJob,
+            productName: productName,
+            supervisorJob: supervisorJob,
             status: canDeploy ? "running" : "canceled",
             message: message ?? ""
         )
@@ -262,7 +244,7 @@ extension Deployment.Pipeline
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = ["bash", "-c", command]
-            process.currentDirectoryURL = URL(fileURLWithPath: config.workingDirectory)
+            process.currentDirectoryURL = URL(fileURLWithPath: workingDirectory)
 
             let pipe = Pipe()
             process.standardOutput = pipe
@@ -298,7 +280,7 @@ extension Deployment.Pipeline
 
     func build(_ deployment: Deployment) async throws
     {
-        try await execute("swift build -c \(config.buildConfiguration) --product \(deployment.productName)")
+        try await execute("swift build -c \(buildConfiguration) --product \(deployment.productName)")
     }
 
     func restart(_ deployment: Deployment) async throws
@@ -311,8 +293,8 @@ extension Deployment.Pipeline
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
-        let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(deployment.productName)"
-        let deployDir = "\(config.workingDirectory)/deploy"
+        let buildPath = "\(workingDirectory)/.build/\(buildConfiguration)/\(deployment.productName)"
+        let deployDir = "\(workingDirectory)/deploy"
         let deployPath = "\(deployDir)/\(deployment.productName)"
         let backupPath = "\(deployDir)/\(deployment.productName).old"
 
