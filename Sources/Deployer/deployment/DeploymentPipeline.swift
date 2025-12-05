@@ -121,7 +121,7 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    private func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
     {
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
@@ -242,7 +242,6 @@ extension Deployment.Pipeline
         case initiateError(String)
         case executeError(String)
         case moveError(String)
-        case successButBackupRemovalError(String)
 
         var errorDescription: String?
         {
@@ -251,7 +250,6 @@ extension Deployment.Pipeline
                 case .initiateError(let message): "Pipeline initiate error: \(message)"
                 case .executeError(let message): "Pipeline execute error: \(message)"
                 case .moveError(let message): "Pipeline move error: \(message)"
-                case .successButBackupRemovalError(let message): "Pipeline error: \(message)"
             }
         }
     }
@@ -277,9 +275,7 @@ extension Deployment.Pipeline
                 let output = String(
                     data: (try? pipe.fileHandleForReading.readToEnd()) ?? Data(),
                     encoding: .utf8)
-                let error = PipelineError.executeError(
-                    "Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'"
-                )
+                let error = PipelineError.executeError("Execution of '\(command)' failed with output:\n\n'\(output ?? "NO OUTPUT" )'")
                 return continuation.resume(throwing: error)
             }
 
@@ -289,8 +285,7 @@ extension Deployment.Pipeline
             }
             catch
             {
-                let error = PipelineError.initiateError(
-                    "Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
+                let error = PipelineError.initiateError("Start of '\(command)' failed with ourput:\n'\(error.localizedDescription)'")
                 continuation.resume(throwing: error)
             }
         }
@@ -303,8 +298,7 @@ extension Deployment.Pipeline
 
     func build(_ deployment: Deployment) async throws
     {
-        try await execute(
-            "swift build -c \(config.buildConfiguration) --product \(deployment.productName)")
+        try await execute("swift build -c \(config.buildConfiguration) --product \(deployment.productName)")
     }
 
     func restart(_ deployment: Deployment) async throws
@@ -317,8 +311,7 @@ extension Deployment.Pipeline
         let eventLoop = app.eventLoopGroup.any()
         let threadPool = app.threadPool
 
-        let buildPath =
-            "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(deployment.productName)"
+        let buildPath = "\(config.workingDirectory)/.build/\(config.buildConfiguration)/\(deployment.productName)"
         let deployDir = "\(config.workingDirectory)/deploy"
         let deployPath = "\(deployDir)/\(deployment.productName)"
         let backupPath = "\(deployDir)/\(deployment.productName).old"
