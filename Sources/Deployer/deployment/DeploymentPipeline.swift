@@ -169,38 +169,6 @@ extension Deployment.Pipeline
         return nil
     }
     
-    private func isSuperseded(_ candidate: Deployment, on app: Application) async throws -> Bool
-    {
-        guard let candidateStartedAt = candidate.startedAt else { return false }
-        
-        if let current = try await Deployment.getCurrent(named: candidate.productName, on: app.db),
-           let currentStartedAt = current.startedAt,
-           currentStartedAt >= candidateStartedAt
-        {
-            return true
-        }
-        
-        if try await Deployment.query(on: app.db)
-            .filter(\.$productName, .equal, candidate.productName)
-            .filter(\.$startedAt, .greaterThan, candidateStartedAt)
-            .filter(\.$status, .equal, "success")
-            .first() != nil
-        {
-            return true
-        }
-
-        if try await Deployment.query(on: app.db)
-            .filter(\.$productName, .equal, candidate.productName)
-            .filter(\.$status, .equal, "deployed")
-            .filter(\.$startedAt, .greaterThan, candidateStartedAt)
-            .first() != nil
-        {
-            return true
-        }
-        
-        return false
-    }
-    
     private func handleNextDeployment(_ nextDeployment: Deployment, deployment: Deployment, on app: Application) async throws
     {
         let isDeployer = deployment.productName == "Deployer"
@@ -208,7 +176,6 @@ extension Deployment.Pipeline
         
         if isDeployer && !isSameProduct
         {
-            // Ensure we only queue a single restart-only entry for the deployer
             let hasPendingDeployerRestart = try await Deployment.query(on: app.db)
                 .filter(\.$productName, .equal, "Deployer")
                 .filter(\.$status, .equal, "canceled")
@@ -240,6 +207,31 @@ extension Deployment.Pipeline
             try await restart(deployment)
             await resume(nextDeployment, on: app)
         }
+    }
+
+    private func isSuperseded(_ candidate: Deployment, on app: Application) async throws -> Bool
+    {
+        guard let candidateStartedAt = candidate.startedAt else { return false }
+        
+        if let current = try await Deployment.getCurrent(named: candidate.productName, on: app.db),
+           let currentStartedAt = current.startedAt,
+           currentStartedAt >= candidateStartedAt
+        {
+            return true
+        }
+
+        let exists = try await Deployment.query(on: app.db)
+            .filter(\.$productName, .equal, candidate.productName)
+            .filter(\.$startedAt, .greaterThan, candidateStartedAt)
+            .group(.or) 
+            {
+                $0
+                    .filter(\.$status, .equal, "success")
+                    .filter(\.$status, .equal, "deployed")
+            }
+            .first() != nil
+
+        return exists
     }
 }
 
