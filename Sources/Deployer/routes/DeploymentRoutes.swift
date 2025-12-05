@@ -47,7 +47,7 @@ extension Application
             Task.detached
             {
                 let pipeline = Deployment.Pipeline(productName: "Deployer", supervisorJob: "deployer")
-                await pipeline.start(with: "CLI deployment of Deployer", on: self)
+                await pipeline.deploy(message: "[CLI] Deployer", on: self)
             }
 
             return "Started deployment pipeline ;D"

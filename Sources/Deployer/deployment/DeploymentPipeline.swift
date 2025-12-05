@@ -5,6 +5,7 @@ extension Deployment
 {
     struct Pipeline
     {
+        let restartPrefix = "[RESTART_PENDING]"
         let config: Configuration
 
         init(config: Configuration)
@@ -17,9 +18,9 @@ extension Deployment
             self.config = Configuration(productName: productName, supervisorJob: supervisorJob)
         }
 
-        public func start(with message: String? = nil, on app: Application) async
+        public func deploy(message: String? = nil, on app: Application) async
         {
-            await deploy(message: message, on: app)
+            await start(message: message, on: app)
         }
     }
 }
@@ -39,39 +40,38 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    private func resume(existing deployment: Deployment, on app: Application) async
-    {
-        guard await Manager.shared.requestPipeline() else { return }
-
-        // deployment.startedAt = .now  // !
-        deployment.status = "running"
-        try? await deployment.save(on: app.db)
-
-        do
-        {
-            try await run(deployment, on: app)
-        }
-        catch
-        {
-            await fail(deployment, with: error, on: app)
-        }
-    }
-
-    private func deploy(message: String?, on app: Application) async
+    private func start(message: String?, on app: Application) async
     {
         let canDeploy = await Manager.shared.requestPipeline()
 
-        let deployment = Deployment(
+        let newDeployment = Deployment(
             productName: config.productName,
             supervisorJob: config.supervisorJob,
             status: canDeploy ? "running" : "canceled",
             message: message ?? ""
         )
 
-        try? await deployment.save(on: app.db)
+        try? await newDeployment.save(on: app.db)
 
         guard canDeploy else { return }
 
+        do
+        {
+            try await run(newDeployment, on: app)
+        }
+        catch
+        {
+            await fail(newDeployment, with: error, on: app)
+        }
+    }
+    
+    private func resume(_ deployment: Deployment, on app: Application) async
+    {
+        guard await Manager.shared.requestPipeline() else { return }
+        
+        deployment.status = "running"
+        try? await deployment.save(on: app.db)
+        
         do
         {
             try await run(deployment, on: app)
@@ -81,78 +81,7 @@ extension Deployment.Pipeline
             await fail(deployment, with: error, on: app)
         }
     }
-}
-
-extension Deployment.Pipeline
-{
-    private func run(_ deployment: Deployment, on app: Application) async throws
-    {
-        let restartPendingPrefix = "[RESTART_PENDING] "
-        var isRestartOnly = false
-
-        if deployment.message.hasPrefix(restartPendingPrefix)
-        {
-            isRestartOnly = true
-            deployment.message = String(deployment.message.dropFirst(restartPendingPrefix.count))
-            try? await deployment.save(on: app.db)
-        }
-
-        if isRestartOnly == false
-        {
-            try await pull()
-            try await build(deployment)
-            try await move(deployment, using: app)
-        }
-
-        deployment.status = "success"
-        deployment.finishedAt = .now
-        try await deployment.save(on: app.db)
-        await Deployment.Pipeline.Manager.shared.endDeployment()
-
-        let nextDeployment = try await findNextDeployment(after: deployment, on: app)
-
-        let isDeployer = deployment.productName == "Deployer"
-        let isSameProduct = nextDeployment?.productName == deployment.productName
-
-        if let nextDeployment
-        {
-            if isDeployer && isSameProduct == false
-            {
-                // If current is Deployer and we are switching to another product,
-                // we must defer the restart of Deployer to the end of the queue.
-                let deferredDeployer = Deployment(
-                    productName: deployment.productName,
-                    supervisorJob: deployment.supervisorJob,
-                    status: "canceled",
-                    message: restartPendingPrefix + deployment.message
-                )
-                try await deferredDeployer.save(on: app.db)
-
-                await resume(existing: nextDeployment, on: app)
-            }
-            else if isSameProduct
-            {
-                // If the next deployment is the same product, we skip restarting this one
-                // as it will be immediately superseded by the next one.
-                await resume(existing: nextDeployment, on: app)
-            }
-            else
-            {
-                // Different product (and current is not Deployer).
-                // Safe to restart current and then proceed.
-                try await deployment.setCurrent(on: app.db)
-                try await restart(deployment)
-                await resume(existing: nextDeployment, on: app)
-            }
-        }
-        else
-        {
-            // Queue is empty.
-            try await deployment.setCurrent(on: app.db)
-            try await restart(deployment)
-        }
-    }
-
+    
     private func fail(_ deployment: Deployment, with error: Error, on app: Application) async
     {
         deployment.status = "failed"
@@ -166,16 +95,45 @@ extension Deployment.Pipeline
 
 extension Deployment.Pipeline
 {
-    func findNextDeployment(after deployment: Deployment, on app: Application) async throws
-        -> Deployment?
+    private func run(_ deployment: Deployment, on app: Application) async throws
     {
-        // 1. Query ALL canceled deployments (Look back in time)
+        if deployment.message.hasPrefix(restartPrefix)
+        {
+            deployment.message = String(deployment.message.dropFirst(restartPrefix.count))
+            try await deployment.save(on: app.db)
+        }
+        else
+        {
+            try await pull()
+            try await build(deployment)
+            try await move(deployment, using: app)
+        }
+
+        deployment.status = "success"
+        deployment.finishedAt = .now
+        try await deployment.save(on: app.db)
+        await Deployment.Pipeline.Manager.shared.endDeployment()
+        
+        guard let nextDeployment = try await findNextDeployment(after: deployment, on: app) else
+        {
+            try await deployment.setCurrent(on: app.db)
+            try await restart(deployment)
+            return
+        }
+        
+        try await handleNextDeployment(nextDeployment, deployment: deployment, on: app)
+    }
+}
+
+extension Deployment.Pipeline
+{
+    func findNextDeployment(after deployment: Deployment, on app: Application) async throws -> Deployment?
+    {
         let cancelledDeployments = try await Deployment.query(on: app.db)
             .filter(\.$status, .equal, "canceled")
-            .sort(\.$startedAt, .descending)  // Newest first
+            .sort(\.$startedAt, .descending)
             .all()
 
-        // 2. Group by product (only keep the newest pending version per product)
         var cancelledDeploymentByProduct: [ProductName: Deployment] = [:]
         for cancelledDeployment in cancelledDeployments
         {
@@ -183,9 +141,6 @@ extension Deployment.Pipeline
             cancelledDeploymentByProduct[cancelledDeployment.productName] = cancelledDeployment
         }
 
-        // 3. SAFE SELECTION LOGIC
-
-        // Priority A: Same Product (MUST be newer than current)
         if let sameProduct = cancelledDeploymentByProduct[deployment.productName],
            let pendingTime = sameProduct.startedAt,
            let currentTime = deployment.startedAt,
@@ -194,14 +149,50 @@ extension Deployment.Pipeline
             return sameProduct
         }
 
-        // Priority B: Different Products (Can be older than current)
-        // We filter out the current product (already handled/rejected above) and "Deployer"
-        return cancelledDeploymentByProduct.values
+        if let differentProduct = cancelledDeploymentByProduct.values
             .filter({ $0.productName != "Deployer" && $0.productName != deployment.productName })
-            .sorted(by: { $0.startedAt ?? .distantPast > $1.startedAt ?? .distantPast })
+            .sorted(by: { ($0.startedAt ?? .distantPast) > ($1.startedAt ?? .distantPast) })
             .first
-            // Priority C: Deployer Fallback (Lowest Priority)
-            ?? cancelledDeploymentByProduct["Deployer"]
+        {
+            return differentProduct
+        }
+        
+        if let deployerProduct = cancelledDeploymentByProduct["Deployer"]
+        {
+            return deployerProduct
+        }
+        
+        return nil
+    }
+    
+    private func handleNextDeployment(_ nextDeployment: Deployment, deployment: Deployment, on app: Application) async throws
+    {
+        let isDeployer = deployment.productName == "Deployer"
+        let isSameProduct = deployment.productName == nextDeployment.productName
+        
+        if isDeployer && !isSameProduct
+        {
+            let deferredDeployment = Deployment(
+                productName: deployment.productName,
+                supervisorJob: deployment.supervisorJob,
+                status: "canceled",
+                message: "\(restartPrefix) \(deployment.message)"
+            )
+            
+            try await deferredDeployment.save(on: app.db)
+            
+            await resume(nextDeployment, on: app)
+        }
+        else if isSameProduct
+        {
+            await resume(nextDeployment, on: app)
+        }
+        else
+        {
+            try await deployment.setCurrent(on: app.db)
+            try await restart(deployment)
+            await resume(nextDeployment, on: app)
+        }
     }
 }
 
