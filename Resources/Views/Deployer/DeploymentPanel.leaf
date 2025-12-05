@@ -47,6 +47,7 @@
               <table class="deployment-table">
                 <thead class="deployment-thead" mist-container="DeploymentRow" mist-insert-position="afterend">
                   <tr>
+                    <th class="deployment-th">Mode</th>
                     <th class="deployment-th">Product</th>
                     <th class="deployment-th">Message</th>
                     <th class="deployment-th deployment-th-hidden-sm">ID</th>

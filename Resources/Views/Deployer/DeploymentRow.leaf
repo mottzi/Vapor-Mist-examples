@@ -5,6 +5,11 @@
 >
     <tr class="deployment-row">
 
+    <!-- deployment mode -->
+    <td class="deployment-td">
+        <span class="deployment-text-message">#(component.deployment.mode)</span>
+    </td>
+
     <!-- deployment product -->
     <td class="deployment-td">
         <span class="deployment-text-message">#(component.deployment.productName)</span>
