@@ -19,14 +19,6 @@ let package = Package(
             ],
             swiftSettings: swiftSettings
         ),
-        .executableTarget(
-            name: "Deployer",
-            dependencies: [
-                .product(name: "Mist", package: "Vapor-Mist"),
-                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
-            ],
-            swiftSettings: swiftSettings
-        ),
     ],
     swiftLanguageModes: [.v5]
 )
