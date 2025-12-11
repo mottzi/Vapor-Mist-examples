@@ -12,7 +12,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "Mottzi",
+            name: "mottzi",
             dependencies: [
                 .product(name: "Mist", package: "Vapor-Mist"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
