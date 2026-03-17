@@ -1,6 +1,6 @@
 // swift-tools-version:6.0
 import PackageDescription
-// test5
+
 let package = Package(
     name: "Mottzi",
     platforms: [
