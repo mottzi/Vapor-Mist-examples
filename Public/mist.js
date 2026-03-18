@@ -8,6 +8,7 @@ class MistSocket {
 
         this.timer = null;
         this.initialDelay = 1000;
+        this.interval = 1000;
 
         document.addEventListener('visibilitychange', () => this.visibilityChange());
         window.addEventListener('online', () => this.connect());
@@ -172,7 +173,6 @@ class MistSocket {
                 if (data.createInstanceComponent) {
                     const { component, id, html } = data.createInstanceComponent;
 
-                    // 1. SAFEGUARD: Prevent WebSocket Crossover Duplication
                     // Ensure the generated HTML actually belongs to the channel it was broadcasted on
                     if (!html.includes(`mist-component="${component}"`)) {
                         console.log(`[Client] Dropped cross-channel broadcast for ${component}`);
@@ -205,7 +205,7 @@ class MistSocket {
                 else if (data.updateInstanceComponent) {
                     const { component, id, html } = data.updateInstanceComponent;
 
-                    // 1. SAFEGUARD: Prevent WebSocket Crossover Updates
+                    // Prevent WebSocket Crossover Updates
                     if (!html.includes(`mist-component="${component}"`)) {
                         console.log(`[Client] Dropped cross-channel update for ${component}`);
                         return;
@@ -302,7 +302,7 @@ class MistSocket {
                 this.timer = setInterval(() => {
                     this.connect();
                 },
-                    this.interval);
+                this.interval);
             },
                 this.initialDelay);
         };
