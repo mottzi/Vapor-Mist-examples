@@ -4,7 +4,7 @@ import Leaf
 import Mist
 import Vapor
 
-@main 
+@main  
 struct MottziApp {
     static func main() async throws {
         let env = try Environment.detect()
