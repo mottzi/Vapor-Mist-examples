@@ -7,25 +7,18 @@ let package = Package(
         .macOS(.v13)
     ],
     dependencies: [
-        .package(url: "https://github.com/mottzi/Vapor-Mist.git", from: "0.14.15"),
-        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.110.1"),
     ],
     targets: [
         .executableTarget(
             name: "mottzi",
             dependencies: [
-                .product(name: "Mist", package: "Vapor-Mist"),
-                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
+                .product(name: "Vapor", package: "vapor"),
             ],
-            swiftSettings: swiftSettings
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
         ),
     ],
     swiftLanguageModes: [.v5]
 )
-
-var swiftSettings: [SwiftSetting] {
-    [
-        .enableUpcomingFeature("DisableOutwardActorInference"),
-        .enableExperimentalFeature("StrictConcurrency"),
-    ]
-}
