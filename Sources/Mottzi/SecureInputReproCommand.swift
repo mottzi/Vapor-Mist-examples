@@ -22,7 +22,7 @@ struct SecureInputReproCommand: AsyncCommand {
         console.print("")
         console.print("[2] Secure (via MainActor — try without `MainActor.run` for pure repro):")
         console.output("  Password: ".consoleText(), newLine: false)
-        _ = await MainActor.run {
+        _ = DispatchQueue.main.sync {
             console.input(isSecure: true)
         }
 
