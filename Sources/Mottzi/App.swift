@@ -1,8 +1,8 @@
+import Vapor
 import Fluent
 import FluentSQLiteDriver
 import Leaf
 import Mist
-import Vapor
 
 @main
 struct MottziApp {
@@ -27,6 +27,8 @@ struct MottziApp {
         app.views.use(.leaf)
 
         app.useMistDemo()
+        
+        app.asyncCommands.use(SecureInputReproCommand(), as: "issue")
 
         try await app.execute()
         try await app.asyncShutdown()
