@@ -1,14 +1,12 @@
 import Vapor
 
+/// Minimal AsyncCommand hitting `Terminal.input(isSecure: true)` (readpassphrase on Linux).
 struct SecureInputReproCommand: AsyncCommand {
     
     struct Signature: CommandSignature {}
 
-    var help: String {
-        "Repro: secure ConsoleKit input on Linux."
-    }
+    var help: String { "Repro: secure ConsoleKit input on Linux." }
 
-    @MainActor
     func run(using context: CommandContext, signature: Signature) async throws {
         let console = context.console
 
@@ -22,9 +20,9 @@ struct SecureInputReproCommand: AsyncCommand {
         _ = console.input(isSecure: false)
 
         console.print("")
-        console.print("[2] Secure (MainActor — still SIGILL on Ubuntu 24.04 in practice; compare to bare `input(isSecure:)` for upstream):")
+        console.print("[2] Secure (via MainActor — try without `MainActor.run` for pure repro):")
         console.output("  Password: ".consoleText(), newLine: false)
-        _ = await MainActor.run {
+        _ = DispatchQueue.main.sync {
             console.input(isSecure: true)
         }
 
