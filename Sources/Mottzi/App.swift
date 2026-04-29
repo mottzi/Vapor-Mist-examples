@@ -1,33 +1,38 @@
 import Vapor
+import Fluent
+import FluentSQLiteDriver
+import Leaf
+import Mist
 
-@main struct App {
-    
+@main
+struct MottziApp {
     static func main() async throws {
-        
         let env = try Environment.detect()
         let app = try await Application.make(env)
+
+        app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
+        app.databases.use(.sqlite(.file("deploy/mottzi.db")), as: .sqlite)
+        app.migrations.add(
+            MistDemoModel1.Table(),
+            MistDemoModel2.Table()
+        )
+        try await app.autoMigrate()
+
+        await app.mist.use(
+            MistDemoComponent(),
+            MistDemoHeader()
+        )
+
+        app.views.use(.leaf)
+
+        app.useMistDemo()
         
         app.asyncCommands.use(SecureInputReproCommand(), as: "issue")
 
         try await app.execute()
         try await app.asyncShutdown()
-        
     }
 }
 
-struct SecureInputReproCommand: AsyncCommand {
-
-    struct Signature: CommandSignature {}
-
-    var help: String { "Minimal ConsoleKit secure input repro (Linux)" }
-
-    func run(using context: CommandContext, signature: Signature) async throws {
-
-        context.console.output("Please enter a password: ", newLine: false)
-        
-        let password = context.console.input(isSecure: true)
-        
-        context.console.print("Your password is: \(password)")
-
-    }
-}
+// 3

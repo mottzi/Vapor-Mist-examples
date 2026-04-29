@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Mist Demo</title>
+    <link rel="icon" type="image/png" href="/deployer/mottzi.png">
+    <link rel="stylesheet" href="/mistdemo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <main class="container">
+        <h1>MistDemo</h1>
+        #extend("MistDemo/MistDemoHeader")
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Component</th>
+                    <th>DemoModel1</th>
+                    <th>DemoModel2</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody mist-container="MistDemoComponent">
+                #for(component in components):
+                    #extend("MistDemo/MistDemoComponent")
+                #endfor
+            </tbody>
+        </table>
+    </main>
+    <script src="/morphdom.js"></script>
+    <script src="/mist.js"></script>
+</body>
+</html>
