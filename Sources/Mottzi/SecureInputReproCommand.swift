@@ -8,23 +8,18 @@ struct SecureInputReproCommand: AsyncCommand {
     var help: String { "Repro: secure ConsoleKit input on Linux." }
 
     func run(using context: CommandContext, signature: Signature) async throws {
+        
         let console = context.console
-
+        
         console.print("")
-        console.print("=== Secure input repro ===")
-        console.print("Use a real TTY (interactive ssh). Step [1] is plain readLine; step [2] is secure.")
-
-        console.print("")
-        console.print("[1] Non-secure:")
+        console.print("[1] Non-secure prompt:")
         console.output("  Visible: ".consoleText(), newLine: false)
         _ = console.input(isSecure: false)
 
         console.print("")
-        console.print("[2] Secure (via MainActor — try without `MainActor.run` for pure repro):")
+        console.print("[2] Secure (same pattern as Deployer secret prompts):")
         console.output("  Password: ".consoleText(), newLine: false)
-        _ = await MainActor.run {
-            console.input(isSecure: true)
-        }
+        _ = console.input(isSecure: true)
 
         console.print("")
         console.print("OK — finished without trapping.")
