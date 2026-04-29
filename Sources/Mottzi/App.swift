@@ -34,3 +34,4 @@ struct MottziApp {
 }
 
 // 4
+fail
