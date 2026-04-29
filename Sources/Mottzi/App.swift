@@ -3,7 +3,7 @@ import FluentSQLiteDriver
 import Leaf
 import Mist
 import Vapor
-fail
+
 @main
 struct MottziApp {
     static func main() async throws {
