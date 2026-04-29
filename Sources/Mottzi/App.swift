@@ -1,11 +1,10 @@
+import Vapor
 import Fluent
 import FluentSQLiteDriver
-import Leaf
 import Mist
-import Vapor
 
-@main
-struct MottziApp {
+@main struct MottziApp {
+
     static func main() async throws {
         let env = try Environment.detect()
         let app = try await Application.make(env)
@@ -31,6 +30,7 @@ struct MottziApp {
         try await app.execute()
         try await app.asyncShutdown()
     }
+    
 }
 
 // 4
