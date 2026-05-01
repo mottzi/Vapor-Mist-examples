@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "Mottzi",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     dependencies: [
         .package(url: "https://github.com/mottzi/Vapor-Mist.git", from: "0.14.15"),
@@ -17,15 +17,7 @@ let package = Package(
                 .product(name: "Mist", package: "Vapor-Mist"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
             ],
-            swiftSettings: swiftSettings
         ),
     ],
-    swiftLanguageModes: [.v5]
+    swiftLanguageModes: [.v6]
 )
-
-var swiftSettings: [SwiftSetting] {
-    [
-        .enableUpcomingFeature("DisableOutwardActorInference"),
-        .enableExperimentalFeature("StrictConcurrency"),
-    ]
-}

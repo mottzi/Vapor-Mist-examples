@@ -1,5 +1,5 @@
 {
-  "originHash" : "5ac415a63d54ef515a2826a079aace41c6b7b07cac08d8f2c2c5ff02ed5bbf04",
+  "originHash" : "6ad818346aba40c64dcda8d0d163f0632a008dcd9a4d87961de230cea7ae8eb0",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "742f624a998cba2a9e653d9b1e91ad3f3a5dff6b",
         "version" : "4.15.2"
+      }
+    },
+    {
+      "identity" : "elementary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elementary-swift/elementary.git",
+      "state" : {
+        "revision" : "37b26923e73156f524b52e649855277bc7ead2c2",
+        "version" : "0.7.1"
       }
     },
     {
@@ -321,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mottzi/Vapor-Mist.git",
       "state" : {
-        "revision" : "2f349c2f576f9b89125200a743db5e4f3c577e21",
-        "version" : "0.15.0"
+        "revision" : "9777b916e11fd1d5370d71d323eadb2b47359bd0",
+        "version" : "0.20.2"
       }
     },
     {
