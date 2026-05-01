@@ -32,5 +32,3 @@ import Mist
     }
 
 }
-
-// 18
