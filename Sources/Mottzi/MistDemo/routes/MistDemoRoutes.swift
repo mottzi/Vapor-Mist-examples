@@ -6,10 +6,10 @@ extension Application {
             return "test4"
         }
 
-        self.get("MistDemo") { request async throws -> View in
-            let context = try await MistDemoComponent().makeContext(ofAll: request.db)
-            return try await request.view.render("MistDemo/MistDemoPanel", context)
-        }
+//        self.get("MistDemo") { request async throws -> View in
+//            let context = try await MistDemoComponent().makeContext(ofAll: request.db)
+//            return try await request.view.render("MistDemo/MistDemoPanel", context)
+//        }
         
         self.get("example") { _ in
             await CounterComponent().renderCurrent(app: self).html ?? ""

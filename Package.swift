@@ -7,7 +7,7 @@ let package = Package(
         .macOS(.v14)
     ],
     dependencies: [
-        .package(url: "https://github.com/mottzi/Vapor-Mist.git", from: "0.14.15"),
+        .package(path: "./Dependencies/Vapor-Mist"),
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.8.0"),
     ],
     targets: [

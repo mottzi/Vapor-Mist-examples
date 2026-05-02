@@ -1,0 +1,146 @@
+import Vapor
+
+/// Vapor storage for Mist runtime state and configuration.
+final private class Storage: @unchecked Sendable {
+    
+    struct Key: StorageKey { typealias Value = Storage }
+
+    var clients: Clients?
+    var components: Components?
+    var streams: Streams?
+    var socketPath: [PathComponent]?
+    var shouldUpgrade: (@Sendable (Request) async -> HTTPHeaders?)?
+    var socketMiddleware: (any Middleware)?
+    var socketRegistered: Bool = false
+    
+    init() {}
+    
+}
+
+extension MistInterface {
+
+    /// Returns the Vapor storage container for Mist.
+    private var _storage: Storage {
+        if let existing = app.storage[Storage.Key.self] { return existing }
+        let new = Storage()
+        app.storage[Storage.Key.self] = new
+        return new
+    }
+    
+}
+
+extension MistInterface {
+
+    private struct ClientsKey: LockKey {}
+    private struct ComponentsKey: LockKey {}
+    private struct StreamsKey: LockKey {}
+    private struct SocketPathKey: LockKey {}
+    private struct ShouldUpgradeKey: LockKey {}
+    private struct SocketMiddlewareKey: LockKey {}
+    private struct SocketRegisteredKey: LockKey {}
+    
+    var _clients: Clients {
+        app.locks.lock(for: ClientsKey.self).withLock {
+            if let existing = _storage.clients { return existing }
+            let new = Clients(components: _components, logger: app.logger)
+            _storage.clients = new
+            return new
+        }
+    }
+
+    var _components: Components {
+        app.locks.lock(for: ComponentsKey.self).withLock {
+            if let existing = _storage.components { return existing }
+            let new = Components(app: app)
+            _storage.components = new
+            return new
+        }
+    }
+
+    var _streams: Streams {
+        app.locks.lock(for: StreamsKey.self).withLock {
+            if let existing = _storage.streams { return existing }
+            let new = Streams(app: app)
+            _storage.streams = new
+            return new
+        }
+    }
+
+    var _socket: MistSocketConfiguration {
+        MistSocketConfiguration(app: app)
+    }
+
+    var _socketPath: [PathComponent] {
+        get {
+            app.locks.lock(for: SocketPathKey.self).withLock {
+                _storage.socketPath ?? ["mist", "ws"]
+            }
+        }
+        nonmutating set {
+            app.locks.lock(for: SocketPathKey.self).withLock {
+                _storage.socketPath = newValue
+            }
+        }
+    }
+    
+    var _shouldUpgrade: @Sendable (Request) async -> HTTPHeaders? {
+        get {
+            app.locks.lock(for: ShouldUpgradeKey.self).withLock {
+                _storage.shouldUpgrade ?? { _ in HTTPHeaders() }
+            }
+        }
+        nonmutating set {
+            app.locks.lock(for: ShouldUpgradeKey.self).withLock {
+                _storage.shouldUpgrade = newValue
+            }
+        }
+    }
+    
+    var _socketMiddleware: (any Middleware)? {
+        get {
+            app.locks.lock(for: SocketMiddlewareKey.self).withLock {
+                _storage.socketMiddleware
+            }
+        }
+        nonmutating set {
+            app.locks.lock(for: SocketMiddlewareKey.self).withLock {
+                _storage.socketMiddleware = newValue
+            }
+        }
+    }
+
+    func registerSocketIfNeeded() {
+        app.locks.lock(for: SocketRegisteredKey.self).withLock {
+            guard !_storage.socketRegistered else { return }
+            _storage.socketRegistered = true
+            Socket.register(with: app)
+        }
+    }
+    
+}
+
+extension MistInterface {
+    
+    /// User-configurable websocket registration settings.
+    public struct MistSocketConfiguration {
+        
+        let app: Application
+
+        public var path: [PathComponent] {
+            get { app.mist._socketPath }
+            nonmutating set { app.mist._socketPath = newValue }
+        }
+        
+        public var shouldUpgrade: @Sendable (Request) async -> HTTPHeaders? {
+            get { app.mist._shouldUpgrade }
+            nonmutating set { app.mist._shouldUpgrade = newValue }
+        }
+        
+        public var middleware: (any Middleware)? {
+            get { app.mist._socketMiddleware }
+            nonmutating set { app.mist._socketMiddleware = newValue }
+        }
+        
+    }
+    
+}
