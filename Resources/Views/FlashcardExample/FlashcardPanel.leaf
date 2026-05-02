@@ -64,7 +64,6 @@
 </head>
 <body>
     <main class="container">
-        #dumpContext
         <h1>Flashcards</h1>
         #extend("FlashcardExample/FlashcardHeader")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
