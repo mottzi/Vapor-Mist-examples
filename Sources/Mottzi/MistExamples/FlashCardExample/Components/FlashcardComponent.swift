@@ -18,7 +18,9 @@ struct DeleteAction: Mist.Action {
 
     func perform(targetID id: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         
-        guard let id else { return .failure("No target ID provided") }
+        guard let id else {
+            return .failure("No target ID provided")
+        }
 
         guard let model1 = try? await FlashcardFrontModel.find(id, on: app.db) else {
             return .failure("CardFront not found for ID: \(id)")
@@ -43,7 +45,9 @@ struct ShuffleTextAction: Action {
     
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         
-        guard let targetID else { return .failure("No target ID provided") }
+        guard let targetID else {
+            return .failure("No target ID provided")
+        }
 
         guard let model1 = try? await FlashcardFrontModel.find(targetID, on: app.db) else {
             return .failure("CardFront not found for ID: \(targetID)")
