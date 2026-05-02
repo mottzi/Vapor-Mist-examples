@@ -22,7 +22,7 @@ import Mist
             FlashcardComponent()
             FlashcardAddButton()
             CounterExampleComponent()
-            LiveSystemMemoryComponent()
+            SystemMemoryComponent()
         }
 
         app.views.use(.leaf)

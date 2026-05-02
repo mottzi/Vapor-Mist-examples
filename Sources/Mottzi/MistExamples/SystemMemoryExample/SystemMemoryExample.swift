@@ -2,7 +2,7 @@ import Vapor
 import Mist
 import Elementary
 
-struct SystemMonitorExamplePage: HTMLDocument {
+struct SystemMemoryExamplePage: HTMLDocument {
     var title = "System Monitor Example"
 
     var head: some HTML {
@@ -19,8 +19,8 @@ struct SystemMonitorExamplePage: HTMLDocument {
                 p(.class("desc")) { "A live server health widget that updates automatically every 2 seconds without user interaction." }
             }
             
-            LiveSystemMemoryComponent()
-                .body(state: LiveSystemMemoryComponent.SystemMetrics(memoryUsage: 0))
+            SystemMemoryComponent()
+                .body(state: SystemMemoryComponent.SystemMetrics(memoryUsage: 0))
         }
         
         script(.src("/morphdom.js")) {}
@@ -28,7 +28,7 @@ struct SystemMonitorExamplePage: HTMLDocument {
     }
 }
 
-struct LiveSystemMemoryComponent: LiveComponent {
+struct SystemMemoryComponent: LiveComponent {
 
     struct SystemMetrics: ComponentData {
         var memoryUsage: Double

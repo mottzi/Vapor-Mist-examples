@@ -20,7 +20,7 @@ extension Application {
 
         self.get("SystemMonitorExample") { _ in
             HTMLResponse {
-                SystemMonitorExamplePage()
+                SystemMemoryExamplePage()
             }
         }
 
