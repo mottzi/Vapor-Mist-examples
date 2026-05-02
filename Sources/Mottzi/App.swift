@@ -12,15 +12,15 @@ import Mist
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
         app.databases.use(.sqlite(.file("deploy/mottzi.db")), as: .sqlite)
-//        app.migrations.add(
-//            MistDemoModel1.Table(),
-//            MistDemoModel2.Table()
-//        )
+        app.migrations.add(
+            FlashcardFrontModel.Table(),
+            FlashcardBackModel.Table(),
+        )
         try await app.autoMigrate()
 
         try await app.mist.use {
-//            FlashcardComponent()
-//            FlashcardHeaderComponent()
+            FlashcardComponent()
+            FlashcardHeaderComponent()
             CounterExampleComponent()
         }
 
