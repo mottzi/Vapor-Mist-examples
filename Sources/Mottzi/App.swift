@@ -19,14 +19,14 @@ import Mist
         try await app.autoMigrate()
 
         try await app.mist.use {
-//                        MistDemoComponent()
-            //            MistDemoHeader()
-            CounterComponent()
+//            FlashcardComponent()
+//            FlashcardHeaderComponent()
+            CounterExampleComponent()
         }
 
         app.views.use(.leaf)
 
-        app.useMistDemo()
+        app.useMistExamples()
 
         try await app.execute()
         try await app.asyncShutdown()

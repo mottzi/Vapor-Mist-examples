@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Flashcards</title>
+    <link rel="icon" type="image/png" href="/deployer/mottzi.png">
+    <link rel="stylesheet" href="/mistdemo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .flashcard {
+            perspective: 1000px;
+            height: 250px;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            background-color: white;
+            box-sizing: border-box;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background-color: #f9f9f9;
+        }
+        .flashcard-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+        }
+        .flashcard-text {
+            font-size: 1.5em;
+            margin: auto;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Flashcards</h1>
+        #extend("FlashCardExample/FlashcardHeader")
+        <div class="flashcard-grid" mist-container="FlashcardComponent">
+            #for(component in components):
+                #extend("FlashCardExample/FlashcardComponent")
+            #endfor
+        </div>
+    </main>
+    <script src="/morphdom.js"></script>
+    <script src="/mist.js"></script>
+</body>
+</html>

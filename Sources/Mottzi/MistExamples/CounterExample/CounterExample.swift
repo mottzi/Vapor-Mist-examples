@@ -1,27 +1,9 @@
 import Vapor
-import VaporElementary
+import Mist
+import Elementary
 
-extension Application {
-    func useMistDemo() {
-        self.get("test") { _ in
-            return "test4"
-        }
-
-//        self.get("MistDemo") { request async throws -> View in
-//            let context = try await MistDemoComponent().makeContext(ofAll: request.db)
-//            return try await request.view.render("MistDemo/MistDemoPanel", context)
-//        }
-        
-        self.get("example") { _ in
-            HTMLResponse {
-                MainPage()
-            }
-        }
-    }
-}
-
-struct MainPage: HTMLDocument {
-    var title = "Elementary"
+struct CounterExamplePage: HTMLDocument {
+    var title = "Counter Example"
 
     var head: some HTML {
         meta(.name(.description), .content("Typesafe HTML in modern Swift"))
@@ -29,29 +11,23 @@ struct MainPage: HTMLDocument {
 
     var body: some HTML {
         main {
-            CounterComponent().body(state: CounterComponent.State())
+            CounterExampleComponent()
+                .body(state: CounterExampleComponent.State())
         }
         script(.src("/morphdom.js")) {}
         script(.src("/mist.js")) {}
     }
 }
 
-import Mist
-import Elementary
-
-struct CounterComponent: ManualComponent {
+struct CounterExampleComponent: ManualComponent {
     // Defines the shape of our globally shared state
-    struct State: ComponentData {
-        var count = 0
-    }
+    struct State: ComponentData { var count = 0 }
     
     // The actor isolating the shared state
     let state = LiveState(of: State())
     
     // Actions exposed to the client
-    var actions: [any Action] {
-        [IncrementAction(counterState: state)]
-    }
+    var actions: [any Action] { [IncrementAction(counterState: state)] }
 
     // Natively render using Elementary DSL
     func body(state: State) -> some HTML {
@@ -64,7 +40,7 @@ struct CounterComponent: ManualComponent {
 
 struct IncrementAction: Action {
     let name = "increment"
-    let counterState: LiveState<CounterComponent.State>
+    let counterState: LiveState<CounterExampleComponent.State>
     
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         // Read current shared state

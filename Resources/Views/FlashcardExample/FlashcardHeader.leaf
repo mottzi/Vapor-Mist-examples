@@ -1,0 +1,5 @@
+<div mist-component="FlashcardHeaderComponent">
+    <button mist-action="CreateCardAction">
+        Create Flashcard
+    </button>
+</div>

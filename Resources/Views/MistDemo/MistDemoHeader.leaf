@@ -1,6 +1,0 @@
-<div mist-component="MistDemoHeader">
-    <button mist-action="AddDemoModelAction">
-        Add new model pair
-    </button>
-</div>
-
