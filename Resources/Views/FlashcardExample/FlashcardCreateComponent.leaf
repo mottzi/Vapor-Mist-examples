@@ -1,4 +1,4 @@
-<div mist-component="FlashcardHeaderComponent" class="mb-4">
+<div mist-component="FlashcardCreateComponent" class="mb-4">
     <button mist-action="CreateCardAction" class="btn-large">
         Create Flashcard
     </button>
