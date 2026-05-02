@@ -3,7 +3,7 @@ import Fluent
 import FluentSQLiteDriver
 import Mist
 
-@main struct MottziApp {
+@main struct App {
 
     static func main() async throws {
         let env = try Environment.detect()

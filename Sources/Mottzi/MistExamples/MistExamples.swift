@@ -8,7 +8,7 @@ extension Application {
         
         self.get("MistExamples") { _ in
             HTMLResponse {
-                MistExamplesIndexPage()
+                MistExamplesPage()
             }
         }
         
@@ -38,7 +38,7 @@ extension Application {
     
 }
 
-struct MistExamplesIndexPage: HTMLDocument {
+struct MistExamplesPage: HTMLDocument {
 
     let title = "Mist Examples"
     var head: some HTML {
