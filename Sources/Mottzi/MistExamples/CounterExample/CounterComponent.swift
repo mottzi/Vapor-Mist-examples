@@ -2,34 +2,7 @@ import Vapor
 import Mist
 import Elementary
 
-struct CounterExamplePage: HTMLDocument {
-    var title = "Counter Example"
-
-    var head: some HTML {
-        meta(.name(.description), .content("Typesafe HTML in modern Swift"))
-        link(.rel(.stylesheet), .href("/mistexamples.css"))
-    }
-
-    var body: some HTML {
-        
-        main(.class("container")) {
-            a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
-            
-            header(.class("mb-4")) {
-                h1 { "Counter Example" }
-                p(.class("desc")) { "A global counter demonstrating real-time manual state updates across all connected clients." }
-            }
-            
-            CounterExampleComponent()
-                .body(state: CounterExampleComponent.State())
-        }
-        
-        script(.src("/morphdom.js")) {}
-        script(.src("/mist.js")) {}
-    }
-}
-
-struct CounterExampleComponent: ManualComponent {
+struct CounterComponent: ManualComponent {
 
     struct State: ComponentData { var count = 0 }
     
@@ -59,7 +32,7 @@ struct CounterExampleComponent: ManualComponent {
 struct IncrementAction: Action {
     
     let name = "increment"
-    let counterState: LiveState<CounterExampleComponent.State>
+    let counterState: LiveState<CounterComponent.State>
     
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
 

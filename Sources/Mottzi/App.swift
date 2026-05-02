@@ -15,16 +15,16 @@ import Mist
         app.migrations.add(
             FlashcardFrontModel.Table(),
             FlashcardBackModel.Table(),
-            VoteModel.Table()
+            LiveVotingModel.Table()
         )
         try await app.autoMigrate()
 
         try await app.mist.use {
             FlashcardComponent()
-            FlashcardAddButton()
-            CounterExampleComponent()
+            FlashcardCreateComponent()
+            CounterComponent()
             SystemMemoryComponent()
-            LiveVotingResultsComponent()
+            LiveVotingComponent()
         }
 
         app.views.use(.leaf)

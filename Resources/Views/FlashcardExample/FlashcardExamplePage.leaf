@@ -13,7 +13,7 @@
             <h1>Flashcards</h1>
             <p class="desc">Interactive flashcards with real-time state syncing and persistence.</p>
         </header>
-        #extend("FlashcardExample/FlashcardAddButton")
+        #extend("FlashcardExample/FlashcardCreateComponent")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
             #for(context in contexts):
                 #extend("FlashcardExample/FlashcardComponent")

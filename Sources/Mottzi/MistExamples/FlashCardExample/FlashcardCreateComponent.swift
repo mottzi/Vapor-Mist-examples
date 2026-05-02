@@ -2,17 +2,17 @@ import Vapor
 import Fluent
 import Mist
 
-struct FlashcardAddButton: InstanceComponent {
+struct FlashcardCreateComponent: InstanceComponent {
     
     let models: [any Mist.Model.Type] = []
     
-    let actions: [any Mist.Action] = [CreateCardAction()]
+    let actions: [any Mist.Action] = [FlashcardCreateAction()]
     
-    let template: Mist.Template = LeafTemplate.file("FlashcardExample/FlashcardAddButton")
+    let template: Mist.Template = LeafTemplate.file("FlashcardExample/FlashcardCreateComponent")
     
 }
 
-struct CreateCardAction: Action {
+struct FlashcardCreateAction: Action {
     
     let name: String = "CreateCardAction"
     

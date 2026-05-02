@@ -14,19 +14,19 @@ extension Application {
         
         self.get("CounterExample") { _ in
             HTMLResponse {
-                CounterExamplePage()
+                CounterPage()
             }
         }
 
         self.get("SystemMonitorExample") { _ in
             HTMLResponse {
-                SystemMemoryExamplePage()
+                SystemMemoryPage()
             }
         }
 
         self.get("LivePollingExample") { _ in
             HTMLResponse {
-                LivePollingExamplePage()
+                LiveVotingPage()
             }
         }
 
