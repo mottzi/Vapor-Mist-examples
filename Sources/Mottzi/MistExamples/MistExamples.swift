@@ -18,6 +18,12 @@ extension Application {
             }
         }
 
+        self.get("SystemMonitorExample") { _ in
+            HTMLResponse {
+                SystemMonitorExamplePage()
+            }
+        }
+
         self.get("FlashcardExample") { request async throws -> View in
             let context = try await FlashcardComponent().makeContext(ofAll: request.db)
             return try await request.view.render("FlashcardExample/FlashcardExamplePage", context)
@@ -55,6 +61,14 @@ struct MistExamplesIndexPage: HTMLDocument {
                             div(.class("stack")) {
                                 span { "Counter Example" }
                                 p(.class("desc")) { "A simple global counter demonstrating manual state management." }
+                            }
+                        } 
+                    }
+                    li { 
+                        a(.href("/SystemMonitorExample")) { 
+                            div(.class("stack")) {
+                                span { "System Monitor Example" }
+                                p(.class("desc")) { "A live server health widget demonstrating periodic state refreshes." }
                             }
                         } 
                     }
