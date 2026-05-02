@@ -4,17 +4,12 @@
         <div class="flashcard-front">
             <div class="flashcard-text">#(context.flashcardfrontmodel.text)</div>
             <div class="flashcard-actions">
-                <button onclick="navigator.clipboard.writeText('#(context.flashcardfrontmodel.id)')">Copy ID</button>
                 <button mist-action="ShuffleTextAction">Shuffle</button>
                 <button mist-action="delete">Delete</button>
             </div>
         </div>
         <div class="flashcard-back">
             <div class="flashcard-text">#(context.flashcardbackmodel.text)</div>
-            <div class="flashcard-actions">
-                <button mist-action="ShuffleTextAction">Shuffle</button>
-                <button mist-action="delete">Delete</button>
-            </div>
         </div>
     </div>
 </div>
