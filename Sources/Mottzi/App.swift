@@ -20,7 +20,7 @@ import Mist
 
         try await app.mist.use {
             FlashcardComponent()
-            FlashcardHeaderComponent()
+            FlashcardAddButton()
             CounterExampleComponent()
         }
 

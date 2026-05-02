@@ -19,7 +19,7 @@ extension Application {
 
         self.get("FlashcardExample") { request async throws -> View in
             let context = try await FlashcardComponent().makeContext(ofAll: request.db)
-            return try await request.view.render("FlashcardExample/FlashcardPanel", context)
+            return try await request.view.render("FlashcardExample/FlashcardExamplePage", context)
         }
     }
     

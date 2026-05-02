@@ -9,7 +9,7 @@
 <body>
     <main class="container">
         <h1>Flashcards</h1>
-        #extend("FlashcardExample/FlashcardHeader")
+        #extend("FlashcardExample/FlashcardAddButton")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
             #for(context in contexts):
                 #extend("FlashcardExample/FlashcardComponent")
