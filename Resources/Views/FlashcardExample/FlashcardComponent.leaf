@@ -1,4 +1,5 @@
-<div class="flashcard" onclick="this.classList.toggle('flipped')" mist-component="FlashcardComponent" mist-id="#(context.flashcardfrontmodel.id)">    <div class="flashcard-inner">
+<div class="flashcard" onclick="this.classList.toggle('flipped')" mist-component="FlashcardComponent" mist-id="#(context.flashcardfrontmodel.id)">
+    <div class="flashcard-inner">
         <div class="flashcard-front">
             <div class="flashcard-text">#(context.flashcardfrontmodel.text)</div>
             <div class="flashcard-actions">
