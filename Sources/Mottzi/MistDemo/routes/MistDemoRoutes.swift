@@ -31,6 +31,8 @@ struct MainPage: HTMLDocument {
         main {
             CounterComponent().body(state: CounterComponent.State())
         }
+        script(.src("/morphdom.js")) {}
+        script(.src("/mist.js")) {}
     }
 }
 
@@ -54,7 +56,7 @@ struct CounterComponent: ManualComponent {
     // Natively render using Elementary DSL
     func body(state: State) -> some HTML {
         div(.mistComponent(value: name)) {
-            h1 { "Global Count: \\(state.count)" }
+            h1 { "Global Count: \(state.count)" }
             button(.init(name: "mist-action", value: "increment")) { "Increment" }
         }
     }
