@@ -66,7 +66,7 @@
         <h1>Flashcards</h1>
         #extend("FlashcardExample/FlashcardHeader")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
-            #for(component in components):
+            #for(context in contexts):
                 #extend("FlashcardExample/FlashcardComponent")
             #endfor
         </div>

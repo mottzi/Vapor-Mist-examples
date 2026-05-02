@@ -1,15 +1,15 @@
-<div class="flashcard" onclick="this.classList.toggle('flipped')" mist-component="FlashcardComponent" mist-id="#(component.cardfront.id)">
+<div class="flashcard" onclick="this.classList.toggle('flipped')" mist-component="FlashcardComponent" mist-id="#(context.cardfront.id)">
     <div class="flashcard-inner">
         <div class="flashcard-front">
-            <div class="flashcard-text">#(component.cardfront.text)</div>
+            <div class="flashcard-text">#(context.cardfront.text)</div>
             <div class="flashcard-actions">
-                <button onclick="event.stopPropagation(); navigator.clipboard.writeText('#(component.cardfront.id)')">Copy ID</button>
+                <button onclick="event.stopPropagation(); navigator.clipboard.writeText('#(context.cardfront.id)')">Copy ID</button>
                 <button mist-action="ShuffleTextAction" onclick="event.stopPropagation()">Shuffle</button>
                 <button mist-action="delete" onclick="event.stopPropagation()">Delete</button>
             </div>
         </div>
         <div class="flashcard-back">
-            <div class="flashcard-text">#(component.cardback.text)</div>
+            <div class="flashcard-text">#(context.cardback.text)</div>
             <div class="flashcard-actions">
                 <button mist-action="ShuffleTextAction" onclick="event.stopPropagation()">Shuffle</button>
                 <button mist-action="delete" onclick="event.stopPropagation()">Delete</button>
