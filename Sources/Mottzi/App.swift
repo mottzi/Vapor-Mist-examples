@@ -15,6 +15,7 @@ import Mist
         app.migrations.add(
             FlashcardFrontModel.Table(),
             FlashcardBackModel.Table(),
+            VoteModel.Table()
         )
         try await app.autoMigrate()
 
@@ -23,6 +24,8 @@ import Mist
             FlashcardAddButton()
             CounterExampleComponent()
             SystemMemoryComponent()
+            LiveVotingResultsComponent()
+            VotingControlsComponent()
         }
 
         app.views.use(.leaf)

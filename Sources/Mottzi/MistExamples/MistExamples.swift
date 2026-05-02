@@ -24,6 +24,12 @@ extension Application {
             }
         }
 
+        self.get("LivePollingExample") { _ in
+            HTMLResponse {
+                LivePollingExamplePage()
+            }
+        }
+
         self.get("FlashcardExample") { request async throws -> View in
             let context = try await FlashcardComponent().makeContext(ofAll: request.db)
             return try await request.view.render("FlashcardExample/FlashcardExamplePage", context)
@@ -69,6 +75,14 @@ struct MistExamplesIndexPage: HTMLDocument {
                             div(.class("stack")) {
                                 span { "System Monitor Example" }
                                 p(.class("desc")) { "A live server health widget demonstrating periodic state refreshes." }
+                            }
+                        } 
+                    }
+                    li { 
+                        a(.href("/LivePollingExample")) { 
+                            div(.class("stack")) {
+                                span { "Live Polling Example" }
+                                p(.class("desc")) { "A polling widget aggregating database records automatically." }
                             }
                         } 
                     }
