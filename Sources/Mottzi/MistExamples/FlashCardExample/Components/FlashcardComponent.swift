@@ -6,10 +6,21 @@ struct FlashcardComponent: InstanceComponent {
     
     let models: [any Mist.Model.Type] = [FlashcardFrontModel.self, FlashcardBackModel.self]
     
-    let actions: [any Mist.Action] = [DeleteAction(), ShuffleTextAction()]
+    let actions: [any Mist.Action] = [DeleteAction(), ShuffleTextAction(), FlipAction()]
     
     let template: Mist.Template = LeafTemplate.file("FlashcardExample/FlashcardComponent")
     
+}
+
+struct FlipAction: Mist.Action {
+    
+    let name: String = "flip"
+
+    func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
+        let isFlipped = state["isFlipped"]?.bool ?? false
+        state["isFlipped"] = .bool(!isFlipped)
+        return .success()
+    }
 }
 
 struct DeleteAction: Mist.Action {
