@@ -18,23 +18,23 @@ struct DeleteAction: Mist.Action {
 
     func perform(targetID id: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         
+        guard let id else { return .failure("No target ID provided") }
+
         guard let model1 = try? await FlashcardFrontModel.find(id, on: app.db) else {
-            return .failure("CardFront not found")
+            return .failure("CardFront not found for ID: \(id)")
         }
         
         guard let model2 = try? await FlashcardBackModel.find(id, on: app.db) else {
-            return .failure("CardBack not found")
+            return .failure("CardBack not found for ID: \(id)")
         }
         
-        guard (try? await model1.delete(on: app.db)) != nil else {
-            return .failure("Failed to delete CardFront")
+        do {
+            try await model1.delete(on: app.db)
+            try await model2.delete(on: app.db)
+            return .success()
+        } catch {
+            return .failure("Failed to delete flashcard: \(error.localizedDescription)")
         }
-        
-        guard (try? await model2.delete(on: app.db)) != nil else {
-            return .failure("Failed to delete CardBack")
-        }
-
-        return .success()
     }
     
 }
@@ -43,12 +43,14 @@ struct ShuffleTextAction: Action {
     
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         
+        guard let targetID else { return .failure("No target ID provided") }
+
         guard let model1 = try? await FlashcardFrontModel.find(targetID, on: app.db) else {
-            return .failure("CardFront not found")
+            return .failure("CardFront not found for ID: \(targetID)")
         }
         
         guard let model2 = try? await FlashcardBackModel.find(targetID, on: app.db) else {
-            return .failure("CardBack not found")
+            return .failure("CardBack not found for ID: \(targetID)")
         }
 
         let words: Set<String> = [
@@ -62,14 +64,13 @@ struct ShuffleTextAction: Action {
         model1.text = words.shuffled().prefix(1).joined(separator: " ")
         model2.text = words.shuffled().prefix(1).joined(separator: " ")
 
-        guard (try? await model1.save(on: app.db)) != nil else {
-            return .failure("Failed to save CardFront")
+        do {
+            try await model1.save(on: app.db)
+            try await model2.save(on: app.db)
+            return .success()
+        } catch {
+            return .failure("Failed to save flashcard: \(error.localizedDescription)")
         }
-
-        guard (try? await model2.save(on: app.db)) != nil else {
-            return .failure("Failed to save CardBack")
-        }
-
-        return .success()
     }
 }
+
