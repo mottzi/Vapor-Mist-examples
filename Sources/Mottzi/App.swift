@@ -25,7 +25,6 @@ import Mist
             CounterExampleComponent()
             SystemMemoryComponent()
             LiveVotingResultsComponent()
-            VotingControlsComponent()
         }
 
         app.views.use(.leaf)

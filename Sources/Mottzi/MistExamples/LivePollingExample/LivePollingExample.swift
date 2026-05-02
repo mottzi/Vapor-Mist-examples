@@ -29,13 +29,9 @@ struct LivePollingExamplePage: HTMLDocument {
             }
             
             div(.class("poll-grid")) {
-                // The Read-Only Live Results Widget
+                // The Unified Widget
                 LiveVotingResultsComponent()
                     .body(context: LiveVotingResultsComponent.PollContext(tabs: 0, spaces: 0))
-                
-                // The Interactive Buttons
-                VotingControlsComponent()
-                    .body(state: VotingControlsComponent.State())
             }
         }
         
@@ -46,6 +42,7 @@ struct LivePollingExamplePage: HTMLDocument {
 
 // MARK: - 2. Database Model
 final class VoteModel: Mist.Model, Content, @unchecked Sendable {
+    
     static let schema = "PollVotes"
     
     @ID(key: .id) var id: UUID?
@@ -63,13 +60,14 @@ extension VoteModel {
                 .field("choice", .string, .required)
                 .create()
         }
+        
         func revert(on database: Database) async throws {
             try await database.schema(VoteModel.schema).delete()
         }
     }
 }
 
-// MARK: - 3. The Polling Component (Auto-Updates UI)
+// MARK: - 3. The Unified Polling Component
 struct LiveVotingResultsComponent: PollingComponent {
     
     struct PollContext: ComponentData {
@@ -83,12 +81,14 @@ struct LiveVotingResultsComponent: PollingComponent {
     
     let name = "live-voting-results"
     
+    // Actions are now directly attached to the PollingComponent
+    var actions: [any Action] { [VoteTabsAction(), VoteSpacesAction()] }
+    
     // Polls the database every 2 seconds
     var refreshInterval: Duration { .seconds(2) }
 
     // Aggregates the votes from the Fluent Database
     func poll(on db: Database) async -> PollContext? {
-        // In production, use aggregate queries. Using count() for clarity.
         let tabsCount = (try? await VoteModel.query(on: db).filter(\.$choice == "tabs").count()) ?? 0
         let spacesCount = (try? await VoteModel.query(on: db).filter(\.$choice == "spaces").count()) ?? 0
         
@@ -104,6 +104,7 @@ struct LiveVotingResultsComponent: PollingComponent {
             h2 { "Tabs vs. Spaces" }
             p(.class("desc mb-4")) { "Total Votes: \(context.total)" }
             
+            // --- Progress Bars ---
             div(.class("stack")) {
                 div {
                     div(.style("display: flex; justify-content: space-between; font-weight: bold;")) {
@@ -125,33 +126,24 @@ struct LiveVotingResultsComponent: PollingComponent {
                     }
                 }
             }
-        }
-    }
-}
-
-// MARK: - 4. The Action Controls (Writes to DB)
-struct VotingControlsComponent: ManualComponent {
-    
-    struct State: ComponentData {}
-    let state = LiveState(of: State()) // Empty state, acting only as a dispatcher
-    
-    var actions: [any Action] { [VoteTabsAction(), VoteSpacesAction()] }
-
-    func body(state: State) -> some HTML {
-        div(.mistComponent(value: name), .style("display: flex; gap: 1rem;")) {
-            button(.mistAction(value: "vote-tabs"), .class("btn-large"), .style("width: 100%;")) {
-                "Vote Tabs"
-            }
-            button(.mistAction(value: "vote-spaces"), .class("btn-large"), .style("width: 100%; background-color: #10b981;")) {
-                "Vote Spaces"
+            
+            // --- Voting Buttons ---
+            div(.style("display: flex; gap: 1rem; margin-top: 1.5rem;")) {
+                button(.mistAction(value: "vote-tabs"), .class("btn-large"), .style("width: 100%;")) {
+                    "Vote Tabs"
+                }
+                button(.mistAction(value: "vote-spaces"), .class("btn-large"), .style("width: 100%; background-color: #10b981;")) {
+                    "Vote Spaces"
+                }
             }
         }
     }
 }
 
-// MARK: - Actions
+// MARK: - 4. Actions
 struct VoteTabsAction: Action {
     let name = "vote-tabs"
+    
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         try? await VoteModel(choice: "tabs").save(on: app.db)
         return .success()
@@ -160,6 +152,7 @@ struct VoteTabsAction: Action {
 
 struct VoteSpacesAction: Action {
     let name = "vote-spaces"
+    
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         try? await VoteModel(choice: "spaces").save(on: app.db)
         return .success()
