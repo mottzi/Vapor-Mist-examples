@@ -3,11 +3,12 @@
 <head>
     <title>Flashcards</title>
     <link rel="icon" type="image/png" href="/deployer/mottzi.png">
-    <link rel="stylesheet" href="/flashcards.css">
+    <link rel="stylesheet" href="/mistexamples.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <main class="container">
+        <a href="/MistExamples" class="back-link">← Back to Examples</a>
         <h1>Flashcards</h1>
         #extend("FlashcardExample/FlashcardAddButton")
         <div class="flashcard-grid" mist-container="FlashcardComponent">

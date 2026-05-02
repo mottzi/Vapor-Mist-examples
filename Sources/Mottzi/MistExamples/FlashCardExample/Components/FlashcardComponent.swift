@@ -1,6 +1,6 @@
+import Vapor
 import Fluent
 import Mist
-import Vapor
 
 struct FlashcardComponent: InstanceComponent {
     
@@ -17,8 +17,10 @@ struct FlipAction: Mist.Action {
     let name: String = "flip"
 
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
+        
         let isFlipped = state["isFlipped"]?.bool ?? false
         state["isFlipped"] = .bool(!isFlipped)
+        
         return .success()
     }
 }
@@ -68,30 +70,7 @@ struct ShuffleTextAction: Action {
             return .failure("CardBack not found for ID: \(targetID)")
         }
 
-        let pairs: [(front: String, back: String)] = [
-            ("Hello", "Hola"),
-            ("Apple", "Manzana"),
-            ("Dog", "Perro"),
-            ("Cat", "Gato"),
-            ("Book", "Libro"),
-            ("Water", "Agua"),
-            ("Sun", "Sol"),
-            ("Moon", "Luna"),
-            ("Friend", "Amigo"),
-            ("Thank you", "Gracias"),
-            ("Please", "Por favor"),
-            ("Good morning", "Buenos días"),
-            ("Good night", "Buenas noches"),
-            ("How are you?", "¿Cómo estás?"),
-            ("I love you", "Te amo"),
-            ("Bread", "Pan"),
-            ("Coffee", "Café"),
-            ("House", "Casa"),
-            ("Street", "Calle"),
-            ("City", "Ciudad")
-        ]
-
-        guard let randomPair = pairs.randomElement() else {
+        guard let randomPair = flashCardPairs.randomElement() else {
             return .failure("No pairs available")
         }
 
@@ -108,3 +87,25 @@ struct ShuffleTextAction: Action {
     }
 }
 
+let flashCardPairs: [(front: String, back: String)] = [
+    ("Hello", "Hola"),
+    ("Apple", "Manzana"),
+    ("Dog", "Perro"),
+    ("Cat", "Gato"),
+    ("Book", "Libro"),
+    ("Water", "Agua"),
+    ("Sun", "Sol"),
+    ("Moon", "Luna"),
+    ("Friend", "Amigo"),
+    ("Thank you", "Gracias"),
+    ("Please", "Por favor"),
+    ("Good morning", "Buenos días"),
+    ("Good night", "Buenas noches"),
+    ("How are you?", "¿Cómo estás?"),
+    ("I love you", "Te amo"),
+    ("Bread", "Pan"),
+    ("Coffee", "Café"),
+    ("House", "Casa"),
+    ("Street", "Calle"),
+    ("City", "Ciudad")
+]
