@@ -1,4 +1,5 @@
 import Vapor
+import VaporElementary
 
 extension Application {
     func useMistDemo() {
@@ -12,7 +13,23 @@ extension Application {
 //        }
         
         self.get("example") { _ in
-            await CounterComponent().renderCurrent(app: self).html ?? ""
+            HTMLResponse {
+                MainPage()
+            }
+        }
+    }
+}
+
+struct MainPage: HTMLDocument {
+    var title = "Elementary"
+
+    var head: some HTML {
+        meta(.name(.description), .content("Typesafe HTML in modern Swift"))
+    }
+
+    var body: some HTML {
+        main {
+            CounterComponent().body(state: CounterComponent.State())
         }
     }
 }
