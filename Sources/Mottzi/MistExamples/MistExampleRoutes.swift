@@ -27,20 +27,40 @@ extension Application {
 }
 
 struct MistExamplesIndexPage: HTMLDocument {
-    
+
     let title = "Mist Examples"
     var head: some HTML {
         link(.rel(.stylesheet), .href("/mistexamples.css"))
     }
-    
+
     var body: some HTML {
         main(.class("container")) {
-            h1 { "Mist Examples" }
-            ul {
-                li { a(.href("/FlashcardExample")) { "Flashcard Example" } }
-                li { a(.href("/CounterExample")) { "Counter Example" } }
+            header(.class("mb-4")) {
+                h1 { "Mist Examples" }
+                p { "A collection of interactive components built with Mist and Vapor." }
+            }
+
+            section {
+                ul {
+                    li { 
+                        a(.href("/FlashcardExample")) { 
+                            div(.class("stack")) {
+                                span { "Flashcard Example" }
+                                p(.class("desc")) { "A dynamic flashcard system with persistent storage and real-time updates." }
+                            }
+                        } 
+                    }
+                    li { 
+                        a(.href("/CounterExample")) { 
+                            div(.class("stack")) {
+                                span { "Counter Example" }
+                                p(.class("desc")) { "A simple global counter demonstrating manual state management." }
+                            }
+                        } 
+                    }
+                }
             }
         }
     }
-    
+
 }

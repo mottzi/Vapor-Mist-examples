@@ -15,6 +15,11 @@ struct CounterExamplePage: HTMLDocument {
         main(.class("container")) {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
+            header(.class("mb-4")) {
+                h1 { "Counter Example" }
+                p(.class("desc")) { "A global counter demonstrating real-time manual state updates across all connected clients." }
+            }
+            
             CounterExampleComponent()
                 .body(state: CounterExampleComponent.State())
         }

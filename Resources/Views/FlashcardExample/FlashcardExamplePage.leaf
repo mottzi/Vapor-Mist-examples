@@ -9,7 +9,10 @@
 <body>
     <main class="container">
         <a href="/MistExamples" class="back-link">← Back to Examples</a>
-        <h1>Flashcards</h1>
+        <header class="mb-4">
+            <h1>Flashcards</h1>
+            <p class="desc">Interactive flashcards with real-time state syncing and persistence.</p>
+        </header>
         #extend("FlashcardExample/FlashcardAddButton")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
             #for(context in contexts):
