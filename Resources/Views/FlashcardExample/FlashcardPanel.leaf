@@ -64,10 +64,10 @@
 <body>
     <main class="container">
         <h1>Flashcards</h1>
-        #extend("FlashCardExample/FlashcardHeader")
+        #extend("FlashcardExample/FlashcardHeader")
         <div class="flashcard-grid" mist-container="FlashcardComponent">
             #for(component in components):
-                #extend("FlashCardExample/FlashcardComponent")
+                #extend("FlashcardExample/FlashcardComponent")
             #endfor
         </div>
     </main>
