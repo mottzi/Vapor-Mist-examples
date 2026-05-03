@@ -36,15 +36,12 @@ extension Application {
             """
             
             // Render the inline string using Leaf, passing the initial state
-            let buffer = req.leaf.render(
-                path: pageTemplate,
-                context: CounterState()
-            ) 
+            let buffer = try await self.leaf.renderer.render(
+                pageTemplate,
+                CounterState()
+            ).data
             
-            // Return the rendered buffer as an HTML response
-            var response = Response(status: .ok, body: .init(buffer: try await buffer.get()))
-            response.headers.contentType = .html
-            return response
+            return View(data: buffer)
         }
 
         self.get("SystemMonitorExample") { _ in
