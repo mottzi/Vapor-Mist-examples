@@ -5,7 +5,7 @@ import Elementary
 struct SystemMemoryComponent: LiveComponent {
 
     struct SystemMetrics: ComponentData {
-        var memoryUsage: Double
+        var memoryUsage: Int
     }
     
     let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB()))
@@ -27,7 +27,7 @@ struct SystemMemoryComponent: LiveComponent {
             }
             div(.class("stack")) {
                 div(.class("text-huge")) {
-                    "\(Int(state.memoryUsage)) MB"
+                    "\(state.memoryUsage) MB"
                 }
                 span(.class("desc")) { "Real System Memory Usage" }
             }
@@ -40,7 +40,7 @@ struct SystemMemoryComponent: LiveComponent {
     
 }
 
-private func getSystemMemoryUsageMB() -> Double {
+private func getSystemMemoryUsageMB() -> Int {
 
     guard let meminfo = try? String(contentsOfFile: "/proc/meminfo", encoding: .utf8) else {
         return 0
@@ -66,7 +66,7 @@ private func getSystemMemoryUsageMB() -> Double {
 
     if memTotal > 0 {
         let usedKB = memTotal - memAvailable
-        return usedKB / 1024.0 // Convert to MB
+        return Int(usedKB / 1024.0) // Convert to MB
     }
     
     return 0
