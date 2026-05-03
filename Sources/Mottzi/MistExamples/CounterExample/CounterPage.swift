@@ -1,19 +1,19 @@
 import Elementary
 
-struct CounterPage: HTMLDocument {
-    
-    let title = "Counter Example Page"
-
-    var head: some HTML { EmptyHTML() }
-
-    var body: some HTML {
-        CounterComponent()
-            .body(state: CounterState())
-        script(.src("/morphdom.js")) {}
-        script(.src("/mist.js")) {}
-    }
-    
-}
+//struct CounterPage: HTMLDocument {
+//    
+//    let title = "Counter Example Page"
+//
+//    var head: some HTML { EmptyHTML() }
+//
+//    var body: some HTML {
+//        CounterComponent()
+//            .body(state: CounterState())
+//        script(.src("/morphdom.js")) {}
+//        script(.src("/mist.js")) {}
+//    }
+//    
+//}
 
 //import Elementary
 //
