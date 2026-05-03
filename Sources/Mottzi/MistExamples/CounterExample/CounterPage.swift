@@ -20,7 +20,7 @@ struct CounterPage: HTMLDocument {
             }
             
             CounterComponent()
-                .body(state: CounterComponent.State())
+                .body(state: CounterState())
         }
         
         script(.src("/morphdom.js")) {}
