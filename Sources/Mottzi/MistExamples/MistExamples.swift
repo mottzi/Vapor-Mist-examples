@@ -17,7 +17,7 @@ extension Application {
                 html {
                     body {
                         CounterComponent()
-                            .view(state: CounterState()) //
+                            .view(state: CounterState())
                         script(.src("/morphdom.js")) {}
                         script(.src("/mist.js")) {}
                     }
