@@ -40,7 +40,7 @@ struct CounterComponent: ManualComponent {
 //        """)
 //    }
     
-    var template: any Template { LeafTemplate.file("CounterComponent") }
+//    var template: any Template { LeafTemplate.file("CounterComponent") }
     
     var actions: [any Action] {
         [
