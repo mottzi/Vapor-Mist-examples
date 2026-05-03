@@ -1,7 +1,10 @@
+// Sources/Mottzi/MistExamples/SystemMemoryExample/SystemMemoryPage.swift
+
 import Elementary
 
 struct SystemMemoryPage: HTMLDocument {
     var title = "System Monitor Example"
+    let initialHTML: String? // Added for SSR
 
     var head: some HTML {
         meta(.name(.description), .content("Live updating server metrics with Mist"))
@@ -17,8 +20,15 @@ struct SystemMemoryPage: HTMLDocument {
                 p(.class("desc")) { "A live server health widget that updates automatically every 2 seconds without user interaction." }
             }
             
-            SystemMemoryComponent()
-                .body(state: SystemMemoryComponent.SystemMetrics(memoryUsage: 0))
+            // Replaced static component with SSR Container
+            div(
+                HTMLAttribute(name: "mist-container", value: "SystemMemoryComponent"),
+                HTMLAttribute(name: "mist-ssr", value: initialHTML != nil ? "true" : "false"),
+            ) {
+                if let html = initialHTML {
+                    HTMLRaw(html)
+                }
+            }
         }
         
         script(.src("/morphdom.js")) {}

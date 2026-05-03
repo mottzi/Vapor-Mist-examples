@@ -7,30 +7,29 @@ extension Application {
     func useMistExamples() {
         
         self.get("MistExamples") { _ in
-            HTMLResponse {
-                MistExamplesPage()
-            }
+            HTMLResponse { MistExamplesPage() }
         }
         
-        self.get("CounterExample") { _ in
-            HTMLResponse {
-                CounterPage()
-            }
+        self.get("CounterExample") { req async throws in
+            let counter = await req.application.mistComponent(CounterComponent.self)
+            let initialHTML = await counter?.renderInitial(app: req.application)
+            return HTMLResponse { CounterPage(initialHTML: initialHTML) }
         }
 
-        self.get("SystemMonitorExample") { _ in
-            HTMLResponse {
-                SystemMemoryPage()
-            }
+        self.get("SystemMonitorExample") { req async throws in
+            let monitor = await req.application.mistComponent(SystemMemoryComponent.self)
+            let initialHTML = await monitor?.renderInitial(app: req.application)
+            return HTMLResponse { SystemMemoryPage(initialHTML: initialHTML) }
         }
 
-        self.get("LivePollingExample") { _ in
-            HTMLResponse {
-                LiveVotingPage()
-            }
+        self.get("LivePollingExample") { req async throws in
+            let polling = await req.application.mistComponent(LiveVotingComponent.self)
+            let initialHTML = await polling?.renderInitial(app: req.application)
+            return HTMLResponse { LiveVotingPage(initialHTML: initialHTML) }
         }
 
         self.get("FlashcardExample") { request async throws -> View in
+            // InstanceComponent: Left unchanged as per SSR scope constraints
             let context = try await FlashcardComponent().makeContext(ofAll: request.db)
             return try await request.view.render("FlashcardExample/FlashcardExamplePage", context)
         }
