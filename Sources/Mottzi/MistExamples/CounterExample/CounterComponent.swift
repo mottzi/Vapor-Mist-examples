@@ -12,23 +12,23 @@ struct CounterComponent: ManualComponent {
     let state = LiveState(of: CounterState())
 
     // Called when... to..., (optional: resulting in...).
-    func body(state: CounterState) -> some HTML {
-        
-        div(
-            .mistComponent(value: name),
-            .class("card stack text-center mx-auto max-w-sm")
-        ) {
-            h2 {
-                "Global Count"
-            }
-            div(.class("text-huge")) {
-                "\(state.count)"
-            }
-            button(.mistAction(value: "increment")) {
-                "Increment Count"
-            }
-        }
-    }
+//    func body(state: CounterState) -> some HTML {
+//        
+//        div(
+//            .mistComponent(value: name),
+//            .class("card stack text-center mx-auto max-w-sm")
+//        ) {
+//            h2 {
+//                "Global Count"
+//            }
+//            div(.class("text-huge")) {
+//                "\(state.count)"
+//            }
+//            button(.mistAction(value: "increment")) {
+//                "Increment Count"
+//            }
+//        }
+//    }
     
 //    var template: any Template {
 //        LeafTemplate.inline("""
