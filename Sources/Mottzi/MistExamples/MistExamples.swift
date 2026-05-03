@@ -18,29 +18,8 @@ extension Application {
 //            }
 //        }
         
-        self.get("CounterExample") { req async throws in
-                        
-            let pageTemplate = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Counter Example</title>
-            </head>
-            <body>
-                <div mist-component="CounterComponent">
-                    <h2>Global CountTTT</h2>
-                    <div>0</div>
-                    <button mist-action="increment">Increment Count</button>
-                </div>
-                <script src="/morphdom.js"></script>
-                <script src="/mist.js"></script>
-            </body>
-            </html>
-            """
-            
-            let response = Response(status: .ok, body: .init(string: pageTemplate))
-            response.headers.contentType = .html
-            return response
+        self.get("CounterExample") { request async throws in
+            return try await request.view.render("CounterPage", CounterState())
         }
 
         self.get("SystemMonitorExample") { _ in
