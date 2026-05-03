@@ -12,11 +12,10 @@ extension Application {
             }
         }
         
-        self.get("CounterExample") { r in
+        self.get("CounterExample") { _ in
             HTMLResponse {
-                CounterPage()
+                CounterPageWrapper()
             }
-            
         }
 
         self.get("SystemMonitorExample") { _ in

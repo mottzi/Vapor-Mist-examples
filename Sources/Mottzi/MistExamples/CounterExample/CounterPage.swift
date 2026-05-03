@@ -2,7 +2,7 @@ import Elementary
 
 struct CounterPage: HTMLDocument {
     
-    var title = "Counter Example"
+    var title = "Counter Example Page"
 
     var head: some HTML {
         meta(.name(.description), .content("Typesafe HTML in modern Swift"))
@@ -10,7 +10,7 @@ struct CounterPage: HTMLDocument {
     }
 
     var body: some HTML {
-        
+
         main(.class("container")) {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
@@ -25,5 +25,17 @@ struct CounterPage: HTMLDocument {
         
         script(.src("/morphdom.js")) {}
         script(.src("/mist.js")) {}
+    }
+}
+
+struct CounterPageWrapper: HTML {
+    var body: some HTML {
+        html {
+            Elementary.body {
+                CounterComponent().body(state: CounterState())
+                script(.src("/morphdom.js")) {}
+                script(.src("/mist.js")) {}
+            }
+        }
     }
 }
