@@ -12,10 +12,18 @@ extension Application {
             }
         }
         
-        self.get("CounterExample") { _ in
+        self.get("CounterExample") { r in
             HTMLResponse {
-                CounterPage()
+                html {
+                    body {
+                        CounterComponent()
+                            .view(state: CounterState())
+                        script(.src("/morphdom.js")) {}
+                        script(.src("/mist.js")) {}
+                    }
+                }
             }
+            
         }
 
         self.get("SystemMonitorExample") { _ in
