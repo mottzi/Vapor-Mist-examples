@@ -12,14 +12,10 @@ extension Application {
             }
         }
         
-//        self.get("CounterExample") { _ in
-//            HTMLResponse {
-//                CounterPage()
-//            }
-//        }
-        
-        self.get("CounterExample") { request async throws in
-            return try await request.view.render("CounterPage", CounterState())
+        self.get("CounterExample") { _ in
+            HTMLResponse {
+                CounterPage()
+            }
         }
 
         self.get("SystemMonitorExample") { _ in
