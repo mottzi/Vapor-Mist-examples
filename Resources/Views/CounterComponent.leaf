@@ -1,0 +1,5 @@
+<div mist-component="CounterComponent">
+    <h2>Global CountTTT</h2>
+    <div>#(count)</div>
+    <button mist-action="increment">Increment Count</button>
+</div>

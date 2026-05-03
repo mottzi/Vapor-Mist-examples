@@ -12,10 +12,39 @@ extension Application {
             }
         }
         
-        self.get("CounterExample") { _ in
-            HTMLResponse {
-                CounterPageWrapper()
-            }
+//        self.get("CounterExample") { _ in
+//            HTMLResponse {
+//                CounterPage()
+//            }
+//        }
+        
+        self.get("CounterExample") { req async throws in
+            // Define the page layout as a raw string
+            let pageTemplate = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head><title>Counter Example</title></head>
+            <body>
+                <main class="container">
+                    <h1>Counter Example</h1>
+                    #extend("CounterComponent")
+                </main>
+                <script src="/morphdom.js"></script>
+                <script src="/mist.js"></script>
+            </body>
+            </html>
+            """
+            
+            // Render the inline string using Leaf, passing the initial state
+            let buffer = req.leaf.render(
+                path: pageTemplate,
+                context: CounterState()
+            ) 
+            
+            // Return the rendered buffer as an HTML response
+            var response = Response(status: .ok, body: .init(buffer: try await buffer.get()))
+            response.headers.contentType = .html
+            return response
         }
 
         self.get("SystemMonitorExample") { _ in
