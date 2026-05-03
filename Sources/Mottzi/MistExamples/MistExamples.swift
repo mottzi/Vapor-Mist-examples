@@ -17,6 +17,7 @@ extension Application {
 //                CounterPage()
 //            }
 //        }
+        
         self.get("CounterExample") { req async throws -> View in
             // Render the initial page, passing the starting state
             return try await req.view.render("CounterPage", CounterState())
