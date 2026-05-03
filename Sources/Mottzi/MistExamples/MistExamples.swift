@@ -12,18 +12,9 @@ extension Application {
             }
         }
         
-        self.get("CounterExample") { r in
-            HTMLResponse {
-                html {
-                    body {
-                        CounterComponent()
-                            .view(state: CounterState())
-                        script(.src("/morphdom.js")) {}
-                        script(.src("/mist.js")) {}
-                    }
-                }
-            }
-            
+        self.get("CounterExample") { req async throws in
+            CounterComponent()
+                .view(state: CounterState())
         }
 
         self.get("SystemMonitorExample") { _ in
