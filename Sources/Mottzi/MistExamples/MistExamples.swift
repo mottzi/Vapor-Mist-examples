@@ -19,7 +19,12 @@ extension Application {
 //        }
         
         self.get("CounterExample") { req async throws in
-            // Define the page layout as a raw string
+            
+            // 1. Render ONLY the component using Leaf (this resolves #(count) using CounterState)
+            let componentView = try await req.view.render("CounterComponent", CounterState())
+            let componentHTML = String(buffer: componentView.data)
+            
+            // 2. Define the page layout natively in Swift and inject the component
             let pageTemplate = """
             <!DOCTYPE html>
             <html lang="en">
@@ -27,7 +32,8 @@ extension Application {
             <body>
                 <main class="container">
                     <h1>Counter Example</h1>
-                    #extend("CounterComponent")
+                    <!-- Inject the rendered Leaf component here using Swift interpolation -->
+                    \(componentHTML)
                 </main>
                 <script src="/morphdom.js"></script>
                 <script src="/mist.js"></script>
@@ -35,13 +41,10 @@ extension Application {
             </html>
             """
             
-            // Render the inline string using Leaf, passing the initial state
-            let buffer = try await self.leaf.renderer.render(
-                pageTemplate,
-                CounterState()
-            ).data
-            
-            return View(data: buffer)
+            // 3. Return the raw string as an HTML response
+            let response = Response(status: .ok, body: .init(string: pageTemplate))
+            response.headers.contentType = .html
+            return response
         }
 
         self.get("SystemMonitorExample") { _ in
