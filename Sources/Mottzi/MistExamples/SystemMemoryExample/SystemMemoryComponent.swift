@@ -8,7 +8,7 @@ struct SystemMemoryComponent: LiveComponent {
         var memoryUsage: Double
     }
     
-    let state = LiveState(of: SystemMetrics(memoryUsage: 0))
+    let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB()))
     
     var refreshInterval: Duration { .seconds(2) }
 
