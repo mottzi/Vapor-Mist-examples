@@ -19,29 +19,25 @@ extension Application {
 //        }
         
         self.get("CounterExample") { req async throws in
-            
-            // 1. Render ONLY the component using Leaf (this resolves #(count) using CounterState)
-            let componentView = try await req.view.render("CounterComponent", CounterState())
-            let componentHTML = String(buffer: componentView.data)
-            
-            // 2. Define the page layout natively in Swift and inject the component
+                        
             let pageTemplate = """
             <!DOCTYPE html>
-            <html lang="en">
-            <head><title>Counter Example</title></head>
+            <html>
+            <head>
+                <title>Counter Example</title>
+            </head>
             <body>
-                <main class="container">
-                    <h1>Counter Example</h1>
-                    <!-- Inject the rendered Leaf component here using Swift interpolation -->
-                    \(componentHTML)
-                </main>
+                <div mist-component="CounterComponent">
+                    <h2>Global CountTTT</h2>
+                    <div>0</div>
+                    <button mist-action="increment">Increment Count</button>
+                </div>
                 <script src="/morphdom.js"></script>
                 <script src="/mist.js"></script>
             </body>
             </html>
             """
             
-            // 3. Return the raw string as an HTML response
             let response = Response(status: .ok, body: .init(string: pageTemplate))
             response.headers.contentType = .html
             return response
