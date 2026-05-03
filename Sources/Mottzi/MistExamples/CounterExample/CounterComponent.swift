@@ -30,15 +30,15 @@ struct CounterComponent: ManualComponent {
 //        }
 //    }
     
-    var template: any Template {
-        LeafTemplate.inline("""
-        <div mist-component="CounterComponent" class="card stack text-center mx-auto max-w-sm">
-            <h2>Global Count</h2>
-            <div class="text-huge">#(count)</div>
-            <button mist-action="increment">Increment Count</button>
-        </div>
-        """)
-    }
+//    var template: any Template {
+//        LeafTemplate.inline("""
+//        <div mist-component="CounterComponent" class="card stack text-center mx-auto max-w-sm">
+//            <h2>Global Count</h2>
+//            <div class="text-huge">#(count)</div>
+//            <button mist-action="increment">Increment Count</button>
+//        </div>
+//        """)
+//    }
     
     var actions: [any Action] {
         [
