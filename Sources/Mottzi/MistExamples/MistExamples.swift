@@ -12,9 +12,11 @@ extension Application {
             }
         }
         
-        self.get("CounterExample") { req async throws in
-            CounterComponent()
-                .view(state: CounterState())
+        self.get("CounterExample") { r in
+            HTMLResponse {
+                CounterPage()
+            }
+            
         }
 
         self.get("SystemMonitorExample") { _ in
