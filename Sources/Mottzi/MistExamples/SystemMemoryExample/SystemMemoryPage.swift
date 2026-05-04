@@ -4,7 +4,10 @@ import Elementary
 
 struct SystemMemoryPage: HTMLDocument {
     var title = "System Monitor Example"
-    let initialHTML: String? // Added for SSR
+    let memoryHTML: String?
+    let cpuHTML: String?
+    let clientsHTML: String?
+    let stressHTML: String?
 
     var head: some HTML {
         meta(.name(.description), .content("Live updating server metrics with Mist"))
@@ -26,13 +29,43 @@ struct SystemMemoryPage: HTMLDocument {
                 }
             }
             
-            // Replaced static component with SSR Container
-            div(
-                HTMLAttribute(name: "mist-container", value: "SystemMemoryComponent"),
-                HTMLAttribute(name: "mist-ssr", value: initialHTML != nil ? "true" : "false"),
-            ) {
-                if let html = initialHTML {
-                    HTMLRaw(html)
+            div(.class("stack"), .style("gap: 2rem; align-items: center;")) {
+                div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap;")) {
+                    div(
+                        HTMLAttribute(name: "mist-container", value: "MemoryUsageComponent"),
+                        HTMLAttribute(name: "mist-ssr", value: memoryHTML != nil ? "true" : "false"),
+                    ) {
+                        if let html = memoryHTML {
+                            HTMLRaw(html)
+                        }
+                    }
+
+                    div(
+                        HTMLAttribute(name: "mist-container", value: "CpuLoadComponent"),
+                        HTMLAttribute(name: "mist-ssr", value: cpuHTML != nil ? "true" : "false"),
+                    ) {
+                        if let html = cpuHTML {
+                            HTMLRaw(html)
+                        }
+                    }
+
+                    div(
+                        HTMLAttribute(name: "mist-container", value: "ConnectedClientsComponent"),
+                        HTMLAttribute(name: "mist-ssr", value: clientsHTML != nil ? "true" : "false"),
+                    ) {
+                        if let html = clientsHTML {
+                            HTMLRaw(html)
+                        }
+                    }
+                }
+
+                div(
+                    HTMLAttribute(name: "mist-container", value: "StressTestComponent"),
+                    HTMLAttribute(name: "mist-ssr", value: stressHTML != nil ? "true" : "false"),
+                ) {
+                    if let html = stressHTML {
+                        HTMLRaw(html)
+                    }
                 }
             }
         }

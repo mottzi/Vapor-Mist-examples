@@ -17,9 +17,24 @@ extension Application {
         }
 
         self.get("SystemMonitorExample") { req async throws in
-            let monitor = await req.application.mistComponent(SystemMemoryComponent.self)
-            let initialHTML = await monitor?.renderInitial(app: req.application)
-            return HTMLResponse { SystemMemoryPage(initialHTML: initialHTML) }
+            async let memory = req.application.mistComponent(MemoryUsageComponent.self)?.renderInitial(app: req.application)
+            async let cpu = req.application.mistComponent(CpuLoadComponent.self)?.renderInitial(app: req.application)
+            async let clients = req.application.mistComponent(ConnectedClientsComponent.self)?.renderInitial(app: req.application)
+            async let stress = req.application.mistComponent(StressTestComponent.self)?.renderInitial(app: req.application)
+
+            let memoryHTML = await memory ?? nil
+            let cpuHTML = await cpu ?? nil
+            let clientsHTML = await clients ?? nil
+            let stressHTML = await stress ?? nil
+
+            return HTMLResponse {
+                SystemMemoryPage(
+                    memoryHTML: memoryHTML,
+                    cpuHTML: cpuHTML,
+                    clientsHTML: clientsHTML,
+                    stressHTML: stressHTML
+                )
+            }
         }
 
         self.get("LivePollingExample") { req async throws in

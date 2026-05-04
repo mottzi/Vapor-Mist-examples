@@ -23,7 +23,10 @@ import Mist
             FlashcardComponent()
             FlashcardCreateComponent()
             CounterComponent()
-            SystemMemoryComponent()
+            MemoryUsageComponent()
+            CpuLoadComponent()
+            ConnectedClientsComponent()
+            StressTestComponent()
             LiveVotingComponent()
         }
 
