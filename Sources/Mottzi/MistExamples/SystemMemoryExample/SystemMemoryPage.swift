@@ -32,8 +32,8 @@ struct SystemMemoryPage: HTMLDocument {
             div(.class("stack"), .style("gap: 2rem; align-items: center;")) {
                 div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap;")) {
                     div(
-                        HTMLAttribute(name: "mist-container", value: "MemoryUsageComponent"),
-                        HTMLAttribute(name: "mist-ssr", value: memoryHTML != nil ? "true" : "false"),
+                        .mistContainer(["MemoryUsageComponent"]),
+                        .mistSSR(memoryHTML != nil)
                     ) {
                         if let html = memoryHTML {
                             HTMLRaw(html)
@@ -41,8 +41,8 @@ struct SystemMemoryPage: HTMLDocument {
                     }
 
                     div(
-                        HTMLAttribute(name: "mist-container", value: "CpuLoadComponent"),
-                        HTMLAttribute(name: "mist-ssr", value: cpuHTML != nil ? "true" : "false"),
+                        .mistContainer(["CpuLoadComponent"]),
+                        .mistSSR(cpuHTML != nil)
                     ) {
                         if let html = cpuHTML {
                             HTMLRaw(html)
@@ -50,8 +50,8 @@ struct SystemMemoryPage: HTMLDocument {
                     }
 
                     div(
-                        HTMLAttribute(name: "mist-container", value: "ConnectedClientsComponent"),
-                        HTMLAttribute(name: "mist-ssr", value: clientsHTML != nil ? "true" : "false"),
+                        .mistContainer(["ConnectedClientsComponent"]),
+                        .mistSSR(clientsHTML != nil)
                     ) {
                         if let html = clientsHTML {
                             HTMLRaw(html)
@@ -60,8 +60,8 @@ struct SystemMemoryPage: HTMLDocument {
                 }
 
                 div(
-                    HTMLAttribute(name: "mist-container", value: "StressTestComponent"),
-                    HTMLAttribute(name: "mist-ssr", value: stressHTML != nil ? "true" : "false"),
+                    .mistContainer(["StressTestComponent"]),
+                    .mistSSR(stressHTML != nil)
                 ) {
                     if let html = stressHTML {
                         HTMLRaw(html)

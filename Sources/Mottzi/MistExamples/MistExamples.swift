@@ -12,8 +12,8 @@ extension Application {
         
         self.get("CounterExample") { req async throws in
             let counter = await req.application.mistComponent(CounterComponent.self)
-            let initialHTML = await counter?.renderInitial(app: req.application)
-            return HTMLResponse { CounterPage(initialHTML: initialHTML) }
+            let currentState = await counter?.state.current ?? CounterState()
+            return HTMLResponse { CounterPage(currentState: currentState) }
         }
 
         self.get("SystemMonitorExample") { req async throws in

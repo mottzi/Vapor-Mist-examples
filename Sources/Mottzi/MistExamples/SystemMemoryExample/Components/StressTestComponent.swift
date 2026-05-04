@@ -13,11 +13,11 @@ struct StressTestComponent: ManualComponent {
 
     func body(state: State) -> some HTML {
         div(
-            .mistComponent(value: name),
+            .mistComponent(name),
             .class("stack"),
             .style("align-items: center; gap: 1rem;")
         ) {
-            button(.mistAction(value: "stress-test"), .class("btn-danger")) {
+            button(.mistAction("stress-test"), .class("btn-danger")) {
                 "Stress Test Server (5s)"
             }
 

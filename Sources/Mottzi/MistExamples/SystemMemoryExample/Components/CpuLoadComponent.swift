@@ -19,7 +19,7 @@ struct CpuLoadComponent: LiveComponent {
 
     func body(state: State) -> some HTML {
         div(
-            .mistComponent(value: name),
+            .mistComponent(name),
             .class("card stack text-center max-w-sm"),
             .style("flex: 1; min-width: 280px;")
         ) {

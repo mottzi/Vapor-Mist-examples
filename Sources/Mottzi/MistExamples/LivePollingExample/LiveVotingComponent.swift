@@ -20,7 +20,7 @@ struct LiveVotingComponent: PollingComponent {
 
     func body(context: LiveVotingContext) -> some HTML {
         div(
-            .mistComponent(value: name),
+            .mistComponent(name),
             .class("card stack")
         ) {
             div(.class("stack"), .style("gap: 0.5rem;")) {
@@ -40,10 +40,10 @@ struct LiveVotingComponent: PollingComponent {
             }
             
             div(.style("display: flex; gap: 1rem; margin-top: 1.5rem;")) {
-                button(.mistAction(value: "vote-swift"), .class("btn-primary"), .style("flex: 1; background-color: #F05138; border-color: #F05138;")) {
+                button(.mistAction("vote-swift"), .class("btn-primary"), .style("flex: 1; background-color: #F05138; border-color: #F05138;")) {
                     "Vote Swift"
                 }
-                button(.mistAction(value: "vote-kotlin"), .class("btn-primary"), .style("flex: 1; background-color: #7F52FF; border-color: #7F52FF;")) {
+                button(.mistAction("vote-kotlin"), .class("btn-primary"), .style("flex: 1; background-color: #7F52FF; border-color: #7F52FF;")) {
                     "Vote Kotlin"
                 }
             }

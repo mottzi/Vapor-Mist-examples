@@ -13,7 +13,7 @@ struct CounterComponent: ManualComponent {
     func body(state: CounterState) -> some HTML {
         
         div(
-            .mistComponent(value: name),
+            .mistComponent(name),
             .class("card stack text-center mx-auto max-w-sm")
         ) {
             div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
@@ -22,7 +22,7 @@ struct CounterComponent: ManualComponent {
             div(.class("text-huge")) {
                 "\(state.count)"
             }
-            button(.mistAction(value: "increment"), .class("btn-primary mt-4")) {
+            button(.mistAction("increment"), .class("btn-primary mt-4")) {
                 "Increment"
             }
         }

@@ -35,8 +35,8 @@ struct LiveVotingPage: HTMLDocument {
             // Replaced static component with SSR Container
             div(
                 .class("poll-grid"),
-                HTMLAttribute(name: "mist-container", value: "live-voting-results"),
-                HTMLAttribute(name: "mist-ssr", value: initialHTML != nil ? "true" : "false"),
+                .mistContainer(["live-voting-results"]),
+                .mistSSR(initialHTML != nil)
             ) {
                 if let html = initialHTML {
                     HTMLRaw(html)

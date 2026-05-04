@@ -3,7 +3,7 @@ import Elementary
 struct CounterPage: HTMLDocument {
     
     var title = "Counter Example Page"
-    let initialHTML: String? // Added for SSR
+    let currentState: CounterState
     
     var head: some HTML {
         link(.rel(.stylesheet), .href("/mistexamples.css"))
@@ -26,12 +26,10 @@ struct CounterPage: HTMLDocument {
             
             // Replaced static component with SSR Container
             div(
-                HTMLAttribute(name: "mist-container", value: "CounterComponent"),
-                HTMLAttribute(name: "mist-ssr", value: initialHTML != nil ? "true" : "false"),
+                .mistContainer(["CounterComponent"]),
+                .mistSSR(true)
             ) {
-                if let html = initialHTML {
-                    HTMLRaw(html)
-                }
+                CounterComponent().body(state: currentState)
             }
         }
         
