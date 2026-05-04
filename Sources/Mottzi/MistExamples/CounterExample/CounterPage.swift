@@ -14,12 +14,11 @@ struct CounterPage: HTMLDocument {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
             header(.class("mb-4")) {
-                span(.class("badge header-badge")) { "ManualComponent" }
                 h1 { "Counter Example" }
                 p(.class("desc mb-2")) { "A global counter demonstrating real-time manual state updates across all connected clients." }
-                p(.class("desc header-description-box")) {
+                p(.class("desc p-4"), .style("border: 1px solid var(--color-danger); border-radius: var(--border-radius);")) {
                     "Re-renders only when its persistent state is set explicitly. This example holds a global "
-                    code(.class("color-accent font-mono")) { "LiveState" }
+                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
                     " and demonstrates a server-side Action that increments the state, immediately broadcasting the new HTML to all connected clients."
                 }
             }

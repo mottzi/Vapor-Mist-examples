@@ -23,27 +23,28 @@ struct LiveVotingComponent: PollingComponent {
             .mistComponent(value: name),
             .class("card stack")
         ) {
-            header(.class("stack gap-2")) {
-                h2(.class("m-0")) { "Language Poll" }
+            div(.class("stack"), .style("gap: 0.5rem;")) {
+                span(.class("badge")) { "PollingComponent" }
+                h2(.style("margin: 0;")) { "Language Poll" }
             }
-            p(.class("poll-vote-count")) { "\(context.total) votes" }
-
-            div(.class("poll-results")) {
-                div(.class("poll-info")) {
+            p(.class("desc mb-4"), .style("font-weight: 600; color: var(--text-primary);")) { "\(context.total) votes" }
+            
+            div(.class("stack")) {
+                div(.style("display: flex; justify-content: space-between; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;")) {
                     span { "Swift: \(Int(context.swiftPercent))%" }
                     span { "Kotlin: \(Int(context.kotlinPercent))%" }
                 }
-                div(.class("poll-bar-container")) {
-                    div(.class("poll-bar-swift"), .style("width: \(context.swiftPercent)%;")) {}
-                    div(.class("poll-bar-kotlin"), .style("width: \(context.kotlinPercent)%;")) {}
+                div(.style("display: flex; background: #e5e7eb; border-radius: 999px; height: 16px; overflow: hidden;")) {
+                    div(.style("background: #F05138; width: \(context.swiftPercent)%; height: 100%; transition: width 0.5s ease;")) {}
+                    div(.style("background: #7F52FF; width: \(context.kotlinPercent)%; height: 100%; transition: width 0.5s ease;")) {}
                 }
             }
-
-            div(.class("poll-actions")) {
-                button(.mistAction(value: "vote-swift"), .class("btn-primary poll-btn-swift")) {
+            
+            div(.style("display: flex; gap: 1rem; margin-top: 1.5rem;")) {
+                button(.mistAction(value: "vote-swift"), .class("btn-primary"), .style("flex: 1; background-color: #F05138; border-color: #F05138;")) {
                     "Vote Swift"
                 }
-                button(.mistAction(value: "vote-kotlin"), .class("btn-primary poll-btn-kotlin")) {
+                button(.mistAction(value: "vote-kotlin"), .class("btn-primary"), .style("flex: 1; background-color: #7F52FF; border-color: #7F52FF;")) {
                     "Vote Kotlin"
                 }
             }
