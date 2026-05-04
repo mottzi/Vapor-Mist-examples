@@ -70,9 +70,12 @@ struct StressTestAction: Action {
             let endTime = Date().addingTimeInterval(5)
             
             // Allocate memory to spike RAM (approx 200MB)
-            var memoryHog = [String]()
-            for i in 0..<5_000_000 {
-                memoryHog.append("Stress Test String \(i)")
+            let byteCount = 200 * 1024 * 1024
+            let buffer = UnsafeMutableRawBufferPointer.allocate(byteCount: byteCount, alignment: 8)
+            
+            // Force OS to commit physical memory pages (write 1 byte per 4KB page)
+            for i in stride(from: 0, to: byteCount, by: 4096) {
+                buffer.storeBytes(of: 1, toByteOffset: i, as: UInt8.self)
             }
             
             // Busy loop to spike CPU
@@ -80,8 +83,8 @@ struct StressTestAction: Action {
                 // spin
             }
             
-            // Prevent optimization from removing the memory hog
-            let _ = memoryHog.count
+            // Explicitly deallocate to immediately return memory to OS
+            buffer.deallocate()
         }
         return .success()
     }
