@@ -1,8 +1,11 @@
 import Vapor
 import Mist
 import Elementary
+import Foundation
 
 struct SystemMemoryComponent: LiveComponent {
+
+    var actions: [any Action] { [StressTestAction()] }
 
     struct SystemMetrics: ComponentData {
         var memoryUsage: Int
@@ -47,12 +50,41 @@ struct SystemMemoryComponent: LiveComponent {
                 }
             }
             
+            button(.mistAction(value: "stress-test"), .class("btn-danger")) {
+                "Stress Test Server (5s)"
+            }
+            
             div(.style("padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
                 "Refreshing every 2s"
             }
         }
     }
     
+}
+
+struct StressTestAction: Action {
+    let name = "stress-test"
+    
+    func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
+        Task.detached(priority: .background) {
+            let endTime = Date().addingTimeInterval(5)
+            
+            // Allocate memory to spike RAM (approx 200MB)
+            var memoryHog = [String]()
+            for i in 0..<5_000_000 {
+                memoryHog.append("Stress Test String \(i)")
+            }
+            
+            // Busy loop to spike CPU
+            while Date() < endTime {
+                // spin
+            }
+            
+            // Prevent optimization from removing the memory hog
+            let _ = memoryHog.count
+        }
+        return .success()
+    }
 }
 
 private func getSystemLoadAverage() -> Double {
