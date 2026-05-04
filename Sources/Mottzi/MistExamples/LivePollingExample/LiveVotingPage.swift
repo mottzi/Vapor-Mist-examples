@@ -24,7 +24,8 @@ struct LiveVotingPage: HTMLDocument {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
             header(.class("mb-4")) {
-                h1 { "THE MOBILE DEVELOPER BATTLE" }
+                span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "PollingComponent" }
+                h1(.style("margin-top: 0;")) { "THE MOBILE DEVELOPER BATTLE" }
                 p(.class("desc mb-2")) { "Two modern languages enter, only one leaves. Choose your favorite syntax and watch the results update in real-time." }
                 p(.class("desc p-4"), .style("border: 1px solid var(--color-danger); border-radius: var(--border-radius);")) {
                     "Manually reads from the database periodically and re-renders when the result changes. This component polls the database every 2s to aggregate votes. It demonstrates server-side Actions that insert rows, while the polling loop naturally picks up the changes."

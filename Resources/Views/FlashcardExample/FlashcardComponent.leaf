@@ -2,7 +2,7 @@
     <button class="flip-trigger" mist-action="flip" style="display: none;"></button>
      <div class="flashcard-inner">
         <div class="flashcard-front">
-            <span class="flashcard-language-label">English</span>
+            <span class="flashcard-language-label">🇺🇸</span>
             <div class="flashcard-text">#(context.flashcardfrontmodel.text)</div>
             <div class="flashcard-actions">
                 <button mist-action="ShuffleTextAction">Shuffle</button>
@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="flashcard-back">
-            <span class="flashcard-language-label">Spanish</span>
+            <span class="flashcard-language-label">🇪🇸</span>
             <div class="flashcard-text">#(context.flashcardbackmodel.text)</div>
         </div>
     </div>

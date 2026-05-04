@@ -248,18 +248,23 @@ button.btn-primary:hover {
 button[mist-action="delete"],
 .btn-danger {
     color: var(--color-danger);
+    background-color: #fee2e2;
     border-color: transparent;
     box-shadow: none;
-    background-color: transparent;
 }
 
 button[mist-action="delete"]:hover,
 .btn-danger:hover {
-    background-color: #fee2e2;
+    background-color: #fecaca;
     color: var(--color-danger-hover);
 }
 
 @media (prefers-color-scheme: dark) {
+    button[mist-action="delete"],
+    .btn-danger {
+        background-color: #450a0a;
+    }
+    
     button[mist-action="delete"]:hover,
     .btn-danger:hover {
         background-color: #7f1d1d;

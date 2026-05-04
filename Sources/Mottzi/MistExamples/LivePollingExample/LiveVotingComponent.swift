@@ -24,7 +24,6 @@ struct LiveVotingComponent: PollingComponent {
             .class("card stack")
         ) {
             div(.class("stack"), .style("gap: 0.5rem;")) {
-                span(.class("badge")) { "PollingComponent" }
                 h2(.style("margin: 0;")) { "Language Poll" }
             }
             p(.class("desc mb-4"), .style("font-weight: 600; color: var(--text-primary);")) { "\(context.total) votes" }

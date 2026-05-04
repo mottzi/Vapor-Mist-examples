@@ -16,7 +16,8 @@ struct SystemMemoryPage: HTMLDocument {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
             header(.class("mb-4")) {
-                h1 { "System Monitor Example" }
+                span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "LiveComponent" }
+                h1(.style("margin-top: 0;")) { "System Monitor Example" }
                 p(.class("desc mb-2")) { "A live server health widget that updates automatically every 2 seconds without user interaction." }
                 p(.class("desc p-4"), .style("border: 1px solid var(--color-danger); border-radius: var(--border-radius);")) {
                     "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "

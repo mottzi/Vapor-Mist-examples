@@ -23,7 +23,6 @@ struct SystemMemoryComponent: LiveComponent {
             .class("card stack text-center mx-auto max-w-sm")
         ) {
             div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                span(.class("badge")) { "LiveComponent" }
                 h2(.style("margin: 0;")) { "Memory Usage" }
             }
             div(.class("stack")) {
