@@ -13,7 +13,7 @@ func getSystemLoadAverage() -> Double {
     return 0.0
 }
 
-private func getSystemMemoryUsageMB() -> Int {
+func getSystemMemoryUsageMB() -> Int {
     guard let meminfo = try? String(contentsOfFile: "/proc/meminfo") else {
         return 0
     }
