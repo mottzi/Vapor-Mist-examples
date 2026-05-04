@@ -20,6 +20,11 @@ struct CounterComponent: ManualComponent {
                 span(.class("badge")) { "ManualComponent" }
                 h2(.style("margin: 0;")) { "Count" }
             }
+            p(.class("desc mb-4")) {
+                "Re-renders only when its persistent state is set explicitly. This example holds a global "
+                code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
+                " and demonstrates a server-side Action that increments the state, immediately broadcasting the new HTML to all connected clients."
+            }
             div(.class("text-huge")) {
                 "\(state.count)"
             }

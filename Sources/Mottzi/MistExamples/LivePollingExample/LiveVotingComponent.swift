@@ -27,7 +27,10 @@ struct LiveVotingComponent: PollingComponent {
                 span(.class("badge")) { "PollingComponent" }
                 h2(.style("margin: 0;")) { "Language Poll" }
             }
-            p(.class("desc mb-4")) { "\(context.total) votes" }
+            p(.class("desc mb-2")) { 
+                "Manually reads from the database periodically and re-renders when the result changes. This component polls the database every 2s to aggregate votes. It demonstrates server-side Actions that insert rows, while the polling loop naturally picks up the changes."
+            }
+            p(.class("desc mb-4"), .style("font-weight: 600; color: var(--text-primary);")) { "\(context.total) votes" }
             
             div(.class("stack")) {
                 div(.style("display: flex; justify-content: space-between; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;")) {
