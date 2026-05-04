@@ -17,25 +17,16 @@ struct CounterComponent: ManualComponent {
             .class("card stack text-center mx-auto max-w-sm")
         ) {
             h2 {
-                "Global Count"
+                "Count"
             }
             div(.class("text-huge")) {
                 "\(state.count)"
             }
-            button(.mistAction(value: "increment")) {
-                "Increment Count"
+            button(.mistAction(value: "increment"), .class("btn-primary mt-4")) {
+                "Increment"
             }
         }
     }
-//    var template: any Template { LeafTemplate.inline(
-//        """
-//        <div mist-component="CounterComponent">
-//            <h2>Global Count</h2>
-//            <div>#(count)</div>
-//            <button mist-action="increment">Increment Count</button>
-//        </div>
-//        """
-//    )}
     
     var actions: [any Action] {
         [
@@ -49,7 +40,6 @@ struct IncrementAction: Action {
     let name = "increment"
     let counterState: LiveState<CounterState>
     
-    // Called when... to..., (optional: resulting in...).
     func perform(targetID: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         
         let currentCount = await counterState.current.count

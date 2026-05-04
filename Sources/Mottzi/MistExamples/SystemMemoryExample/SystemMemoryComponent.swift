@@ -23,17 +23,16 @@ struct SystemMemoryComponent: LiveComponent {
             .class("card stack text-center mx-auto max-w-sm")
         ) {
             h2 {
-                "Server Health"
+                "Memory Usage"
             }
             div(.class("stack")) {
                 div(.class("text-huge")) {
                     "\(state.memoryUsage) MB"
                 }
-                span(.class("desc")) { "Real System Memory Usage" }
             }
             
-            div(.class("mt-4 p-2 bg-slate-100 rounded text-sm font-mono")) {
-                "Auto-refreshing every 2s"
+            div(.style("margin-top: 1rem; padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
+                "Refreshing every 2s"
             }
         }
     }

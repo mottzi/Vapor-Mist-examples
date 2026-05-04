@@ -23,37 +23,26 @@ struct LiveVotingComponent: PollingComponent {
             .mistComponent(value: name),
             .class("card stack")
         ) {
-            h2 { "SWIFT VS. KOTLIN" }
-            p(.class("desc mb-4")) { "Votes Cast: \(context.total)" }
+            h2 { "Language Poll" }
+            p(.class("desc mb-4")) { "\(context.total) votes" }
             
             div(.class("stack")) {
-                div {
-                    div(.style("display: flex; justify-content: space-between; font-weight: bold;")) {
-                        span { "Swift (Safety First)" }
-                        span { "\(Int(context.swiftPercent))%" }
-                    }
-                    div(.style("background: #e2e8f0; border-radius: 999px; height: 24px; overflow: hidden; margin-top: 4px;")) {
-                        div(.style("background: #F05138; width: \(Int(context.swiftPercent))%; height: 100%; transition: width 0.3s;")) {}
-                    }
+                div(.style("display: flex; justify-content: space-between; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;")) {
+                    span { "Swift: \(Int(context.swiftPercent))%" }
+                    span { "Kotlin: \(Int(context.kotlinPercent))%" }
                 }
-                
-                div {
-                    div(.style("display: flex; justify-content: space-between; font-weight: bold;")) {
-                        span { "Kotlin (Conciseness Matters)" }
-                        span { "\(Int(context.kotlinPercent))%" }
-                    }
-                    div(.style("background: #e2e8f0; border-radius: 999px; height: 24px; overflow: hidden; margin-top: 4px;")) {
-                        div(.style("background: #7F52FF; width: \(Int(context.kotlinPercent))%; height: 100%; transition: width 0.3s;")) {}
-                    }
+                div(.style("display: flex; background: #e5e7eb; border-radius: 999px; height: 16px; overflow: hidden;")) {
+                    div(.style("background: #F05138; width: \(context.swiftPercent)%; height: 100%; transition: width 0.5s ease;")) {}
+                    div(.style("background: #7F52FF; width: \(context.kotlinPercent)%; height: 100%; transition: width 0.5s ease;")) {}
                 }
             }
             
             div(.style("display: flex; gap: 1rem; margin-top: 1.5rem;")) {
-                button(.mistAction(value: "vote-swift"), .class("btn-large"), .style("width: 100%; background-color: #F05138;")) {
-                    "VOTE SWIFT"
+                button(.mistAction(value: "vote-swift"), .style("flex: 1; border-color: #F05138; color: #F05138; background: transparent;")) {
+                    "Vote Swift"
                 }
-                button(.mistAction(value: "vote-kotlin"), .class("btn-large"), .style("width: 100%; background-color: #7F52FF;")) {
-                    "VOTE KOTLIN"
+                button(.mistAction(value: "vote-kotlin"), .style("flex: 1; border-color: #7F52FF; color: #7F52FF; background: transparent;")) {
+                    "Vote Kotlin"
                 }
             }
         }

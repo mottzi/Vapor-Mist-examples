@@ -1,27 +1,28 @@
-/* Mist Examples Brutalist Style System */
+/* Mist Examples Elegant Style System */
 
 :root {
     /* Light Mode Palette */
-    --bg-body: #ffffff;
+    --bg-body: #f9fafb;
     --bg-card: #ffffff;
-    --text-primary: #000000;
-    --text-secondary: #000000;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
     
-    --border-width: 2px;
-    --border-color: #000000;
+    --border-width: 1px;
+    --border-color: #e5e7eb;
+    --border-radius: 16px;
     
-    --shadow-color: #000000;
-    --shadow-sm: 2px 2px 0 0 var(--shadow-color);
-    --shadow-md: 4px 4px 0 0 var(--shadow-color);
-    --shadow-lg: 8px 8px 0 0 var(--shadow-color);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-    /* Brand Colors - High Contrast */
-    --color-primary: #f0f0f0; 
-    --color-accent: #000000;
+    --color-primary: #f3f4f6; 
+    --color-accent: #3b82f6;
+    --color-accent-hover: #2563eb;
     --color-accent-text: #ffffff;
     
-    --color-danger: #ff4d4d;
-    --color-success: #00ff88;
+    --color-danger: #ef4444;
+    --color-danger-hover: #dc2626;
+    --color-success: #10b981;
     
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -29,22 +30,21 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-body: #121212;
-        --bg-card: #1e1e1e;
-        --text-primary: #ffffff;
-        --text-secondary: #cccccc;
+        --bg-body: #030712;
+        --bg-card: #111827;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
         
-        --border-color: #ffffff;
-        --shadow-color: rgba(255, 255, 255, 0.2);
+        --border-color: #1f2937;
         
-        /* In dark mode, we keep hard shadows but maybe a bit softer color for visibility */
-        --shadow-sm: 2px 2px 0 0 #ffffff;
-        --shadow-md: 4px 4px 0 0 #ffffff;
-        --shadow-lg: 8px 8px 0 0 #ffffff;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
 
-        --color-primary: #2d2d2d;
-        --color-accent: #ffffff;
-        --color-accent-text: #000000;
+        --color-primary: #1f2937;
+        --color-accent: #3b82f6;
+        --color-accent-hover: #60a5fa;
+        --color-accent-text: #ffffff;
     }
 }
 
@@ -55,107 +55,103 @@ body {
     font-family: var(--font-sans);
     margin: 0;
     padding: 0;
-    line-height: 1.2;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
 }
 
 /* Typography */
 h1, h2, h3 {
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.05em;
-    margin: 0 0 1.5rem 0;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 1rem 0;
 }
 
-h1 { font-size: 4rem; line-height: 0.9; }
-h2 { font-size: 2.5rem; }
+h1 { font-size: 2.5rem; line-height: 1.2; }
+h2 { font-size: 1.5rem; }
 
 p {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-    line-height: 1.4;
+    margin: 0 0 1rem 0;
 }
 
 .desc {
+    color: var(--text-secondary);
     font-size: 1rem;
-    font-weight: 400;
-    text-transform: none;
     line-height: 1.5;
-    opacity: 0.8;
-}
-
-.btn-large {
-    padding: 1.5rem 3rem;
-    font-size: 1.5rem;
+    font-weight: 400;
+    margin-top: 0.5rem;
 }
 
 a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 a:hover {
-    background-color: var(--color-accent);
-    color: var(--color-accent-text);
-    text-decoration: none;
+    color: var(--color-accent-hover);
 }
 
 /* Cards and Containers */
 .card {
     background-color: var(--bg-card);
     border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
     padding: 2rem;
-    box-shadow: var(--shadow-md);
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
 }
 
 .stack {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .inline {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
 /* Utilities */
 .text-center { text-align: center; }
-.mt-4 { margin-top: 2rem; }
+.mt-4 { margin-top: 1.5rem; }
 .mb-4 { margin-bottom: 2rem; }
 .mx-auto { margin-left: auto; margin-right: auto; }
-.max-w-sm { max-width: 500px; }
+.max-w-sm { max-width: 400px; }
 
 .text-huge {
-    font-size: 6rem;
-    font-weight: 900;
+    font-size: 3.5rem;
+    font-weight: 700;
     font-family: var(--font-mono);
-    margin: 1rem 0;
+    margin: 0.5rem 0;
+    letter-spacing: -0.05em;
+    color: var(--text-primary);
 }
 
 .back-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     margin-bottom: 2rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-weight: 500;
     font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.back-link:hover {
+    color: var(--text-primary);
 }
 
 /* Navigation Lists */
@@ -163,29 +159,41 @@ ul {
     list-style: none;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
 
 li {
     background-color: var(--bg-card);
     border: var(--border-width) solid var(--border-color);
-    padding: 0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+li:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-accent);
 }
 
 li a {
-    display: block;
-    padding: 2rem;
-    font-weight: 900;
-    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--text-primary);
     text-decoration: none;
-    text-transform: uppercase;
+    box-sizing: border-box;
 }
 
 li a:hover {
-    background-color: var(--color-accent);
-    color: var(--color-accent-text);
+    color: var(--color-accent);
 }
 
 /* Buttons */
@@ -193,61 +201,78 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 2rem;
-    font-size: 1.125rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    border: var(--border-width) solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 99px; /* Pill shape for buttons */
+    border: 1px solid var(--border-color);
     background-color: var(--bg-card);
     color: var(--text-primary);
     cursor: pointer;
     box-shadow: var(--shadow-sm);
-    transition: all 0.1s ease;
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-md);
-    background-color: var(--color-accent);
-    color: var(--color-accent-text);
+    background-color: var(--color-primary);
+    border-color: var(--border-color);
 }
 
 button:active {
-    transform: translate(0, 0);
-    box-shadow: none;
+    transform: translateY(1px);
+}
+
+button.btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-accent-text);
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+button.btn-primary:hover {
+    background-color: var(--color-accent-hover);
 }
 
 /* Specific Button Variants */
 button[mist-action="delete"],
 .btn-danger {
-    background-color: var(--color-danger);
-    color: #000;
+    color: var(--color-danger);
+    border-color: transparent;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 button[mist-action="delete"]:hover,
 .btn-danger:hover {
-    background-color: #ff0000;
-    color: #fff;
+    background-color: #fee2e2;
+    color: var(--color-danger-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+    button[mist-action="delete"]:hover,
+    .btn-danger:hover {
+        background-color: #7f1d1d;
+    }
 }
 
 /* Flashcard Specific Styles */
 .flashcard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2.5rem;
-    padding: 2rem 0;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
 }
 
 .flashcard {
     perspective: 1000px;
-    height: 250px;
+    height: 180px;
 }
 
 .flashcard-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
     cursor: pointer;
 }
@@ -268,8 +293,9 @@ button[mist-action="delete"]:hover,
     align-items: center;
     justify-content: center;
     border: var(--border-width) solid var(--border-color);
-    box-shadow: var(--shadow-md);
-    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
     background-color: var(--bg-card);
     box-sizing: border-box;
 }
@@ -277,30 +303,34 @@ button[mist-action="delete"]:hover,
 .flashcard-back {
     transform: rotateY(180deg);
     background-color: var(--color-primary);
+    border-color: transparent;
 }
 
 .flashcard-text {
     color: var(--text-primary);
-    font-size: 1.75rem;
-    font-weight: 900;
-    text-transform: uppercase;
+    font-size: 1.25rem;
+    font-weight: 600;
     text-align: center;
     word-break: break-word;
 }
 
 .flashcard-actions {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
+}
+
+.flashcard-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .container {
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
     }
-
     h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 }

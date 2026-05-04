@@ -48,7 +48,7 @@ struct MistExamplesPage: HTMLDocument {
         main(.class("container")) {
             header(.class("mb-4")) {
                 h1 { "Mist Examples" }
-                p { "A collection of interactive components built with Mist and Vapor." }
+                p(.class("desc")) { "A collection of interactive components built with Mist and Vapor." }
             }
 
             section {
@@ -56,32 +56,32 @@ struct MistExamplesPage: HTMLDocument {
                     li { 
                         a(.href("/FlashcardExample")) { 
                             div(.class("stack")) {
-                                span { "Flashcard Example" }
-                                p(.class("desc")) { "A dynamic flashcard system with persistent storage and real-time updates." }
+                                span { "Flashcards" }
+                                p(.class("desc")) { "Interactive cards with real-time sync." }
                             }
                         } 
                     }
                     li { 
                         a(.href("/CounterExample")) { 
                             div(.class("stack")) {
-                                span { "Counter Example" }
-                                p(.class("desc")) { "A simple global counter demonstrating manual state management." }
+                                span { "Counter" }
+                                p(.class("desc")) { "Global counter with manual state updates." }
                             }
                         } 
                     }
                     li { 
                         a(.href("/SystemMonitorExample")) { 
                             div(.class("stack")) {
-                                span { "System Monitor Example" }
-                                p(.class("desc")) { "A live server health widget demonstrating periodic state refreshes." }
+                                span { "System Monitor" }
+                                p(.class("desc")) { "Live memory usage with auto-refresh." }
                             }
                         } 
                     }
                     li { 
                         a(.href("/LivePollingExample")) { 
                             div(.class("stack")) {
-                                span { "Live Polling Example" }
-                                p(.class("desc")) { "A polling widget aggregating database records automatically." }
+                                span { "Live Polling" }
+                                p(.class("desc")) { "Real-time voting and auto-aggregated results." }
                             }
                         } 
                     }
