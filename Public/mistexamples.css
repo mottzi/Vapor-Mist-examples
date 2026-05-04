@@ -187,7 +187,6 @@ li {
 
 li:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
     border-color: var(--color-accent);
 }
 
@@ -236,12 +235,13 @@ button:active {
 button.btn-primary {
     background-color: var(--color-accent);
     color: var(--color-accent-text);
-    border-color: var(--color-accent);
+    border-color: transparent;
     box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
 button.btn-primary:hover {
     background-color: var(--color-accent-hover);
+    color: var(--color-accent-text);
 }
 
 /* Specific Button Variants */
@@ -265,6 +265,9 @@ button[mist-action="delete"]:hover,
         background-color: #7f1d1d;
     }
 }
+
+/* Utilities Ext */
+.p-4 { padding: 1rem; }
 
 /* Flashcard Specific Styles */
 .flashcard-grid {
@@ -317,6 +320,17 @@ button[mist-action="delete"]:hover,
     border-color: transparent;
 }
 
+.flashcard-language-label {
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .flashcard-text {
     color: var(--text-primary);
     font-size: 1.25rem;
@@ -326,9 +340,12 @@ button[mist-action="delete"]:hover,
 }
 
 .flashcard-actions {
-    margin-top: 1rem;
+    position: absolute;
+    bottom: 1rem;
     display: flex;
     gap: 0.5rem;
+    justify-content: center;
+    width: 100%;
 }
 
 .flashcard-actions button {

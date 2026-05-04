@@ -26,11 +26,6 @@ struct SystemMemoryComponent: LiveComponent {
                 span(.class("badge")) { "LiveComponent" }
                 h2(.style("margin: 0;")) { "Memory Usage" }
             }
-            p(.class("desc mb-4")) {
-                "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
-                code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
-                " and refreshes it on a 2-second schedule by reading the host server's memory usage. Broadcasts new HTML only when the value changes."
-            }
             div(.class("stack")) {
                 div(.class("text-huge")) {
                     "\(state.memoryUsage) MB"

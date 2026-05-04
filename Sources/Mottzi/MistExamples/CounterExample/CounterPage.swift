@@ -15,7 +15,12 @@ struct CounterPage: HTMLDocument {
             
             header(.class("mb-4")) {
                 h1 { "Counter Example" }
-                p(.class("desc")) { "A global counter demonstrating real-time manual state updates across all connected clients." }
+                p(.class("desc mb-2")) { "A global counter demonstrating real-time manual state updates across all connected clients." }
+                p(.class("desc p-4"), .style("border: 1px solid var(--color-danger); border-radius: var(--border-radius);")) {
+                    "Re-renders only when its persistent state is set explicitly. This example holds a global "
+                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
+                    " and demonstrates a server-side Action that increments the state, immediately broadcasting the new HTML to all connected clients."
+                }
             }
             
             // Replaced static component with SSR Container
