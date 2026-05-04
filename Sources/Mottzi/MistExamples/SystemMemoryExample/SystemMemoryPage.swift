@@ -22,7 +22,7 @@ struct SystemMemoryPage: HTMLDocument {
                 p(.class("desc")) {
                     "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
                     code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
-                    " and refreshes it on a 2-second schedule by reading the host server's memory usage. Broadcasts new HTML only when the value changes."
+                    " and refreshes it on a 2-second schedule by reading the host server's memory usage and CPU load. Broadcasts new HTML only when the value changes."
                 }
             }
             

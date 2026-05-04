@@ -76,7 +76,7 @@ struct MistExamplesPage: HTMLDocument {
                             div(.class("stack")) {
                                 span(.class("badge")) { "LiveComponent" }
                                 span { "System Monitor" }
-                                p(.class("desc")) { "Live memory usage with auto-refresh." }
+                                p(.class("desc")) { "Live memory and CPU usage with auto-refresh." }
                             }
                         } 
                     }
