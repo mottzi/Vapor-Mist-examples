@@ -13,33 +13,27 @@ func getSystemLoadAverage() -> Double {
     return 0.0
 }
 
-func getSystemMemoryUsageMB() -> Int {
-    guard let meminfo = try? String(contentsOfFile: "/proc/meminfo", encoding: .utf8) else {
+private func getSystemMemoryUsageMB() -> Int {
+    guard let meminfo = try? String(contentsOfFile: "/proc/meminfo") else {
         return 0
     }
 
-    var memTotal: Double = 0
-    var memAvailable: Double = 0
+    var total = 0.0, free = 0.0, buffers = 0.0, cached = 0.0, reclaimable = 0.0
 
-    let lines = meminfo.split(separator: "\n")
-    for line in lines {
-        if line.hasPrefix("MemTotal:") {
-            let parts = line.split(separator: " ", omittingEmptySubsequences: true)
-            if parts.count >= 2, let kb = Double(parts[1]) {
-                memTotal = kb
-            }
-        } else if line.hasPrefix("MemAvailable:") {
-            let parts = line.split(separator: " ", omittingEmptySubsequences: true)
-            if parts.count >= 2, let kb = Double(parts[1]) {
-                memAvailable = kb
-            }
+    for line in meminfo.split(separator: "\n") {
+        let parts = line.split(whereSeparator: { $0 == " " })
+        guard parts.count >= 2, let kb = Double(parts[1]) else { continue }
+
+        switch parts[0] {
+        case "MemTotal:": total = kb
+        case "MemFree:": free = kb
+        case "Buffers:": buffers = kb
+        case "Cached:": cached = kb
+        case "SReclaimable:": reclaimable = kb
+        default: break
         }
     }
 
-    if memTotal > 0 {
-        let usedKB = memTotal - memAvailable
-        return Int(usedKB / 1024.0)
-    }
-
-    return 0
+    let used = total - free - buffers - cached - reclaimable
+    return Int(used / 1024)
 }
