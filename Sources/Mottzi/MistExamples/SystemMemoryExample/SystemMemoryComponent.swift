@@ -10,16 +10,22 @@ struct SystemMemoryComponent: LiveComponent {
     struct SystemMetrics: ComponentData {
         var memoryUsage: Int
         var cpuLoad: Double
+        var clientCount: Int
     }
     
-    let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB(), cpuLoad: getSystemLoadAverage()))
+    let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB(), cpuLoad: getSystemLoadAverage(), clientCount: 0))
     
     var refreshInterval: Duration { .seconds(2) }
 
     func refresh(app: Application) async {
         let realUsageMB = getSystemMemoryUsageMB()
         let realCpuLoad = getSystemLoadAverage()
-        await state.set(.init(memoryUsage: realUsageMB, cpuLoad: realCpuLoad))
+        let metrics = SystemMetrics(
+            memoryUsage: realUsageMB,
+            cpuLoad: realCpuLoad,
+            clientCount: await app.mist.clients.count
+        )
+        await state.set(metrics)
     }
 
     func body(state: SystemMetrics) -> some HTML {
@@ -46,6 +52,16 @@ struct SystemMemoryComponent: LiveComponent {
                     }
                     div(.class("text-huge")) {
                         "\(String(format: "%.2f", state.cpuLoad))"
+                    }
+                }
+                
+                // Clients Card
+                div(.class("card stack text-center max-w-sm"), .style("flex: 1; min-width: 280px;")) {
+                    div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
+                        h2(.style("margin: 0;")) { "Connected Clients" }
+                    }
+                    div(.class("text-huge")) {
+                        "\(state.clientCount)"
                     }
                 }
             }
