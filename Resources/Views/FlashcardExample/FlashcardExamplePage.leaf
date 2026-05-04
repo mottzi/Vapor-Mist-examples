@@ -10,7 +10,8 @@
     <main class="container">
         <a href="/MistExamples" class="back-link">← Back to Examples</a>
         <header class="mb-4">
-            <h1>Flashcards</h1>
+            <span class="badge" style="margin-bottom: 0.75rem;">InstanceComponent</span>
+            <h1 style="margin-top: 0;">Flashcards</h1>
             <p class="desc">Interactive flashcards with real-time state syncing and persistence.</p>
         </header>
         #extend("FlashcardExample/FlashcardCreateComponent")

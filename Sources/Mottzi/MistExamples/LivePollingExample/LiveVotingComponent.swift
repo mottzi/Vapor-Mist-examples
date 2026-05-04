@@ -23,7 +23,10 @@ struct LiveVotingComponent: PollingComponent {
             .mistComponent(value: name),
             .class("card stack")
         ) {
-            h2 { "Language Poll" }
+            div(.class("stack"), .style("gap: 0.5rem;")) {
+                span(.class("badge")) { "PollingComponent" }
+                h2(.style("margin: 0;")) { "Language Poll" }
+            }
             p(.class("desc mb-4")) { "\(context.total) votes" }
             
             div(.class("stack")) {

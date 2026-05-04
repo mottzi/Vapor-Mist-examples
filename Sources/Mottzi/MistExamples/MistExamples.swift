@@ -56,6 +56,7 @@ struct MistExamplesPage: HTMLDocument {
                     li { 
                         a(.href("/FlashcardExample")) { 
                             div(.class("stack")) {
+                                span(.class("badge")) { "InstanceComponent" }
                                 span { "Flashcards" }
                                 p(.class("desc")) { "Interactive cards with real-time sync." }
                             }
@@ -64,6 +65,7 @@ struct MistExamplesPage: HTMLDocument {
                     li { 
                         a(.href("/CounterExample")) { 
                             div(.class("stack")) {
+                                span(.class("badge")) { "ManualComponent" }
                                 span { "Counter" }
                                 p(.class("desc")) { "Global counter with manual state updates." }
                             }
@@ -72,6 +74,7 @@ struct MistExamplesPage: HTMLDocument {
                     li { 
                         a(.href("/SystemMonitorExample")) { 
                             div(.class("stack")) {
+                                span(.class("badge")) { "LiveComponent" }
                                 span { "System Monitor" }
                                 p(.class("desc")) { "Live memory usage with auto-refresh." }
                             }
@@ -80,6 +83,7 @@ struct MistExamplesPage: HTMLDocument {
                     li { 
                         a(.href("/LivePollingExample")) { 
                             div(.class("stack")) {
+                                span(.class("badge")) { "PollingComponent" }
                                 span { "Live Polling" }
                                 p(.class("desc")) { "Real-time voting and auto-aggregated results." }
                             }
