@@ -6,37 +6,66 @@ struct SystemMemoryComponent: LiveComponent {
 
     struct SystemMetrics: ComponentData {
         var memoryUsage: Int
+        var cpuLoad: Double
     }
     
-    let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB()))
+    let state = LiveState(of: SystemMetrics(memoryUsage: getSystemMemoryUsageMB(), cpuLoad: getSystemLoadAverage()))
     
     var refreshInterval: Duration { .seconds(2) }
 
     func refresh(app: Application) async {
         let realUsageMB = getSystemMemoryUsageMB()
-        await state.set(.init(memoryUsage: realUsageMB))
+        let realCpuLoad = getSystemLoadAverage()
+        await state.set(.init(memoryUsage: realUsageMB, cpuLoad: realCpuLoad))
     }
 
     func body(state: SystemMetrics) -> some HTML {
         div(
             .mistComponent(value: name),
-            .class("card stack text-center mx-auto max-w-sm")
+            .class("stack"),
+            .style("gap: 2rem; align-items: center;")
         ) {
-            div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                h2(.style("margin: 0;")) { "Memory Usage" }
-            }
-            div(.class("stack")) {
-                div(.class("text-huge")) {
-                    "\(state.memoryUsage) MB"
+            div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap;")) {
+                // Memory Card
+                div(.class("card stack text-center max-w-sm"), .style("flex: 1; min-width: 280px;")) {
+                    div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
+                        h2(.style("margin: 0;")) { "Memory Usage" }
+                    }
+                    div(.class("text-huge")) {
+                        "\(state.memoryUsage) MB"
+                    }
+                }
+                
+                // CPU Card
+                div(.class("card stack text-center max-w-sm"), .style("flex: 1; min-width: 280px;")) {
+                    div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
+                        h2(.style("margin: 0;")) { "System Load" }
+                    }
+                    div(.class("text-huge")) {
+                        "\(String(format: "%.2f", state.cpuLoad))"
+                    }
                 }
             }
             
-            div(.style("margin-top: 1rem; padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
+            div(.style("padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
                 "Refreshing every 2s"
             }
         }
     }
     
+}
+
+private func getSystemLoadAverage() -> Double {
+    guard let loadavg = try? String(contentsOfFile: "/proc/loadavg", encoding: .utf8) else {
+        return 0.0
+    }
+    
+    let parts = loadavg.split(separator: " ", omittingEmptySubsequences: true)
+    if parts.count >= 1, let load = Double(parts[0]) {
+        return load
+    }
+    
+    return 0.0
 }
 
 private func getSystemMemoryUsageMB() -> Int {
