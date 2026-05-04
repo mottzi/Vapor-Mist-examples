@@ -16,9 +16,8 @@ struct CounterComponent: ManualComponent {
             .mistComponent(value: name),
             .class("card stack text-center mx-auto max-w-sm")
         ) {
-            div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                span(.class("badge")) { "ManualComponent" }
-                h2(.style("margin: 0;")) { "Count" }
+            header(.class("stack gap-2 items-center")) {
+                h2(.class("m-0")) { "Count" }
             }
             div(.class("text-huge")) {
                 "\(state.count)"

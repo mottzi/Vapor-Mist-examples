@@ -16,11 +16,12 @@ struct SystemMemoryPage: HTMLDocument {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
             header(.class("mb-4")) {
+                span(.class("badge header-badge")) { "LiveComponent" }
                 h1 { "System Monitor Example" }
                 p(.class("desc mb-2")) { "A live server health widget that updates automatically every 2 seconds without user interaction." }
-                p(.class("desc p-4"), .style("border: 1px solid var(--color-danger); border-radius: var(--border-radius);")) {
+                p(.class("desc header-description-box")) {
                     "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
-                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
+                    code(.class("color-accent font-mono")) { "LiveState" }
                     " and refreshes it on a 2-second schedule by reading the host server's memory usage. Broadcasts new HTML only when the value changes."
                 }
             }

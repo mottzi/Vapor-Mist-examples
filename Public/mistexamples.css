@@ -139,9 +139,15 @@ a:hover {
 
 .text-center { text-align: center; }
 .mt-4 { margin-top: 1.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }
 .mb-4 { margin-bottom: 2rem; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 .max-w-sm { max-width: 400px; }
+.m-0 { margin: 0; }
+.p-4 { padding: 1rem; }
+.gap-2 { gap: 0.5rem; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
 
 .text-huge {
     font-size: 3.5rem;
@@ -248,26 +254,119 @@ button.btn-primary:hover {
 button[mist-action="delete"],
 .btn-danger {
     color: var(--color-danger);
-    border-color: transparent;
-    box-shadow: none;
-    background-color: transparent;
+    background-color: #fee2e2;
+    border-color: #fee2e2;
 }
 
 button[mist-action="delete"]:hover,
 .btn-danger:hover {
-    background-color: #fee2e2;
+    background-color: #fecaca;
     color: var(--color-danger-hover);
+    border-color: #fecaca;
 }
 
 @media (prefers-color-scheme: dark) {
+    button[mist-action="delete"],
+    .btn-danger {
+        background-color: #450a0a;
+        border-color: #450a0a;
+    }
+    
     button[mist-action="delete"]:hover,
     .btn-danger:hover {
         background-color: #7f1d1d;
+        border-color: #7f1d1d;
     }
 }
 
-/* Utilities Ext */
-.p-4 { padding: 1rem; }
+.color-accent { color: var(--color-accent); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Layout & Components */
+.poll-vote-count {
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.poll-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.poll-info {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.poll-bar-container {
+    display: flex;
+    background: #e5e7eb;
+    border-radius: 999px;
+    height: 16px;
+    overflow: hidden;
+}
+
+.poll-bar-swift {
+    background: #F05138;
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.poll-bar-kotlin {
+    background: #7F52FF;
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.poll-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.poll-btn-swift {
+    flex: 1;
+    background-color: #F05138 !important;
+    border-color: #F05138 !important;
+}
+
+.poll-btn-kotlin {
+    flex: 1;
+    background-color: #7F52FF !important;
+    border-color: #7F52FF !important;
+}
+
+.header-badge {
+    margin-bottom: 0.75rem;
+}
+
+.header-description-box {
+    border: 1px solid var(--color-danger);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.system-monitor-info {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: var(--color-primary);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.flashcard-flip-trigger {
+    display: none;
+}
 
 /* Flashcard Specific Styles */
 .flashcard-grid {
@@ -324,11 +423,7 @@ button[mist-action="delete"]:hover,
     position: absolute;
     top: 1rem;
     left: 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 1.25rem;
 }
 
 .flashcard-text {

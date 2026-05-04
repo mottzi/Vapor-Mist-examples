@@ -22,9 +22,8 @@ struct SystemMemoryComponent: LiveComponent {
             .mistComponent(value: name),
             .class("card stack text-center mx-auto max-w-sm")
         ) {
-            div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                span(.class("badge")) { "LiveComponent" }
-                h2(.style("margin: 0;")) { "Memory Usage" }
+            header(.class("stack gap-2 items-center")) {
+                h2(.class("m-0")) { "Memory Usage" }
             }
             div(.class("stack")) {
                 div(.class("text-huge")) {
@@ -32,7 +31,7 @@ struct SystemMemoryComponent: LiveComponent {
                 }
             }
             
-            div(.style("margin-top: 1rem; padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
+            div(.class("system-monitor-info")) {
                 "Refreshing every 2s"
             }
         }
