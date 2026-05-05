@@ -15,7 +15,10 @@ import Mist
         app.migrations.add(
             FlashcardFrontModel.Table(),
             FlashcardBackModel.Table(),
-            LiveVotingModel.Table()
+            LiveVotingModel.Table(),
+            User.Table(),
+            Profile.Table(),
+            TeamProfileSeed()
         )
         try await app.autoMigrate()
 
@@ -29,6 +32,9 @@ import Mist
             ConnectedClientsComponent()
             StressTestComponent()
             LiveVotingComponent()
+            for division in TeamProfileExample.divisions {
+                ProfileComponent(division: division)
+            }
         }
 
         app.views.use(.leaf)

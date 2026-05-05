@@ -358,6 +358,54 @@ button[mist-action="delete"]:hover,
     font-size: 0.8rem;
 }
 
+/* Team profile (multi-model InstanceComponent) */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    padding: 1rem 0;
+}
+
+.profile-card {
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem 1.5rem;
+    background-color: var(--bg-card);
+}
+
+.profile-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.profile-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.profile-handle {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.profile-bio {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.inline-code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-accent);
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .container {

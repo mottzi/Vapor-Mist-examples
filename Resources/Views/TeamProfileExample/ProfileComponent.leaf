@@ -1,0 +1,9 @@
+<article class="profile-card"
+         mist-component="ProfileComponent-#(context.user.division)"
+         mist-id="#(context.user.id)">
+    <header class="profile-card-header">
+        <span class="profile-name">#(context.user.displayName)</span>
+        <span class="profile-handle">@#(context.user.handle)</span>
+    </header>
+    <p class="profile-bio">#(context.profile.bio)</p>
+</article>
