@@ -19,7 +19,10 @@ extension Application {
         self.get("CounterExample2") { req async throws -> View in
             let counter = await req.application.mistComponent(CounterComponent2.self)
             let currentState = await counter?.state.current ?? CounterState()
-            return try await req.view.render("CounterExample2/CounterExample2Page", ["count": currentState.count])
+            return try await req.view.render(
+                "CounterExample2/CounterExample2Page",
+                ["count": currentState.count]
+            )
         }
 
         self.get("SystemMonitorExample") { req async throws in
