@@ -18,7 +18,7 @@
             </p>
         </header>
         <div class="profile-grid" mist-container="ProfileComponent-#(division)" mist-ssr="true">
-            #for(context in contexts):
+            #for(row in contexts):
                 #extend("TeamProfileExample/ProfileComponent")
             #endfor
         </div>

@@ -16,7 +16,7 @@ struct ProfileComponent: InstanceComponent {
         "ProfileComponent-\(division)"
     }
 
-    func allModels(on db: Database) async throws -> [any Fluent.Model] {
+    func allModels(on db: Database) async throws -> [any Mist.Model] {
         try await User.query(on: db)
             .filter(\.$division == division)
             .sort(\.$displayName)
