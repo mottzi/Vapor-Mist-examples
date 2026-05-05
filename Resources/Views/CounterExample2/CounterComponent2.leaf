@@ -1,0 +1,11 @@
+<div mist-component="CounterComponent2" class="card stack text-center mx-auto max-w-sm">
+    <div class="stack" style="gap: 0.5rem; align-items: center;">
+        <h2 style="margin: 0;">Count</h2>
+    </div>
+    <div class="text-huge">
+        #(count)
+    </div>
+    <button mist-action="increment" class="btn-primary mt-4">
+        Increment
+    </button>
+</div>

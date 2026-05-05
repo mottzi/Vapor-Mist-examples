@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Counter Example 2 Page</title>
+    <link rel="stylesheet" href="/mistexamples.css">
+</head>
+<body>
+    <main class="container">
+        <a href="/MistExamples" class="back-link">← Back to Examples</a>
+        
+        <header class="mb-4">
+            <span class="badge" style="margin-bottom: 0.75rem;">
+                ManualComponent
+            </span>
+            <h1 style="margin-top: 0;">
+                Counter Example 2 (Leaf)
+            </h1>
+            <p class="desc">
+                A global counter demonstrating real-time manual state updates across all connected clients.
+            </p>
+            <p class="desc">
+                Re-renders only when its persistent state is set explicitly. This example holds a global <code style="color: var(--color-accent); font-family: var(--font-mono);">LiveState</code> and demonstrates a server-side Action that increments the state, immediately broadcasting the new HTML to all connected clients.
+            </p>
+        </header>
+        
+        <div mist-container="CounterComponent2" mist-ssr="true">
+            #extend("CounterExample2/CounterComponent2")
+        </div>
+    </main>
+    <script src="/morphdom.js"></script>
+    <script src="/mist.js"></script>
+</body>
+</html>

@@ -15,6 +15,12 @@ extension Application {
             let currentState = await counter?.state.current ?? CounterState()
             return HTMLResponse { CounterPage(currentState: currentState) }
         }
+        
+        self.get("CounterExample2") { req async throws -> View in
+            let counter = await req.application.mistComponent(CounterComponent2.self)
+            let currentState = await counter?.state.current ?? CounterState()
+            return try await req.view.render("CounterExample2/CounterExample2Page", ["count": currentState.count])
+        }
 
         self.get("SystemMonitorExample") { req async throws in
             async let memory = req.application.mistComponent(MemoryUsageComponent.self)?.renderInitial(app: req.application)
@@ -43,10 +49,9 @@ extension Application {
             return HTMLResponse { LiveVotingPage(initialHTML: initialHTML) }
         }
 
-        self.get("FlashcardExample") { request async throws -> View in
-            // InstanceComponent: Left unchanged as per SSR scope constraints
-            let context = try await FlashcardComponent().makeContext(ofAll: request.db)
-            return try await request.view.render("FlashcardExample/FlashcardExamplePage", context)
+        self.get("FlashcardExample") { req async throws -> View in
+            let context = try await FlashcardComponent().makeContext(ofAll: req.db)
+            return try await req.view.render("FlashcardExample/FlashcardExamplePage", context)
         }
     }
     
@@ -83,6 +88,15 @@ struct MistExamplesPage: HTMLDocument {
                                 span(.class("badge")) { "ManualComponent" }
                                 span { "Counter" }
                                 p(.class("desc")) { "Global counter with manual state updates." }
+                            }
+                        } 
+                    }
+                    li { 
+                        a(.href("/CounterExample2")) { 
+                            div(.class("stack")) {
+                                span(.class("badge")) { "ManualComponent" }
+                                span { "Counter (Leaf)" }
+                                p(.class("desc")) { "Global counter with manual state updates (Leaf)." }
                             }
                         } 
                     }

@@ -28,11 +28,7 @@ struct CounterComponent: ManualComponent {
         }
     }
     
-    var actions: [any Action] {
-        [
-            IncrementAction(counterState: state)
-        ]
-    }
+    var actions: [any Action] { [ IncrementAction(counterState: state) ] }
 }
 
 struct IncrementAction: Action {
