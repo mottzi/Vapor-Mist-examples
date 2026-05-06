@@ -97,6 +97,14 @@
     color: #37b24d;
 }
 
+.status-yellow .vital .value {
+    color: #fcc419;
+}
+
+.status-yellow {
+    border-color: #fcc419;
+}
+
 .status-red .vital .value {
     color: #fa5252;
     animation: pulse-emergency 1s infinite;

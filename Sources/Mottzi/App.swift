@@ -44,6 +44,8 @@ import Mist
         app.views.use(.leaf)
 
         app.useMistExamples()
+        
+        PatientSimulator.start(app: app)
 
         try await app.execute()
         try await app.asyncShutdown()
