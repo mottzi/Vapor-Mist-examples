@@ -1,37 +1,31 @@
-import Vapor
-import VaporElementary
 import Elementary
 import Mist
-
+import Vapor
+import VaporElementary
 
 extension Application {
-    
+
     func useMistExamples() {
-        
+
         self.get("MistExamples") { _ in
             HTMLResponse { MistExamplesPage() }
         }
-        
+
         self.get("CounterExample") { req async throws in
             let counter = await req.application.mistComponent(CounterComponent.self)
             let currentState = await counter?.state.current ?? CounterState()
             return HTMLResponse { CounterPage(currentState: currentState) }
         }
-        
-        self.get("CounterExample2") { req async throws -> View in
-            let counter = await req.application.mistComponent(CounterComponent2.self)
-            let currentState = await counter?.state.current ?? CounterState()
-            return try await req.view.render(
-                "CounterExample2/CounterExample2Page",
-                ["count": currentState.count]
-            )
-        }
 
         self.get("SystemMonitorExample") { req async throws in
-            async let memory = req.application.mistComponent(MemoryUsageComponent.self)?.renderInitial(app: req.application)
-            async let cpu = req.application.mistComponent(CpuLoadComponent.self)?.renderInitial(app: req.application)
-            async let clients = req.application.mistComponent(ConnectedClientsComponent.self)?.renderInitial(app: req.application)
-            async let stress = req.application.mistComponent(StressTestComponent.self)?.renderInitial(app: req.application)
+            async let memory = req.application.mistComponent(MemoryUsageComponent.self)?
+                .renderInitial(app: req.application)
+            async let cpu = req.application.mistComponent(CpuLoadComponent.self)?.renderInitial(
+                app: req.application)
+            async let clients = req.application.mistComponent(ConnectedClientsComponent.self)?
+                .renderInitial(app: req.application)
+            async let stress = req.application.mistComponent(StressTestComponent.self)?
+                .renderInitial(app: req.application)
 
             let memoryHTML = await memory ?? nil
             let cpuHTML = await cpu ?? nil
@@ -59,13 +53,12 @@ extension Application {
             return try await req.view.render("FlashcardExample/FlashcardExamplePage", context)
         }
 
-
         self.get("PatientMonitorExample") { req async throws -> View in
             let bundle = try await PatientComponent().makeContext(ofAll: req.db)
             return try await req.view.render("PatientMonitorExample/PatientMonitorPage", bundle)
         }
     }
-    
+
 }
 
 struct MistExamplesPage: HTMLDocument {
@@ -79,64 +72,61 @@ struct MistExamplesPage: HTMLDocument {
         main(.class("container")) {
             header(.class("mb-4")) {
                 h1 { "Mist Examples" }
-                p(.class("desc")) { "A collection of interactive components built with Mist and Vapor." }
+                p(.class("desc")) {
+                    "A collection of interactive components built with Mist and Vapor."
+                }
             }
 
             section {
                 ul {
-                    li { 
-                        a(.href("/FlashcardExample")) { 
+                    li {
+                        a(.href("/FlashcardExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "InstanceComponent" }
                                 span { "Flashcards" }
                                 p(.class("desc")) { "Interactive cards with real-time sync." }
                             }
-                        } 
+                        }
                     }
                     li {
                         a(.href("/PatientMonitorExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "InstanceComponent" }
                                 span { "Patient Monitor" }
-                                p(.class("desc")) { "Split-table architecture: EMR records + Live Telemetry." }
+                                p(.class("desc")) {
+                                    "Split-table architecture: EMR records + Live Telemetry."
+                                }
                             }
                         }
                     }
-                    li { 
-                        a(.href("/CounterExample")) { 
+                    li {
+                        a(.href("/CounterExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "ManualComponent" }
                                 span { "Counter" }
                                 p(.class("desc")) { "Global counter with manual state updates." }
                             }
-                        } 
+                        }
                     }
-                    li { 
-                        a(.href("/CounterExample2")) { 
-                            div(.class("stack")) {
-                                span(.class("badge")) { "ManualComponent" }
-                                span { "Counter (Leaf)" }
-                                p(.class("desc")) { "Global counter with manual state updates (Leaf)." }
-                            }
-                        } 
-                    }
-                    li { 
-                        a(.href("/SystemMonitorExample")) { 
+                    li {
+                        a(.href("/SystemMonitorExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "LiveComponent" }
                                 span { "System Monitor" }
                                 p(.class("desc")) { "Live memory and CPU usage with auto-refresh." }
                             }
-                        } 
+                        }
                     }
-                    li { 
-                        a(.href("/LivePollingExample")) { 
+                    li {
+                        a(.href("/LivePollingExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "PollingComponent" }
                                 span { "Live Polling" }
-                                p(.class("desc")) { "Real-time voting and auto-aggregated results." }
+                                p(.class("desc")) {
+                                    "Real-time voting and auto-aggregated results."
+                                }
                             }
-                        } 
+                        }
                     }
                 }
             }

@@ -23,8 +23,8 @@
             </p>
         </header>
         
-        <div mist-container="CounterComponent2" mist-ssr="true">
-            #extend("CounterExample2/CounterComponent2")
+        <div mist-container="CounterComponent" mist-ssr="true">
+            #extend("CounterExample/CounterComponent")
         </div>
     </main>
     <script src="/morphdom.js"></script>

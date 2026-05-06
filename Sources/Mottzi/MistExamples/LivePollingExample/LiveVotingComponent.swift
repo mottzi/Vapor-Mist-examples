@@ -5,8 +5,6 @@ import Vapor
 
 struct LiveVotingComponent: PollingComponent {
 
-    // Default name will be "LiveVotingComponent"
-
     var actions: [any Action] { [VoteSwiftAction(), VoteKotlinAction(), ResetPollAction()] }
 
     var refreshInterval: Duration { .seconds(2) }
