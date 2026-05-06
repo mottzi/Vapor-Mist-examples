@@ -7,7 +7,7 @@ struct LiveVotingComponent: PollingComponent {
 
     var actions: [any Action] { [VoteSwiftAction(), VoteKotlinAction(), ResetPollAction()] }
 
-    var refreshInterval: Duration { .seconds(2) }
+    var refreshInterval: Duration { .seconds(1) }
 
     func poll(on db: Database) async -> LiveVotingContext? {
 
@@ -32,8 +32,12 @@ struct LiveVotingComponent: PollingComponent {
                     .style(
                         "background: transparent; border: 1px solid #F05138; color: #F05138; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
                     ),
-                    .custom(name: "onmouseover", value: "this.style.background='#F05138'; this.style.color='white'"),
-                    .custom(name: "onmouseout", value: "this.style.background='transparent'; this.style.color='#F05138'"),
+                    .custom(
+                        name: "onmouseover",
+                        value: "this.style.background='#F05138'; this.style.color='white'"),
+                    .custom(
+                        name: "onmouseout",
+                        value: "this.style.background='transparent'; this.style.color='#F05138'"),
                 ) { "Reset" }
             }
             p(.class("desc mb-4"), .style("font-weight: 600; color: var(--text-primary);")) {
