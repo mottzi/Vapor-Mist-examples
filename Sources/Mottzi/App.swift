@@ -1,7 +1,7 @@
-import Vapor
 import Fluent
 import FluentSQLiteDriver
 import Mist
+import Vapor
 
 @main struct App {
 
@@ -26,7 +26,6 @@ import Mist
             FlashcardComponent()
             FlashcardCreateComponent()
             CounterComponent()
-            CounterComponent2()
             MemoryUsageComponent()
             CpuLoadComponent()
             ConnectedClientsComponent()
@@ -38,7 +37,7 @@ import Mist
         app.views.use(.leaf)
 
         app.useMistExamples()
-        
+
         PatientSimulator.start(app: app)
 
         try await app.execute()
