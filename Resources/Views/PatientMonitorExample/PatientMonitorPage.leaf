@@ -12,16 +12,8 @@
         <a href="/MistExamples" class="back-link">← Back to Examples</a>
         
         <header class="mb-4">
-            <h1>Live Patient Monitor</h1>
-            <p class="desc">
-                A high-stakes demonstration of 
-                <span class="inline-code">InstanceComponent</span> 
-                joining two disparate data sources: 
-                <span class="inline-code" style="color: #909296">Patient Identity</span> 
-                (Stable/EMR) and 
-                <span class="inline-code" style="color: #37b24d">Live Vitals</span> 
-                (Transient/Telemetry).
-            </p>
+            <span class="badge" style="margin-bottom: 0.75rem;">InstanceComponent</span>
+            <h1 style="margin-top: 0;">Live Patient Monitor</h1>
         </header>
 
         <section class="patient-grid">
@@ -30,9 +22,18 @@
             #endfor
         </section>
         
-        <footer class="mt-4 text-center">
-            <p class="desc">Each card is a unified view of two separate database tables joined by a shared UUID.</p>
-        </footer>
+        <div class="mt-4">
+            <p class="desc">
+                A high-stakes demonstration of 
+                <span class="inline-code">InstanceComponent</span> 
+                joining two disparate data sources: 
+                <span class="inline-code" style="color: #909296">Patient Identity</span> 
+                (Stable/EMR) and 
+                <span class="inline-code" style="color: #37b24d">Live Vitals</span> 
+                (Transient/Telemetry).
+                Each card is a unified view of two separate database tables joined by a shared UUID.
+            </p>
+        </div>
     </main>
     
     <script src="/morphdom.js"></script>

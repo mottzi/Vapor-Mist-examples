@@ -21,12 +21,6 @@ struct SystemMemoryPage: HTMLDocument {
             header(.class("mb-4")) {
                 span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "LiveComponent" }
                 h1(.style("margin-top: 0;")) { "System Monitor Example" }
-                p(.class("desc")) { "A live server health widget that updates automatically every 2 seconds without user interaction." }
-                p(.class("desc")) {
-                    "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
-                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
-                    " and refreshes it on a 2-second schedule by reading the host server's memory usage and CPU load. Broadcasts new HTML only when the value changes."
-                }
             }
             
             div(.class("stack"), .style("gap: 2rem; align-items: center;")) {
@@ -66,6 +60,15 @@ struct SystemMemoryPage: HTMLDocument {
                     if let html = stressHTML {
                         HTMLRaw(html)
                     }
+                }
+            }
+
+            div(.class("mt-4")) {
+                p(.class("desc")) {
+                    "A live server health widget that updates automatically every 2 seconds without user interaction. "
+                    "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
+                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
+                    " and refreshes it on a 2-second schedule by reading the host server's memory usage and CPU load. Broadcasts new HTML only when the value changes."
                 }
             }
         }

@@ -26,10 +26,6 @@ struct LiveVotingPage: HTMLDocument {
             header(.class("mb-4")) {
                 span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "PollingComponent" }
                 h1(.style("margin-top: 0;")) { "THE MOBILE DEVELOPER BATTLE" }
-                p(.class("desc")) { "Two modern languages enter, only one leaves. Choose your favorite syntax and watch the results update in real-time." }
-                p(.class("desc")) {
-                    "Manually reads from the database periodically and re-renders when the result changes. This component polls the database every 2s to aggregate votes. It demonstrates server-side Actions that insert rows, while the polling loop naturally picks up the changes."
-                }
             }
             
             // Replaced static component with SSR Container
@@ -40,6 +36,13 @@ struct LiveVotingPage: HTMLDocument {
             ) {
                 if let html = initialHTML {
                     HTMLRaw(html)
+                }
+            }
+
+            div(.class("mt-4")) {
+                p(.class("desc")) { "Two modern languages enter, only one leaves. Choose your favorite syntax and watch the results update in real-time." }
+                p(.class("desc")) {
+                    "Manually reads from the database periodically and re-renders when the result changes. This component polls the database every 2s to aggregate votes. It demonstrates server-side Actions that insert rows, while the polling loop naturally picks up the changes."
                 }
             }
         }
