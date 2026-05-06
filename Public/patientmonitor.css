@@ -60,14 +60,21 @@
 }
 
 .vitals-monitor {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     background: #101113;
-    padding: 1.25rem;
+    padding: 1.5rem 1rem;
     border-radius: 0.75rem;
     position: relative;
-    overflow: hidden;
+    text-align: center;
+}
+
+.monitor-source {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    border-top: 1px solid #1a1b1e;
+    padding-top: 0.5rem;
 }
 
 .vital {
