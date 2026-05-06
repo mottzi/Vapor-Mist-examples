@@ -5,7 +5,7 @@ import Elementary
 
 struct LiveVotingComponent: PollingComponent {
     
-    let name = "live-voting-results"
+    // Default name will be "LiveVotingComponent"
     
     var actions: [any Action] { [VoteSwiftAction(), VoteKotlinAction()] }
     
