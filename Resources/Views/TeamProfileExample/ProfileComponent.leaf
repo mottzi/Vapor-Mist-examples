@@ -1,9 +1,0 @@
-<article class="profile-card"
-         mist-component="ProfileComponent-#(row.user.division)"
-         mist-id="#(row.user.id)">
-    <header class="profile-card-header">
-        <span class="profile-name">#(row.user.displayName)</span>
-        <span class="profile-handle">@#(row.user.handle)</span>
-    </header>
-    <p class="profile-bio">#(row.profile.bio)</p>
-</article>

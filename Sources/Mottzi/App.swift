@@ -16,9 +16,6 @@ import Mist
             FlashcardFrontModel.Table(),
             FlashcardBackModel.Table(),
             LiveVotingModel.Table(),
-            User.Table(),
-            Profile.Table(),
-            TeamProfileSeed(),
             Patient.Migration(),
             Vitals.Migration(),
             PatientMonitorSeed()
@@ -35,9 +32,6 @@ import Mist
             ConnectedClientsComponent()
             StressTestComponent()
             LiveVotingComponent()
-            for division in TeamProfileExample.divisions {
-                ProfileComponent(division: division)
-            }
             PatientComponent()
         }
 

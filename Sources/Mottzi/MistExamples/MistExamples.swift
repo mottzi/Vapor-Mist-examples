@@ -3,10 +3,6 @@ import VaporElementary
 import Elementary
 import Mist
 
-struct TeamDirectoryPageContext: Encodable {
-    let contexts: [ModelContext]
-    let division: String
-}
 
 extension Application {
     
@@ -63,16 +59,6 @@ extension Application {
             return try await req.view.render("FlashcardExample/FlashcardExamplePage", context)
         }
 
-        self.get("teamprofile", ":division") { req async throws -> View in
-            let division = try req.parameters.require("division")
-            guard TeamProfileExample.divisions.contains(division) else {
-                throw Abort(.notFound)
-            }
-            let component = ProfileComponent(division: division)
-            let bundle = try await component.makeContext(ofAll: req.db)
-            let page = TeamDirectoryPageContext(contexts: bundle.contexts, division: division)
-            return try await req.view.render("TeamProfileExample/TeamProfileExamplePage", page)
-        }
 
         self.get("PatientMonitorExample") { req async throws -> View in
             let bundle = try await PatientComponent().makeContext(ofAll: req.db)
@@ -106,15 +92,6 @@ struct MistExamplesPage: HTMLDocument {
                                 p(.class("desc")) { "Interactive cards with real-time sync." }
                             }
                         } 
-                    }
-                    li {
-                        a(.href("/teamprofile/europe")) {
-                            div(.class("stack")) {
-                                span(.class("badge")) { "InstanceComponent" }
-                                span { "Team directory" }
-                                p(.class("desc")) { "Users + profiles by division; try east-coast too." }
-                            }
-                        }
                     }
                     li {
                         a(.href("/PatientMonitorExample")) {
