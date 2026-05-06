@@ -38,5 +38,8 @@ struct SportsMatchPage: HTMLDocument {
                 p(.class("desc")) { "The Scoreboard model updates in real-time, while the Match identity stays stable." }
             }
         }
+        
+        script(.src("/morphdom.js")) {}
+        script(.src("/mist.js")) {}
     }
 }
