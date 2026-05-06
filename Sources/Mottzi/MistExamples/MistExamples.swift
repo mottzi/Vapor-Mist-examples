@@ -73,6 +73,23 @@ extension Application {
             let page = TeamDirectoryPageContext(contexts: bundle.contexts, division: division)
             return try await req.view.render("TeamProfileExample/TeamProfileExamplePage", page)
         }
+
+        self.get("SportsMatchExample") { req async throws in
+            let component = MatchComponent()
+            let matches = try await component.allModels(on: req.db)
+            
+            var matchHTMLs: [String] = []
+            for match in matches {
+                if let id = match.id {
+                    let result = await component.render(with: id, on: req.application)
+                    if case .rendered(let html) = result {
+                        matchHTMLs.append(html)
+                    }
+                }
+            }
+            
+            return HTMLResponse { SportsMatchPage(matchHTMLs: matchHTMLs) }
+        }
     }
     
 }
@@ -108,6 +125,15 @@ struct MistExamplesPage: HTMLDocument {
                                 span(.class("badge")) { "InstanceComponent" }
                                 span { "Team directory" }
                                 p(.class("desc")) { "Users + profiles by division; try east-coast too." }
+                            }
+                        }
+                    }
+                    li {
+                        a(.href("/SportsMatchExample")) {
+                            div(.class("stack")) {
+                                span(.class("badge")) { "InstanceComponent" }
+                                span { "Sports Dashboard" }
+                                p(.class("desc")) { "Live scores & fixtures joined by shared ID." }
                             }
                         }
                     }

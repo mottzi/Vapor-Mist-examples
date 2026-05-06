@@ -1,0 +1,126 @@
+.sports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.match-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.match-card.is-live {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+.match-card.is-live::before {
+    content: "LIVE";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--color-danger);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.match-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.team-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.score {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-family: var(--font-mono);
+}
+
+.score-separator {
+    font-size: 2rem;
+    color: var(--border-color);
+    padding: 0 1rem;
+}
+
+.match-actions {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.match-actions button {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.btn-goal {
+    background: var(--color-primary);
+}
+
+.btn-period {
+    background: var(--color-accent);
+    color: white;
+}
+
+.match-footer {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.btn-reset {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    box-shadow: none;
+}
+
+.btn-reset:hover {
+    color: var(--color-danger);
+    background: none;
+}

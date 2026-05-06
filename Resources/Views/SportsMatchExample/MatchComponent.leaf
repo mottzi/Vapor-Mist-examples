@@ -1,0 +1,30 @@
+<div class="match-card #(scoreboard.is_live ? 'is-live' : '')" mist-id="#(match.id)">
+    <div class="match-header">
+        <span class="venue">#(match.venue)</span>
+        <span class="period">#(scoreboard.period)</span>
+    </div>
+    
+    <div class="match-main">
+        <div class="team home">
+            <div class="team-name">#(match.home_team)</div>
+            <div class="score">#(scoreboard.home_score)</div>
+        </div>
+        
+        <div class="score-separator">:</div>
+        
+        <div class="team away">
+            <div class="score">#(scoreboard.away_score)</div>
+            <div class="team-name">#(match.away_team)</div>
+        </div>
+    </div>
+    
+    <div class="match-actions">
+        <button mist-action="homeGoal" class="btn-goal">Goal #(match.home_team)</button>
+        <button mist-action="nextPeriod" class="btn-period">Next Period</button>
+        <button mist-action="awayGoal" class="btn-goal">Goal #(match.away_team)</button>
+    </div>
+    
+    <div class="match-footer">
+        <button mist-action="reset" class="btn-reset">Reset Match</button>
+    </div>
+</div>

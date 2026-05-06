@@ -18,7 +18,10 @@ import Mist
             LiveVotingModel.Table(),
             User.Table(),
             Profile.Table(),
-            TeamProfileSeed()
+            TeamProfileSeed(),
+            Match.Migration(),
+            Scoreboard.Migration(),
+            SportsMatchSeed()
         )
         try await app.autoMigrate()
 
@@ -35,6 +38,7 @@ import Mist
             for division in TeamProfileExample.divisions {
                 ProfileComponent(division: division)
             }
+            MatchComponent()
         }
 
         app.views.use(.leaf)
