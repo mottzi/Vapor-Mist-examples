@@ -21,7 +21,7 @@ struct CpuLoadComponent: LiveComponent {
         div(
             .mistComponent(name),
             .class("card stack text-center max-w-sm"),
-            .style("flex: 1; min-width: 280px;")
+            .style("flex: 1; min-width: 250px;")
         ) {
             div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
                 h2(.style("margin: 0;")) { "System Load" }

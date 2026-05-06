@@ -15,7 +15,7 @@ struct SystemMemoryPage: HTMLDocument {
     }
 
     var body: some HTML {
-        main(.class("container")) {
+        main(.class("container"), .style("max-width: 1000px;")) {
             a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
             
             header(.class("mb-4")) {
@@ -24,7 +24,7 @@ struct SystemMemoryPage: HTMLDocument {
             }
             
             div(.class("stack"), .style("gap: 2rem; align-items: center;")) {
-                div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap;")) {
+                div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap; width: 100%;")) {
                     div(
                         .mistContainer(["MemoryUsageComponent"]),
                         .mistSSR(memoryHTML != nil)
