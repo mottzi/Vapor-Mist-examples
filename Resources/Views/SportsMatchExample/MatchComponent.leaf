@@ -1,4 +1,4 @@
-<div class="match-card #if(context.scoreboard.isLive):is-live#endif" mist-id="#(context.match.id)">
+<div class="match-card #if(context.scoreboard.isLive):is-live#endif" mist-component="MatchComponent" mist-id="#(context.match.id)">
     <div class="match-header">
         <span class="venue">#(context.match.venue)</span>
         <span class="period">#(context.scoreboard.period)</span>
