@@ -74,21 +74,21 @@ extension Application {
             return try await req.view.render("TeamProfileExample/TeamProfileExamplePage", page)
         }
 
-        self.get("SportsMatchExample") { req async throws in
-            let component = MatchComponent()
-            let matches = try await component.allModels(on: req.db)
+        self.get("PatientMonitorExample") { req async throws in
+            let component = PatientComponent()
+            let patients = try await component.allModels(on: req.db)
             
-            var matchHTMLs: [String] = []
-            for match in matches {
-                if let id = match.id {
+            var patientHTMLs: [String] = []
+            for patient in patients {
+                if let id = patient.id {
                     let result = await component.render(with: id, on: req.application)
                     if case .rendered(let html) = result {
-                        matchHTMLs.append(html)
+                        patientHTMLs.append(html)
                     }
                 }
             }
             
-            return HTMLResponse { SportsMatchPage(matchHTMLs: matchHTMLs) }
+            return HTMLResponse { PatientMonitorPage(patientHTMLs: patientHTMLs) }
         }
     }
     
@@ -129,11 +129,11 @@ struct MistExamplesPage: HTMLDocument {
                         }
                     }
                     li {
-                        a(.href("/SportsMatchExample")) {
+                        a(.href("/PatientMonitorExample")) {
                             div(.class("stack")) {
                                 span(.class("badge")) { "InstanceComponent" }
-                                span { "Sports Dashboard" }
-                                p(.class("desc")) { "Live scores & fixtures joined by shared ID." }
+                                span { "Patient Monitor" }
+                                p(.class("desc")) { "Split-table architecture: EMR records + Live Telemetry." }
                             }
                         }
                     }

@@ -1,0 +1,32 @@
+<div class="patient-card status-#(context.vitals.statusColor)" mist-component="PatientComponent" mist-id="#(context.patient.id)">
+    <div class="patient-identity">
+        <div class="avatar">
+            <span>#(context.patient.bloodType)</span>
+        </div>
+        <div class="info">
+            <h3>#(context.patient.name)</h3>
+            <p>DOB: #date(context.patient.dob, "yyyy-MM-dd")</p>
+            <p class="source-tag">Source: EMR Database (Stable)</p>
+        </div>
+    </div>
+    
+    <div class="vitals-monitor">
+        <div class="vital">
+            <span class="label">BPM</span>
+            <span class="value heart-rate">#(context.vitals.heartRate)</span>
+        </div>
+        <div class="vital">
+            <span class="label">SpO2</span>
+            <span class="value">#(context.vitals.oxygenLevel)%</span>
+        </div>
+        <div class="monitor-source">
+            <p class="source-tag">Source: Bedside Telemetry (Live)</p>
+        </div>
+    </div>
+    
+    <div class="patient-actions">
+        <button mist-action="updateVitals" class="btn-normal">Simulate Pulse</button>
+        <button mist-action="emergency" class="btn-emergency">Trigger Emergency</button>
+        <button mist-action="reset" class="btn-reset">Stabilize</button>
+    </div>
+</div>

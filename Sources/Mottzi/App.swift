@@ -19,9 +19,9 @@ import Mist
             User.Table(),
             Profile.Table(),
             TeamProfileSeed(),
-            Match.Migration(),
-            Scoreboard.Migration(),
-            SportsMatchSeed()
+            Patient.Migration(),
+            Vitals.Migration(),
+            PatientMonitorSeed()
         )
         try await app.autoMigrate()
 
@@ -38,7 +38,7 @@ import Mist
             for division in TeamProfileExample.divisions {
                 ProfileComponent(division: division)
             }
-            MatchComponent()
+            PatientComponent()
         }
 
         app.views.use(.leaf)

@@ -1,0 +1,132 @@
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.patient-card {
+    background: #1a1b1e;
+    border-radius: 1rem;
+    border: 1px solid #2c2e33;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.patient-identity {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    border-bottom: 1px solid #2c2e33;
+    padding-bottom: 1rem;
+}
+
+.avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: #25262b;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #e03131;
+    font-size: 1.25rem;
+    border: 1px solid #c92a2a;
+}
+
+.info h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #f8f9fa;
+}
+
+.info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: #909296;
+}
+
+.source-tag {
+    font-size: 0.7rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #495057 !important;
+    margin-top: 0.5rem !important;
+}
+
+.vitals-monitor {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #101113;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.vital {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vital .label {
+    font-size: 0.75rem;
+    color: #5c5f66;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.vital .value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    font-family: monospace;
+    color: #37b24d;
+}
+
+.status-red .vital .value {
+    color: #fa5252;
+    animation: pulse-emergency 1s infinite;
+}
+
+@keyframes pulse-emergency {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-red {
+    border-color: #fa5252;
+    box-shadow: 0 0 20px rgba(250, 82, 82, 0.15);
+}
+
+.patient-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-normal, .btn-emergency, .btn-reset {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-normal { background: #2c2e33; color: white; }
+.btn-emergency { background: #e03131; color: white; }
+.btn-reset { background: #37b24d; color: white; }
+
+.btn-normal:hover, .btn-emergency:hover, .btn-reset:hover {
+    opacity: 0.8;
+}
