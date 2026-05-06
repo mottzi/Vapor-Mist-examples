@@ -74,21 +74,9 @@ extension Application {
             return try await req.view.render("TeamProfileExample/TeamProfileExamplePage", page)
         }
 
-        self.get("PatientMonitorExample") { req async throws in
-            let component = PatientComponent()
-            let patients = try await component.allModels(on: req.db)
-            
-            var patientHTMLs: [String] = []
-            for patient in patients {
-                if let id = patient.id {
-                    let result = await component.render(with: id, on: req.application)
-                    if case .rendered(let html) = result {
-                        patientHTMLs.append(html)
-                    }
-                }
-            }
-            
-            return HTMLResponse { PatientMonitorPage(patientHTMLs: patientHTMLs) }
+        self.get("PatientMonitorExample") { req async throws -> View in
+            let bundle = try await PatientComponent().makeContext(ofAll: req.db)
+            return try await req.view.render("PatientMonitorExample/PatientMonitorPage", bundle)
         }
     }
     

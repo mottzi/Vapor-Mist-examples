@@ -18,7 +18,6 @@ struct UpdateVitalsAction: Mist.Action {
     func perform(targetID id: UUID?, state: inout ComponentState, app: Application) async -> ActionResult {
         guard let id, let vitals = try? await Vitals.find(id: id, on: app.db) as? Vitals else { return .failure("NotFound") }
         
-        // Simulate minor fluctuation
         vitals.heartRate = Int.random(in: 65...85)
         vitals.oxygenLevel = Int.random(in: 95...100)
         vitals.statusColor = "green"

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Patient Monitor</title>
+    <link rel="stylesheet" href="/mistexamples.css">
+    <link rel="stylesheet" href="/patientmonitor.css">
+</head>
+<body>
+    <main class="container">
+        <a href="/MistExamples" class="back-link">← Back to Examples</a>
+        
+        <header class="mb-4">
+            <h1>Live Patient Monitor</h1>
+            <p class="desc">
+                A high-stakes demonstration of 
+                <span class="inline-code">InstanceComponent</span> 
+                joining two disparate data sources: 
+                <span class="inline-code" style="color: #909296">Patient Identity</span> 
+                (Stable/EMR) and 
+                <span class="inline-code" style="color: #37b24d">Live Vitals</span> 
+                (Transient/Telemetry).
+            </p>
+        </header>
+
+        <section class="patient-grid">
+            #for(context in contexts):
+                #extend("PatientMonitorExample/PatientComponent")
+            #endfor
+        </section>
+        
+        <footer class="mt-4 text-center">
+            <p class="desc">Each card is a unified view of two separate database tables joined by a shared UUID.</p>
+        </footer>
+    </main>
+    
+    <script src="/morphdom.js"></script>
+    <script src="/mist.js"></script>
+</body>
+</html>
