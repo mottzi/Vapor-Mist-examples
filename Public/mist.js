@@ -6,6 +6,7 @@ class MistSocket {
         this.config = config;
         this.socket = null;
         this.streamBuffers = new Map();
+        this.throttledUpdates = new Map();
 
         this.timer = null;
         this.initialDelay = 1000;
@@ -138,6 +139,30 @@ class MistSocket {
                 update();
             }, 100);
         });
+    }
+
+    applyThrottledUpdate(key, delayMs, applyFn, data) {
+        let record = this.throttledUpdates.get(key);
+
+        if (record) {
+            record.pendingData = data;
+            return false;
+        }
+
+        applyFn(data);
+
+        record = {
+            pendingData: null,
+            timer: setTimeout(() => {
+                const r = this.throttledUpdates.get(key);
+                this.throttledUpdates.delete(key);
+                if (r && r.pendingData !== null) {
+                    this.applyThrottledUpdate(key, delayMs, applyFn, r.pendingData);
+                }
+            }, delayMs)
+        };
+        this.throttledUpdates.set(key, record);
+        return true;
     }
 
     streamKey(component, modelID, stream) {
@@ -332,6 +357,24 @@ class MistSocket {
         const elements = this.findComponentElements(component, modelID);
 
         if (elements.length > 0) {
+            const delay = elements[0].getAttribute('mist-delay');
+            if (delay) {
+                const delayMs = parseInt(delay, 10);
+                if (!isNaN(delayMs) && delayMs > 0) {
+                    const key = `instance:${component}:${modelID}`;
+                    const applied = this.applyThrottledUpdate(key, delayMs, (latestHTML) => {
+                        const currentElements = this.findComponentElements(component, modelID);
+                        if (currentElements.length > 0) {
+                            this.morphComponentElements(currentElements, latestHTML);
+                            this.reorderCollectionsForElements(currentElements);
+                            this.restoreStreams();
+                            this.bootBehaviors();
+                            console.log(`[Client] Component updated: ${component} (${this.shortID(modelID)})`);
+                        }
+                    }, html);
+                    return applied ? 'updated' : null;
+                }
+            }
             this.morphComponentElements(elements, html);
             this.reorderCollectionsForElements(elements);
             return 'updated';
@@ -350,6 +393,23 @@ class MistSocket {
         const elements = this.findComponentElements(component, null);
 
         if (elements.length > 0) {
+            const delay = elements[0].getAttribute('mist-delay');
+            if (delay) {
+                const delayMs = parseInt(delay, 10);
+                if (!isNaN(delayMs) && delayMs > 0) {
+                    const key = `query:${component}`;
+                    const applied = this.applyThrottledUpdate(key, delayMs, (latestHTML) => {
+                        const currentElements = this.findComponentElements(component, null);
+                        if (currentElements.length > 0) {
+                            this.morphComponentElements(currentElements, latestHTML);
+                            this.restoreStreams();
+                            this.bootBehaviors();
+                            console.log(`[Client] Component updated: ${component}`);
+                        }
+                    }, html);
+                    return applied ? 'updated' : null;
+                }
+            }
             this.morphComponentElements(elements, html);
             return 'updated';
         }
@@ -410,9 +470,7 @@ class MistSocket {
 
             this.socket.send(JSON.stringify(message));
 
-            // 4. Update log message to handle null ID
-            const idLog = targetID ? targetID.substring(0, 8) : 'null';
-            console.log(`[Client] Action sent to server: ${componentName}.${actionName} (${idLog})`);
+            console.log(`[Client] Action sent to server: ${componentName}.${actionName} (${this.shortID(targetID)})`);
         }
     }
 
@@ -439,103 +497,12 @@ class MistSocket {
 
         this.socket.onmessage = (event) => {
             try {
-
                 const data = JSON.parse(event.data);
-                let mutatedHTML = false;
+                const mutatedHTML = this.applyServerMessage(data, event.data);
 
-                if (data.createInstanceComponent) {
-                    const { component, modelID, html } = data.createInstanceComponent;
+                if (mutatedHTML === null) return;
 
-                    // Ensure the generated HTML actually belongs to the channel it was broadcasted on
-                    if (!this.htmlBelongsToComponent(html, component)) {
-                        console.log(`[Client] Dropped cross-channel broadcast for ${component}`);
-                        return;
-                    }
-
-                    const result = this.applyInstanceHTML(component, modelID, html, true);
-                    if (result) {
-                        mutatedHTML = true;
-                    }
-
-                    if (result === 'updated') {
-                        console.log(`[Client] Component updated: ${component} (${modelID.substring(0, 8)})`);
-                    } else if (result === 'created') {
-                        console.log(`[Client] Component created: ${component} (${modelID.substring(0, 8)})`);
-                    }
-                }
-                else if (data.updateInstanceComponent) {
-                    const { component, modelID, html } = data.updateInstanceComponent;
-
-                    // Prevent WebSocket Crossover Updates
-                    if (!this.htmlBelongsToComponent(html, component)) {
-                        console.log(`[Client] Dropped cross-channel update for ${component}`);
-                        return;
-                    }
-
-                    this.applyInstanceHTML(component, modelID, html);
-                    mutatedHTML = true;
-                    console.log(`[Client] Component updated: ${component} (${modelID.substring(0, 8)})`);
-                }
-                else if (data.deleteInstanceComponent) {
-                    const { component, modelID } = data.deleteInstanceComponent;
-                    this.removeComponentElements(component, modelID);
-                    console.log(`[Client] Component deleted: ${component} (${modelID.substring(0, 8)})`);
-                }
-                // Query-based component messages (no ID)
-                else if (data.updateQueryComponent) {
-                    const { component, html } = data.updateQueryComponent;
-
-                    const result = this.applyQueryHTML(component, html);
-                    if (result) {
-                        mutatedHTML = true;
-                    }
-
-                    if (result === 'updated') {
-                        console.log(`[Client] Component updated: ${component}`);
-                    } else if (result === 'created') {
-                        console.log(`[Client] Component created: ${component}`);
-                    }
-                }
-                else if (data.deleteQueryComponent) {
-                    const { component } = data.deleteQueryComponent;
-                    this.removeComponentElements(component, null);
-                    console.log(`[Client] Component deleted: ${component}`);
-                }
-                else if (data.replaceStream) {
-                    const { component, modelID, stream, text } = data.replaceStream;
-                    this.replaceStream(component, modelID, stream, text);
-                    console.log(`[Client] Stream replaced: ${component}.${stream} (${modelID.substring(0, 8)})`);
-                }
-                else if (data.appendStream) {
-                    const { component, modelID, stream, text } = data.appendStream;
-                    this.appendStream(component, modelID, stream, text);
-                    console.log(`[Client] Stream appended: ${component}.${stream} (${modelID.substring(0, 8)})`);
-                }
-                else if (data.closeStream) {
-                    const { component, modelID, stream } = data.closeStream;
-                    this.closeStream(component, modelID, stream);
-                    console.log(`[Client] Stream closed: ${component}.${stream} (${modelID.substring(0, 8)})`);
-                }
-                else if (data.actionResult) {
-                    const { component, targetID, action, result, message } = data.actionResult;
-                    const isSuccess = result.success !== undefined;
-                    const resultType = isSuccess ? '✅' : '❌';
-                    const idLog = targetID ? targetID.substring(0, 8) : 'null';
-
-                    console.log(`[Server] Action result ${resultType}: ${component}.${action} (${idLog}, ${message})`);
-                }
-                else if (data.text) {
-                    const { message } = data.text;
-                    console.log(`[Server] Message: ${message}`);
-                }
-                else {
-                    console.log(`[Client] Unhandled server message (raw): ${event.data}`);
-                }
-
-                if (mutatedHTML) {
-                    this.restoreStreams();
-                }
-                this.bootBehaviors();
+                this.afterServerMessageApplied(mutatedHTML);
             }
             catch (error) {
                 console.error(`[Client] Error parsing server message: ${error}`);
@@ -558,6 +525,128 @@ class MistSocket {
             },
                 this.initialDelay);
         };
+    }
+
+    applyServerMessage(data, rawMessage) {
+        if (data.createInstanceComponent) return this.applyInstanceCreateMessage(data.createInstanceComponent);
+        if (data.updateInstanceComponent) return this.applyInstanceUpdateMessage(data.updateInstanceComponent);
+        if (data.deleteInstanceComponent) return this.applyInstanceDeleteMessage(data.deleteInstanceComponent);
+        if (data.updateQueryComponent) return this.applyQueryUpdateMessage(data.updateQueryComponent);
+        if (data.deleteQueryComponent) return this.applyQueryDeleteMessage(data.deleteQueryComponent);
+        if (data.replaceStream) return this.applyStreamReplaceMessage(data.replaceStream);
+        if (data.appendStream) return this.applyStreamAppendMessage(data.appendStream);
+        if (data.closeStream) return this.applyStreamCloseMessage(data.closeStream);
+        if (data.actionResult) return this.applyActionResultMessage(data.actionResult);
+        if (data.text) return this.applyTextMessage(data.text);
+
+        console.log(`[Client] Unhandled server message (raw): ${rawMessage}`);
+        return false;
+    }
+
+    applyInstanceCreateMessage(message) {
+        const { component, modelID, html } = message;
+
+        if (!this.htmlBelongsToComponent(html, component)) {
+            console.log(`[Client] Dropped cross-channel broadcast for ${component}`);
+            return null;
+        }
+
+        const result = this.applyInstanceHTML(component, modelID, html, true);
+        if (result === 'updated') {
+            console.log(`[Client] Component updated: ${component} (${this.shortID(modelID)})`);
+        } else if (result === 'created') {
+            console.log(`[Client] Component created: ${component} (${this.shortID(modelID)})`);
+        }
+
+        return !!result;
+    }
+
+    applyInstanceUpdateMessage(message) {
+        const { component, modelID, html } = message;
+
+        if (!this.htmlBelongsToComponent(html, component)) {
+            console.log(`[Client] Dropped cross-channel update for ${component}`);
+            return null;
+        }
+
+        const result = this.applyInstanceHTML(component, modelID, html);
+        if (result === 'updated') {
+            console.log(`[Client] Component updated: ${component} (${this.shortID(modelID)})`);
+        }
+
+        return !!result;
+    }
+
+    applyInstanceDeleteMessage(message) {
+        const { component, modelID } = message;
+        this.removeComponentElements(component, modelID);
+        console.log(`[Client] Component deleted: ${component} (${this.shortID(modelID)})`);
+        return false;
+    }
+
+    applyQueryUpdateMessage(message) {
+        const { component, html } = message;
+        const result = this.applyQueryHTML(component, html);
+
+        if (result === 'updated') {
+            console.log(`[Client] Component updated: ${component}`);
+        } else if (result === 'created') {
+            console.log(`[Client] Component created: ${component}`);
+        }
+
+        return !!result;
+    }
+
+    applyQueryDeleteMessage(message) {
+        const { component } = message;
+        this.removeComponentElements(component, null);
+        console.log(`[Client] Component deleted: ${component}`);
+        return false;
+    }
+
+    applyStreamReplaceMessage(message) {
+        const { component, modelID, stream, text } = message;
+        this.replaceStream(component, modelID, stream, text);
+        console.log(`[Client] Stream replaced: ${component}.${stream} (${this.shortID(modelID)})`);
+        return false;
+    }
+
+    applyStreamAppendMessage(message) {
+        const { component, modelID, stream, text } = message;
+        this.appendStream(component, modelID, stream, text);
+        console.log(`[Client] Stream appended: ${component}.${stream} (${this.shortID(modelID)})`);
+        return false;
+    }
+
+    applyStreamCloseMessage(message) {
+        const { component, modelID, stream } = message;
+        this.closeStream(component, modelID, stream);
+        console.log(`[Client] Stream closed: ${component}.${stream} (${this.shortID(modelID)})`);
+        return false;
+    }
+
+    applyActionResultMessage(message) {
+        const { component, targetID, action, result, message: textMessage } = message;
+        const isSuccess = result.success !== undefined;
+        const resultType = isSuccess ? '✅' : '❌';
+        console.log(`[Server] Action result ${resultType}: ${component}.${action} (${this.shortID(targetID)}, ${textMessage})`);
+        return false;
+    }
+
+    applyTextMessage(message) {
+        console.log(`[Server] Message: ${message.message}`);
+        return false;
+    }
+
+    afterServerMessageApplied(mutatedHTML) {
+        if (mutatedHTML) {
+            this.restoreStreams();
+        }
+        this.bootBehaviors();
+    }
+
+    shortID(id) {
+        return id ? id.substring(0, 8) : 'null';
     }
 
     // Helper function to build component selector
