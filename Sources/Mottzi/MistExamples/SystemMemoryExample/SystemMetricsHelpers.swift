@@ -14,7 +14,7 @@ func getSystemLoadAverage() -> Double {
 }
 
 func getSystemMemoryUsageMB() -> Int {
-    guard let meminfo = try? String(contentsOfFile: "/proc/meminfo") else {
+    guard let meminfo = try? String(contentsOfFile: "/proc/meminfo", encoding: .utf8) else {
         return 0
     }
 
