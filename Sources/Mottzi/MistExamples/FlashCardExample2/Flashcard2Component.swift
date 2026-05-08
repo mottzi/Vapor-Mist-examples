@@ -16,21 +16,19 @@ struct Flashcard2Component: InstanceComponent {
 
     @HTMLBuilder
     func body(context: ComponentContext) -> some HTML {
-        let front = context.model(FlashcardFrontModel.self)
-        let back = context.model(FlashcardBackModel.self)
-        let isFlipped = context.state["isFlipped"]?.bool ?? false
+        let isFlipped: Bool = context.state.isFlipped ?? false
 
         div(
             .class("flashcard \(isFlipped ? "flipped" : "")"),
             .mistComponent("Flashcard2Component"),
-            .mistId(front?.id?.uuidString ?? ""),
+            .mistId(context.flashcardfrontmodel?.id?.uuidString ?? ""),
             .onclick("if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()")
         ) {
             button(.class("flip-trigger"), .mistAction("flip"), .style("display: none;")) {}
             div(.class("flashcard-inner")) {
                 div(.class("flashcard-front")) {
                     span(.class("flashcard-language-label")) { "🇺🇸" }
-                    div(.class("flashcard-text")) { front?.text ?? "Missing Front" }
+                    div(.class("flashcard-text")) { context.flashcardfrontmodel?.text ?? "Missing Front" }
                     div(.class("flashcard-actions")) {
                         button(.mistAction("ShuffleTextAction")) { "Shuffle" }
                         button(.mistAction("delete"), .class("btn-danger")) { "Delete" }
@@ -38,7 +36,7 @@ struct Flashcard2Component: InstanceComponent {
                 }
                 div(.class("flashcard-back")) {
                     span(.class("flashcard-language-label")) { "🇪🇸" }
-                    div(.class("flashcard-text")) { back?.text ?? "Missing Back" }
+                    div(.class("flashcard-text")) { context.flashcardbackmodel?.text ?? "Missing Back" }
                 }
             }
         }
