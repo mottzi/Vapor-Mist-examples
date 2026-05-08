@@ -11,11 +11,11 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 
 struct Flashcard2Component: InstanceComponent {
 
-    let models: [any Mist.Model.Type] = [FlashcardFrontModel.self, FlashcardBackModel.self]
+    let models = (FlashcardFrontModel.self, FlashcardBackModel.self)
     let actions: [any Mist.Action] = [DeleteAction(), ShuffleTextAction(), FlipAction()]
 
     @HTMLBuilder
-    func body(context: ComponentContext) -> some HTML {
+    func body(context: TypedContext<Self>) -> some HTML {
         let isFlipped = context.state["isFlipped"]?.bool ?? false
 
         div(
@@ -32,6 +32,9 @@ struct Flashcard2Component: InstanceComponent {
                     div(.class("flashcard-text")) {
                         context[\FlashcardFrontModel.text] ?? "Missing Front"
                     }
+//                    div(.class("flashcard-text")) {
+//                        context[\Patient.name] ?? "Missing Patient Name"
+//                    }
                     div(.class("flashcard-actions")) {
                         button(.mistAction("ShuffleTextAction")) { "Shuffle" }
                         button(.mistAction("delete"), .class("btn-danger")) { "Delete" }

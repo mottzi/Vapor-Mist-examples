@@ -19,11 +19,11 @@ struct FlashcardExample2Page: HTMLDocument {
                 h1(.style("margin-top: 0;")) { "Flashcards (Elementary)" }
             }
             
-            Flashcard2CreateComponent().body(context: ComponentContext(context: ModelContext(), state: [:]))
+            Flashcard2CreateComponent().body(context: TypedContext<Flashcard2CreateComponent>(raw: ComponentContext(context: ModelContext(), state: [:])))
             
             div(.class("flashcard-grid"), .mistContainer(["Flashcard2Component"])) {
                 ForEach(contexts.contexts) { modelContext in
-                    Flashcard2Component().body(context: ComponentContext(context: modelContext, state: Flashcard2Component().defaultState))
+                    Flashcard2Component().body(context: TypedContext<Flashcard2Component>(raw: ComponentContext(context: modelContext, state: Flashcard2Component().defaultState)))
                 }
             }
             
