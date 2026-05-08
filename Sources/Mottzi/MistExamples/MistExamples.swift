@@ -48,6 +48,11 @@ extension Application {
             return HTMLResponse { LiveVotingPage(initialHTML: initialHTML) }
         }
 
+        self.get("FlashcardExample2") { req async throws in
+            let contexts = try await Flashcard2Component().makeTemplateContexts(ofAll: req.db)
+            return HTMLResponse { FlashcardExample2Page(contexts: contexts) }
+        }
+
         self.get("FlashcardExample") { req async throws -> View in
             let context = try await FlashcardComponent().makeContext(ofAll: req.db)
             return try await req.view.render("FlashcardExample/FlashcardExamplePage", context)
@@ -79,6 +84,15 @@ struct MistExamplesPage: HTMLDocument {
 
             section {
                 ul {
+                    li {
+                        a(.href("/FlashcardExample2")) {
+                            div(.class("stack")) {
+                                span(.class("badge")) { "ElementaryInstanceComponent" }
+                                span { "Flashcards (Elementary)" }
+                                p(.class("desc")) { "Interactive cards with real-time sync." }
+                            }
+                        }
+                    }
                     li {
                         a(.href("/FlashcardExample")) {
                             div(.class("stack")) {

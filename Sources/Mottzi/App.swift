@@ -25,6 +25,8 @@ import Vapor
         try await app.mist.use {
             FlashcardComponent()
             FlashcardCreateComponent()
+            Flashcard2Component()
+            Flashcard2CreateComponent()
             CounterComponent()
             MemoryUsageComponent()
             CpuLoadComponent()
