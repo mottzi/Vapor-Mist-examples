@@ -49,7 +49,7 @@ extension Application {
         }
 
         self.get("FlashcardExample2") { req async throws in
-            let contexts = try await Flashcard2Component().makeTemplateContexts(ofAll: req.db)
+            let contexts = try await Flashcard2Component().makeContext(ofAll: req.db)
             return HTMLResponse { FlashcardExample2Page(contexts: contexts) }
         }
 

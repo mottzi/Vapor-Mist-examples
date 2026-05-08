@@ -3,7 +3,7 @@ import Vapor
 import Mist
 
 struct FlashcardExample2Page: HTMLDocument {
-    let contexts: [Flashcard2TemplateContext]
+    let contexts: ComponentContexts
 
     let title = "Flashcards 2"
     var head: some HTML {
@@ -19,11 +19,11 @@ struct FlashcardExample2Page: HTMLDocument {
                 h1(.style("margin-top: 0;")) { "Flashcards (Elementary)" }
             }
             
-            Flashcard2CreateComponent().body(context: Flashcard2CreateTemplateContext())
+            Flashcard2CreateComponent().body(context: ComponentContext(context: ModelContext(), state: [:]))
             
             div(.class("flashcard-grid"), .mistContainer(["Flashcard2Component"])) {
-                ForEach(contexts) { context in
-                    Flashcard2Component().body(context: context)
+                ForEach(contexts.contexts) { modelContext in
+                    Flashcard2Component().body(context: ComponentContext(context: modelContext, state: Flashcard2Component().defaultState))
                 }
             }
             
