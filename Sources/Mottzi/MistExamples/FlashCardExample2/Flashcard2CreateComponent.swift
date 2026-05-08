@@ -8,10 +8,6 @@ struct Flashcard2CreateComponent: InstanceComponent {
     let models: [any Mist.Model.Type] = []
     let actions: [any Mist.Action] = [FlashcardCreateAction()]
 
-    var template: any Mist.Template {
-        ElementaryTemplate<ComponentContext, _> { [self] context in body(context: context) }
-    }
-
     func body(context: ComponentContext) -> some HTML {
         div(.mistComponent("Flashcard2CreateComponent"), .class("mb-4")) {
             button(.mistAction("CreateCardAction"), .class("btn-primary")) {
