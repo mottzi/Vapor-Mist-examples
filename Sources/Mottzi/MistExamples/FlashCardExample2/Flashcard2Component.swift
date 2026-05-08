@@ -16,12 +16,12 @@ struct Flashcard2Component: InstanceComponent {
 
     @HTMLBuilder
     func body(context: ComponentContext) -> some HTML {
-        let isFlipped: Bool = context.state.isFlipped ?? false
+        let isFlipped = context.state["isFlipped"]?.bool ?? false
 
         div(
             .class("flashcard \(isFlipped ? "flipped" : "")"),
             .mistComponent("Flashcard2Component"),
-            .mistId(context.flashcardfrontmodel?.id?.uuidString ?? ""),
+            .mistId(context[\FlashcardFrontModel.id]?.uuidString ?? ""),
             .onclick(
                 "if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()")
         ) {
@@ -30,7 +30,7 @@ struct Flashcard2Component: InstanceComponent {
                 div(.class("flashcard-front")) {
                     span(.class("flashcard-language-label")) { "🇺🇸" }
                     div(.class("flashcard-text")) {
-                        context.flashcardfrontmodelLOL?.text ?? "Missing Front"
+                        context[\FlashcardFrontModel.text] ?? "Missing Front"
                     }
                     div(.class("flashcard-actions")) {
                         button(.mistAction("ShuffleTextAction")) { "Shuffle" }
@@ -40,7 +40,7 @@ struct Flashcard2Component: InstanceComponent {
                 div(.class("flashcard-back")) {
                     span(.class("flashcard-language-label")) { "🇪🇸" }
                     div(.class("flashcard-text")) {
-                        context.flashcardbackmodel?.text ?? "Missing Back"
+                        context[\FlashcardBackModel.text] ?? "Missing Back"
                     }
                 }
             }
