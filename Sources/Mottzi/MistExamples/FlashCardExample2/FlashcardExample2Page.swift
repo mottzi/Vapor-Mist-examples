@@ -23,7 +23,9 @@ struct FlashcardExample2Page: HTMLDocument {
             
             div(.class("flashcard-grid"), .mistContainer(["Flashcard2Component"])) {
                 ForEach(contexts.contexts) { modelContext in
-                    Flashcard2Component().body(context: ComponentContext(context: modelContext, state: Flashcard2Component().defaultState))
+                    let component = Flashcard2Component()
+                    let componentContext = ComponentContext(context: modelContext, state: component.defaultState)
+                    component.body(context: component.context(from: componentContext))
                 }
             }
             

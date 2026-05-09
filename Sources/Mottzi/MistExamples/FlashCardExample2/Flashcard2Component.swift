@@ -1,7 +1,13 @@
-import Elementary
+import Vapor
 import Fluent
 import Mist
-import Vapor
+import Elementary
+
+struct FlashcardContext: Encodable {
+    let front: FlashcardFrontModel
+    let back: FlashcardBackModel
+    let isFlipped: Bool
+}
 
 struct Flashcard2Component: InstanceComponent {
 
@@ -16,17 +22,20 @@ struct Flashcard2Component: InstanceComponent {
         FlipAction()
     ]
 
-    @HTMLBuilder
-    func body(context: ComponentContext) -> some HTML {
-        let front = context[FlashcardFrontModel.self]
-        let back = context[FlashcardBackModel.self]
+    func context(from context: ComponentContext) -> FlashcardContext {
+        FlashcardContext(
+            front: context[FlashcardFrontModel.self] ?? FlashcardFrontModel(text: "Missing Front"),
+            back: context[FlashcardBackModel.self] ?? FlashcardBackModel(text: "Missing Back"),
+            isFlipped: context.state["isFlipped"]?.bool ?? false
+        )
+    }
 
-        let isFlipped = context.state["isFlipped"]?.bool ?? false
-        
+    @HTMLBuilder
+    func body(context: FlashcardContext) -> some HTML {
         div(
-            .class("flashcard \(isFlipped ? "flipped" : "")"),
+            .class("flashcard \(context.isFlipped ? "flipped" : "")"),
             .mistComponent("Flashcard2Component"),
-            .mistId(front?.id),
+            .mistId(context.front.id),
             .onclick(
                 "if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()")
         ) {
@@ -39,7 +48,7 @@ struct Flashcard2Component: InstanceComponent {
                 div(.class("flashcard-front")) {
                     span(.class("flashcard-language-label")) { "🇺🇸" }
                     div(.class("flashcard-text")) {
-                        front?.text ?? "Missing Front"
+                        context.front.text
                     }
                     div(.class("flashcard-actions")) {
                         button(.mistAction("ShuffleTextAction")) { "Shuffle" }
@@ -49,7 +58,7 @@ struct Flashcard2Component: InstanceComponent {
                 div(.class("flashcard-back")) {
                     span(.class("flashcard-language-label")) { "🇪🇸" }
                     div(.class("flashcard-text")) {
-                        back?.text ?? "Missing Back"
+                        context.back.text
                     }
                 }
             }
