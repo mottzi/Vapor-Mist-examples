@@ -1,18 +1,7 @@
 import Vapor
-import Fluent
 import Mist
 
-struct FlashcardComponent: InstanceComponent {
-    
-    let models: [any Mist.Model.Type] = [FlashcardFrontModel.self, FlashcardBackModel.self]
-    
-    let actions: [any Mist.Action] = [DeleteAction(), ShuffleTextAction(), FlipAction()]
-    
-    let template: Mist.Template = LeafTemplate.file("FlashcardExample/FlashcardComponent")
-    
-}
-
-struct FlipAction: Mist.Action {
+struct FlipAction: Action {
     
     let name: String = "flip"
 
@@ -25,7 +14,7 @@ struct FlipAction: Mist.Action {
     }
 }
 
-struct DeleteAction: Mist.Action {
+struct DeleteAction: Action {
     
     let name: String = "delete"
 

@@ -3,7 +3,7 @@ import Fluent
 import Mist
 import Elementary
 
-struct Flashcard2CreateComponent: InstanceComponent {
+struct FlashcardAddButtonElementary: InstanceComponent {
 
     let models: [any Mist.Model.Type] = []
     let actions: [any Mist.Action] = [FlashcardCreateAction()]

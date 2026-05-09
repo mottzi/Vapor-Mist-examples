@@ -11,16 +11,18 @@ struct LiveVotingComponent: PollingComponent {
 
     func poll(on db: Database) async -> LiveVotingContext? {
 
-        let swiftCount =
-            (try? await LiveVotingModel.query(on: db).filter(\.$choice == "swift").count()) ?? 0
-        let kotlinCount =
-            (try? await LiveVotingModel.query(on: db).filter(\.$choice == "kotlin").count()) ?? 0
-        return LiveVotingContext(swift: swiftCount, kotlin: kotlinCount)
+        let swiftCount = try? await LiveVotingModel.query(on: db).filter(\.$choice == "swift").count()
+        let kotlinCount = try? await LiveVotingModel.query(on: db).filter(\.$choice == "kotlin").count()
+        
+        return LiveVotingContext(
+            swift: swiftCount ?? 0,
+            kotlin: kotlinCount ?? 0
+        )
     }
 
     func body(context: LiveVotingContext) -> some HTML {
         div(
-            .mistComponent(name),
+            .mistComponent(self.name),
             .class("card stack")
         ) {
             div(.style("display: flex; justify-content: space-between; align-items: start;")) {

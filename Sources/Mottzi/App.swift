@@ -23,10 +23,10 @@ import Vapor
         try await app.autoMigrate()
 
         try await app.mist.use {
-            FlashcardComponent()
-            FlashcardCreateComponent()
-            Flashcard2Component()
-            Flashcard2CreateComponent()
+            FlashcardLeaf()
+            FlashcardAddButtonLeaf()
+            FlashcardElementary()
+            FlashcardAddButtonElementary()
             CounterComponent()
             MemoryUsageComponent()
             CpuLoadComponent()

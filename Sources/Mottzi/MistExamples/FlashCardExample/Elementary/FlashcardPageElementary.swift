@@ -2,7 +2,7 @@ import Elementary
 import Vapor
 import Mist
 
-struct FlashcardExample2Page: HTMLDocument {
+struct FlashcardPageElementary: HTMLDocument {
     let contexts: ComponentContexts
 
     let title = "Flashcards 2"
@@ -19,11 +19,11 @@ struct FlashcardExample2Page: HTMLDocument {
                 h1(.style("margin-top: 0;")) { "Flashcards (Elementary)" }
             }
             
-            Flashcard2CreateComponent().body(context: ComponentContext(context: ModelContext(), state: [:]))
+            FlashcardAddButtonElementary().body(context: ComponentContext(context: ModelContext(), state: [:]))
             
             div(.class("flashcard-grid"), .mistContainer(["Flashcard2Component"])) {
                 ForEach(contexts.contexts) { modelContext in
-                    let component = Flashcard2Component()
+                    let component = FlashcardElementary()
                     let componentContext = ComponentContext(context: modelContext, state: component.defaultState)
                     component.body(context: component.context(from: componentContext))
                 }
