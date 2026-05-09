@@ -13,14 +13,15 @@
             <span class="badge" style="margin-bottom: 0.75rem;">InstanceComponent</span>
             <h1 style="margin-top: 0;">Flashcards</h1>
         </header>
-        #extend("FlashcardExample/FlashcardCreateComponent")
-        <div class="flashcard-grid" mist-container="FlashcardComponent">
+        #extend("FlashcardExample/FlashcardAddButtonLeaf")
+        <div class="flashcard-grid" mist-container="FlashcardLeaf">
             #for(context in contexts):
-                #extend("FlashcardExample/FlashcardComponent")
+                #extend("FlashcardExample/FlashcardLeaf")
             #endfor
         </div>
         <div class="mt-4">
-            <p class="desc">Tied to database rows; re-renders automatically when Mist detects Fluent create, update, or delete events. This example tracks two models per card. It demonstrates Actions for database mutations (shuffling, deleting) which sync globally, and per-client <code>ComponentState</code> (flipping the card) which only re-renders for the acting client.</p>
+            <p class="desc">Tied to database rows; re-renders automatically when Mist detects Fluent create, update, or delete events. This example tracks two models per card. It demonstrates Actions for database mutations (shuffling, deleting) which sync globally, and per-client <code>ComponentState</code> (flipping the card) which only re-renders for the acting client.
+            </p>
         </div>
     </main>
     <script src="/morphdom.js"></script>

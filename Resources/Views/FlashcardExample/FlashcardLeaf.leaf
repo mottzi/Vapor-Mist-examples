@@ -1,4 +1,4 @@
-<div class="flashcard #if(state.isFlipped): flipped #endif" mist-component="FlashcardComponent" mist-id="#(context.flashcardfrontmodel.id)" onclick="if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()">
+<div class="flashcard #if(state.isFlipped): flipped #endif" mist-component="FlashcardLeaf" mist-id="#(context.flashcardfrontmodel.id)" onclick="if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()">
     <button class="flip-trigger" mist-action="flip" style="display: none;"></button>
      <div class="flashcard-inner">
         <div class="flashcard-front">
