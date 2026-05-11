@@ -33,7 +33,7 @@ struct FlashcardElementary: InstanceComponent {
     func body(context: FlashcardContext) -> some HTML {
         div(
             .class("flashcard \(context.isFlipped ? "flipped" : "")"),
-            .mistComponent("Flashcard2Component"),
+            .mistComponent(self.name),
             .mistId(context.front.id),
             .onclick("if(!event.target.closest('button')) this.querySelector('.flip-trigger').click()")
         ) {

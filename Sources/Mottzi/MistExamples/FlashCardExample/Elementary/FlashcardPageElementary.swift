@@ -21,7 +21,7 @@ struct FlashcardPageElementary: HTMLDocument {
             
             FlashcardAddButtonElementary().body(context: ComponentContext(context: ModelContext(), state: [:]))
             
-            div(.class("flashcard-grid"), .mistContainer(["Flashcard2Component"])) {
+            div(.class("flashcard-grid"), .mistContainer(["FlashcardElementary"])) {
                 ForEach(contexts.contexts) { modelContext in
                     let component = FlashcardElementary()
                     let componentContext = ComponentContext(context: modelContext, state: component.defaultState)
