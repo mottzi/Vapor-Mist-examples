@@ -344,6 +344,15 @@
       }
     },
     {
+      "identity" : "vapor-mist",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mottzi/Vapor-Mist",
+      "state" : {
+        "branch" : "dev",
+        "revision" : "9ddb307baab582959efb4ec11e096e3bd8d2401b"
+      }
+    },
+    {
       "identity" : "websocket-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/websocket-kit.git",
