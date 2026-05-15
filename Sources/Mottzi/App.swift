@@ -4,7 +4,7 @@ import Mist
 import Vapor
 
 @main struct App {
-    hmm
+    hmm2
     static func main() async throws {
         let env = try Environment.detect()
         let app = try await Application.make(env)
