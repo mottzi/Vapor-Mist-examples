@@ -19,6 +19,12 @@ let package = Package(
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
             ],
         ),
+        .testTarget(
+            name: "MottziTests",
+            dependencies: [
+                .product(name: "Mist", package: "Vapor-Mist"),
+            ],
+        ),
     ],
     swiftLanguageModes: [.v6]
 )
