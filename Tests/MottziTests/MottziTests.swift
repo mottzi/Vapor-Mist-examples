@@ -14,5 +14,5 @@ struct MottziTests
     {
         #expect(1 + 1 == 2)
     }
-    lol
+    
 }
