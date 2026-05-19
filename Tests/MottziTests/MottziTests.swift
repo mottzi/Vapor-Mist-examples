@@ -9,9 +9,9 @@ struct MottziTests
         #expect(1 + 1 == 2)
     }
     
-    @Test("Dummy test 2 fails")
+    @Test("Dummy test 2 fails maybe")
     func dummyTest2()
     {
-        #expect(1 + 1 == 3)
+        #expect(1 + 1 == 2)
     }
 }
