@@ -12,7 +12,6 @@ struct MottziTests
     @Test("Dummy test 2 fails maybe")
     func dummyTest2()
     {
-        #expect(1 + 1 == 2)
+        #expect(1 + 1 == 100)
     }
-    
 }
