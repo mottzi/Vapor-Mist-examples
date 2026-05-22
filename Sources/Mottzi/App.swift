@@ -8,6 +8,8 @@ import Vapor
     static func main() async throws {
         let env = try Environment.detect()
         let app = try await Application.make(env)
+        
+        try app.useVariables()
 
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
