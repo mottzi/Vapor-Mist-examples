@@ -6,7 +6,7 @@ import VaporElementary
 extension Application {
 
     func useMistExamples() {
- 
+  
         self.get("test") { _ in
             "Hello, World!"
         }
