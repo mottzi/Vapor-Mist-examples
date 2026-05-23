@@ -10,9 +10,7 @@ extension Application {
 
         self.get("test") { _ in
             """
-            We made some code changes! Lets deploy the latest version!
-            Let's make some additional changes, but this time, we include a error!
-            Let's push a fix.
+            Hehe.
             """
         }
 
