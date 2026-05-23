@@ -41,6 +41,7 @@ import Vapor
         app.views.use(.leaf)
 
         app.useMistExamples()
+        app.registerTestRoute()
 
         PatientSimulator.start(app: app)
 
