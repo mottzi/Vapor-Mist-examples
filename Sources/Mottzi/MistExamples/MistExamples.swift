@@ -7,6 +7,10 @@ extension Application {
 
     func useMistExamples() {
 
+        self.get("test") { _ in
+            "Hello, World!"
+        }
+
         self.get("MistExamples") { _ in
             HTMLResponse { MistExamplesPage() }
         }
