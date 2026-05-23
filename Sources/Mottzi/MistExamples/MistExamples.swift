@@ -7,8 +7,9 @@ extension Application {
 
     func useMistExamples() {
   
-        self.get("test") { _ in
-            "Hello, World!"
+        self.get("test") { req in
+            req.headers.contentType = .html
+            return "<h1>Hello</h1>"
         }
 
         self.get("MistExamples") { _ in
