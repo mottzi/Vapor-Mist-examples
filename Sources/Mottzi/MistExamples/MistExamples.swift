@@ -7,12 +7,18 @@ extension Application {
 
     func useMistExamples() {
   
-        self.get("test") { req -> Response in
-            Response(
-                status: .ok, 
-                headers: HTTPHeaders([("Content-Type", "text/html")]), 
-                body: "<h1>Hello</h1>"
-            )
+        self.get("test") { _ in
+            "Hello, World!"
+        }
+
+        self.get("MistExamples") { _ in
+            HTMLResponse { MistExamplesPage() }
+        }
+
+        self.get("CounterExample") { req async throws in
+            let counter = await req.application.mistComponent(CounterComponent.self)
+            let currentState = await counter?.state.current ?? CounterState()
+            return HTMLResponse { CounterPage(currentState: currentState) }
         }
 
         self.get("SystemMonitorExample") { req async throws in
