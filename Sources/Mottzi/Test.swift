@@ -10,7 +10,7 @@ extension Application {
 
         self.get("test") { _ in
             """
-            Hehe3.
+            Hehe 5.
             """
         }
 
