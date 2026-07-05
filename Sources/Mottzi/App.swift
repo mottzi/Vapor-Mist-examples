@@ -6,7 +6,8 @@ import Vapor
 @main struct App {
       
     static func main() async throws {
-        let env = try Environment.detect()
+        var env = try Environment.detect()
+        try LoggingSystem.bootstrap(from: &env)
         let app = try await Application.make(env)
         
         try app.useVariables()
