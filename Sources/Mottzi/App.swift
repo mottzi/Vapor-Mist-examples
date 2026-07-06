@@ -8,10 +8,9 @@ import Vapor
       
     static func main() async throws {
         var env = try Environment.detect()
-        let console = Terminal()
         LoggingSystem.bootstrap(
             fragment: timestampDefaultLoggerFragment(),
-            console: console,
+            console: Terminal(),
             level: try Logger.Level.detect(from: &env)
         )
         let app = try await Application.make(env)
