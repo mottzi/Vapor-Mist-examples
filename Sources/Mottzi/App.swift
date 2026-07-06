@@ -15,7 +15,7 @@ import Vapor
         )
         let app = try await Application.make(env)
         
-        fatalError("test exit")
+        fatalError("test exit!")
         
         try app.useVariables()
 
