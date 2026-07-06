@@ -14,9 +14,7 @@ import Vapor
             level: try Logger.Level.detect(from: &env)
         )
         let app = try await Application.make(env)
-        
-        fatalError("test exit!")
-        
+                
         try app.useVariables()
 
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
