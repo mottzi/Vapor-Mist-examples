@@ -10,10 +10,10 @@ extension Application {
 
         self.get("test") { _ in
             """
-            1
+            2
             """
         }
-
+        feat: new feature (error)
     }
 
 }
