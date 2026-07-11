@@ -18,7 +18,7 @@ import Vapor
         try app.useVariables()
 
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-        app.useMistFrontendAssets()
+        MistAssetRoutes.register(on: app)
 
         app.databases.use(.sqlite(.file("deploy/mottzi.db")), as: .sqlite)
         app.migrations.add(
