@@ -22,10 +22,10 @@ let package = Package(
         .testTarget(
             name: "MottziTests",
             dependencies: [
+                "mottzi",
                 .product(name: "Mist", package: "Vapor-Mist"),
             ],
         ),
     ],
     swiftLanguageModes: [.v6]
 )
-

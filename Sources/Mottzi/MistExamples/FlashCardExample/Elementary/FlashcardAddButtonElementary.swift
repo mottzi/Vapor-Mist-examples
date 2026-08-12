@@ -9,7 +9,7 @@ struct FlashcardAddButtonElementary: InstanceComponent {
     let actions: [any Mist.Action] = [FlashcardCreateAction()]
 
     func body(context: ComponentContext) -> some HTML {
-        div(.mistComponent("Flashcard2CreateComponent"), .class("mb-4")) {
+        div(.mistComponent(self.name), .class("mb-4")) {
             button(.mistAction("CreateCardAction"), .class("btn-primary")) {
                 "Create Flashcard"
             }
