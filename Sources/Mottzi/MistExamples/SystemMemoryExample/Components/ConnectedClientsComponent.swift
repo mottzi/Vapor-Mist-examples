@@ -19,11 +19,10 @@ struct ConnectedClientsComponent: LiveComponent {
     func body(state: State) -> some HTML {
         div(
             .mistComponent(name),
-            .class("card stack text-center max-w-sm"),
-            .style("flex: 1; min-width: 250px;")
+            .class("card metric-card stack text-center")
         ) {
-            div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                h2(.style("margin: 0;")) { "Connected Clients" }
+            div(.class("stack component-heading")) {
+                h2 { "Connected clients" }
             }
             div(.class("text-huge")) {
                 "\(state.clientCount)"

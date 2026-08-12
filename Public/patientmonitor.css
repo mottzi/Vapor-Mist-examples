@@ -1,147 +1,221 @@
 .patient-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem 0;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
 }
 
 .patient-card {
-    background: #1a1b1e;
-    border-radius: 1rem;
-    border: 1px solid #2c2e33;
-    padding: 1.5rem;
+    position: relative;
     display: flex;
+    min-width: 0;
+    padding: 22px;
+    overflow: hidden;
     flex-direction: column;
-    gap: 1.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    gap: 20px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--success);
+    border-radius: var(--radius-md);
+    background: var(--paper);
+    box-shadow: 0 8px 24px rgba(31, 53, 64, 0.07);
+    transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .patient-identity {
     display: flex;
-    gap: 1rem;
     align-items: center;
-    border-bottom: 1px solid #2c2e33;
-    padding-bottom: 1rem;
+    gap: 14px;
 }
 
 .avatar {
-    width: 3.5rem;
-    height: 3.5rem;
-    background: #25262b;
-    border-radius: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #e03131;
-    font-size: 1.25rem;
-    border: 1px solid #c92a2a;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(189, 71, 66, 0.2);
+    border-radius: 50%;
+    color: var(--danger);
+    background: var(--danger-soft);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.info {
+    min-width: 0;
 }
 
 .info h3 {
     margin: 0;
-    font-size: 1.25rem;
-    color: #f8f9fa;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 640;
+    letter-spacing: -0.025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .info p {
-    margin: 0.25rem 0 0;
-    font-size: 0.875rem;
-    color: #909296;
+    margin: 3px 0 0;
+    color: var(--ink-soft);
+    font-size: 12px;
 }
 
 .source-tag {
-    font-size: 0.7rem !important;
+    margin: 7px 0 0 !important;
+    color: var(--ink-faint) !important;
+    font-family: var(--font-mono);
+    font-size: 9px !important;
+    font-weight: 620;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #495057 !important;
-    margin-top: 0.5rem !important;
 }
 
 .vitals-monitor {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    background: #101113;
-    padding: 1.5rem 1rem;
-    border-radius: 0.75rem;
-    position: relative;
+    gap: 8px 16px;
+    padding: 22px 18px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: #f5f8f9;
+    background: #142229;
     text-align: center;
-}
-
-.monitor-source {
-    grid-column: 1 / -1;
-    margin-top: 1rem;
-    border-top: 1px solid #1a1b1e;
-    padding-top: 0.5rem;
 }
 
 .vital {
     display: flex;
-    flex-direction: column;
+    min-width: 0;
     align-items: center;
+    flex-direction: column;
 }
 
 .vital .label {
-    font-size: 0.75rem;
-    color: #5c5f66;
+    color: #91a4ad;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 650;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    font-weight: 700;
 }
 
 .vital .value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    font-family: monospace;
-    color: #37b24d;
+    color: #74d5ae;
+    font-family: var(--font-mono);
+    font-size: clamp(30px, 4vw, 42px);
+    font-variant-numeric: tabular-nums;
+    font-weight: 580;
+    line-height: 1.25;
+    letter-spacing: -0.065em;
 }
 
-.status-yellow .vital .value {
-    color: #fcc419;
+.monitor-source {
+    grid-column: 1 / -1;
+    margin-top: 7px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.monitor-source .source-tag {
+    color: #71858e !important;
 }
 
 .status-yellow {
-    border-color: #fcc419;
+    border-top-color: #d7a526;
 }
 
-.status-red .vital .value {
-    color: #fa5252;
-    animation: pulse-emergency 1s infinite;
-}
-
-@keyframes pulse-emergency {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+.status-yellow .vital .value {
+    color: #f3c95f;
 }
 
 .status-red {
-    border-color: #fa5252;
-    box-shadow: 0 0 20px rgba(250, 82, 82, 0.15);
+    border-top-color: var(--danger);
+    box-shadow: 0 9px 28px rgba(189, 71, 66, 0.13);
+}
+
+.status-red .vital .value {
+    color: #ff817b;
+    animation: pulse-emergency 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse-emergency {
+    50% {
+        opacity: 0.55;
+    }
 }
 
 .patient-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 7px;
 }
 
-.btn-normal, .btn-emergency, .btn-reset {
-    flex: 1;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    border: none;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
+.patient-actions button {
+    min-width: 0;
+    min-height: 38px;
+    padding: 7px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    line-height: 1.2;
+    box-shadow: none;
 }
 
-.btn-normal { background: #2c2e33; color: white; }
-.btn-emergency { background: #e03131; color: white; }
-.btn-reset { background: #37b24d; color: white; }
+button.btn-normal {
+    color: var(--tide-dark);
+    border-color: rgba(71, 115, 131, 0.2);
+    background: var(--mist);
+}
 
-.btn-normal:hover, .btn-emergency:hover, .btn-reset:hover {
-    opacity: 0.8;
+button.btn-normal:hover {
+    border-color: rgba(71, 115, 131, 0.35);
+    background: #dce8ed;
+}
+
+button.btn-emergency {
+    color: var(--danger);
+    border-color: rgba(189, 71, 66, 0.18);
+    background: var(--danger-soft);
+}
+
+button.btn-emergency:hover {
+    border-color: rgba(189, 71, 66, 0.32);
+    background: #f6e3e2;
+}
+
+button.btn-reset {
+    color: #176a4e;
+    border-color: rgba(35, 135, 100, 0.18);
+    background: #e9f4ef;
+}
+
+button.btn-reset:hover {
+    border-color: rgba(35, 135, 100, 0.32);
+    background: #ddf0e7;
+}
+
+@media (max-width: 680px) {
+    .patient-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-card {
+        padding: 18px;
+    }
+
+    .patient-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-actions button {
+        min-height: 42px;
+        font-size: 11px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-red .vital .value {
+        animation: none;
+    }
 }

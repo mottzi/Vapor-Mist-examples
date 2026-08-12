@@ -3,37 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Patient Monitor</title>
-    <link rel="stylesheet" href="/mistexamples.css">
-    <link rel="stylesheet" href="/patientmonitor.css">
+    <title>Patient Monitor — Mist Examples</title>
+    <link rel="stylesheet" href="/mistexamples.css?v=4">
+    <link rel="stylesheet" href="/patientmonitor.css?v=4">
 </head>
 <body>
-    <main class="container">
-        <a href="/MistExamples" class="back-link">← Back to Examples</a>
-        
-        <header class="mb-4">
-            <span class="badge" style="margin-bottom: 0.75rem;">InstanceComponent</span>
-            <h1 style="margin-top: 0;">Live Patient Monitor</h1>
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="/MistExamples" class="brand">
+                <span class="mist-mark"><i></i><i></i><i></i></span>
+                <span>Mist</span>
+            </a>
+            <a href="/MistExamples" class="site-header__link">All examples</a>
+        </div>
+    </header>
+
+    <main class="container detail-page detail-page--wide">
+        <header class="example-intro">
+            <span class="badge">InstanceComponent</span>
+            <h1>Patient monitor</h1>
+            <p>See stable clinical records and changing bedside telemetry joined in one live interface.</p>
         </header>
 
-        <section class="patient-grid">
-            #for(context in contexts):
-                #extend("PatientMonitorExample/PatientComponent")
-            #endfor
+        <section class="demo-stage demo-stage--monitor">
+            <div class="demo-stage__bar">
+                <span class="live-status">Live example</span>
+                <code>PatientComponent</code>
+            </div>
+            <div class="demo-stage__body">
+                <section class="patient-grid">
+                    #for(context in contexts):
+                        #extend("PatientMonitorExample/PatientComponent")
+                    #endfor
+                </section>
+            </div>
         </section>
-        
-        <div class="mt-4">
-            <p class="desc">
-                A high-stakes demonstration of 
-                <span class="inline-code">InstanceComponent</span> 
-                joining two disparate data sources: 
-                <span class="inline-code" style="color: #909296">Patient Identity</span> 
-                (Stable/EMR) and 
-                <span class="inline-code" style="color: #37b24d">Live Vitals</span> 
-                (Transient/Telemetry).
-                Each card is a unified view of two separate database tables joined by a shared UUID.
+
+        <section class="implementation-note">
+            <div>
+                <p class="eyebrow">How it works</p>
+                <h2>Two sources, one component</h2>
+            </div>
+            <p>
+                Each <code>InstanceComponent</code> joins an EMR patient row with a live vitals row through their shared UUID. A database change redraws only that patient's card, keeping the identity and telemetry in sync.
             </p>
-        </div>
+        </section>
     </main>
     
     <script src="/morphdom.js"></script>

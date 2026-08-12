@@ -2,37 +2,63 @@ import Elementary
 
 struct CounterPage: HTMLDocument {
     
-    var title = "Counter Example Page"
+    var title = "Shared Counter — Mist Examples"
     let currentState: CounterState
     
     var head: some HTML {
         meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
-        link(.rel(.stylesheet), .href("/mistexamples.css"))
+        meta(.name(.description), .content("A shared server-side counter built with a Mist ManualComponent."))
+        link(.rel(.stylesheet), .href("/mistexamples.css?v=4"))
     }
     
     var body: some HTML {
-        main(.class("container")) {
-            a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
-            
-            header(.class("mb-4")) {
-                span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "ManualComponent" }
-                h1(.style("margin-top: 0;")) { "Counter Example" }
+        header(.class("site-header")) {
+            div(.class("site-header__inner")) {
+                a(.href("/MistExamples"), .class("brand")) {
+                    span(.class("mist-mark")) {
+                        i {}
+                        i {}
+                        i {}
+                    }
+                    span { "Mist" }
+                }
+                a(.href("/MistExamples"), .class("site-header__link")) { "All examples" }
             }
-            
-            // Replaced static component with SSR Container
-            div(
-                .mistContainer(["CounterComponent"]),
-                .mistSSR(true)
-            ) {
-                CounterComponent().body(state: currentState)
+        }
+
+        main(.class("container detail-page")) {
+            header(.class("example-intro")) {
+                span(.class("badge")) { "ManualComponent" }
+                h1 { "Shared counter" }
+                p {
+                    "Increment one server-owned value and watch every connected browser move together."
+                }
             }
-            
-            div(.class("mt-4")) {
-                p(.class("desc")) {
-                    "A global counter demonstrating real-time manual state updates across all connected clients. "
-                    "Re-renders only when its persistent state is set explicitly. This example holds a global "
-                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
-                    " and demonstrates a server-side Action that increments the state, immediately broadcasting the new HTML to all connected clients."
+
+            section(.class("demo-stage")) {
+                div(.class("demo-stage__bar")) {
+                    span(.class("live-status")) { "Live example" }
+                    code { "CounterComponent" }
+                }
+                div(.class("demo-stage__body demo-stage__body--center")) {
+                    div(
+                        .mistContainer(["CounterComponent"]),
+                        .mistSSR(true)
+                    ) {
+                        CounterComponent().body(state: currentState)
+                    }
+                }
+            }
+
+            section(.class("implementation-note")) {
+                div {
+                    p(.class("eyebrow")) { "How it works" }
+                    h2 { "An explicit state change" }
+                }
+                p {
+                    "The component owns a global "
+                    code { "LiveState" }
+                    ". Its server-side action increments that value, renders fresh HTML, and broadcasts only the updated component to every subscribed client."
                 }
             }
         }

@@ -14,15 +14,14 @@ struct StressTestComponent: ManualComponent {
     func body(state: State) -> some HTML {
         div(
             .mistComponent(name),
-            .class("stack"),
-            .style("align-items: center; gap: 1rem;")
+            .class("stress-controls")
         ) {
             button(.mistAction("stress-test"), .class("btn-danger")) {
-                "Stress Test Server (5s)"
+                "Run 5-second load test"
             }
 
-            div(.style("padding: 0.5rem; background: var(--color-primary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-mono);")) {
-                "Refreshing every 2s"
+            div(.class("refresh-note")) {
+                "Metrics refresh every 2 seconds"
             }
         }
     }

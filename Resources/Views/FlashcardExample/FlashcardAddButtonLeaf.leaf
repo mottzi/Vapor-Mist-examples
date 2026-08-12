@@ -1,5 +1,5 @@
 <div mist-component="FlashcardAddButtonLeaf" class="mb-4">
     <button mist-action="CreateCardAction" class="btn-primary">
-        Create Flashcard
+        Create card
     </button>
 </div>

@@ -4,45 +4,66 @@ import Elementary
 
 struct LiveVotingPage: HTMLDocument {
     
-    var title = "Swift vs. Kotlin"
-    let initialHTML: String? // Added for SSR
+    var title = "Language Poll — Mist Examples"
+    let initialHTML: String?
 
     var head: some HTML {
         meta(.name(.description), .content("Live database aggregation with Mist PollingComponent"))
-        link(.rel(.stylesheet), .href("/mistexamples.css"))
-        style {
-            """
-            progress { width: 100%; height: 24px; accent-color: #F05138; }
-            .accent-purple { accent-color: #7F52FF; }
-            .poll-grid { display: grid; gap: 1rem; }
-            """
-        }
+        meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
+        link(.rel(.stylesheet), .href("/mistexamples.css?v=4"))
     }
 
     var body: some HTML {
-        main(.class("container")) {
-            a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
-            
-            header(.class("mb-4")) {
-                span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "PollingComponent" }
-                h1(.style("margin-top: 0;")) { "THE MOBILE DEVELOPER BATTLE" }
+        header(.class("site-header")) {
+            div(.class("site-header__inner")) {
+                a(.href("/MistExamples"), .class("brand")) {
+                    span(.class("mist-mark")) {
+                        i {}
+                        i {}
+                        i {}
+                    }
+                    span { "Mist" }
+                }
+                a(.href("/MistExamples"), .class("site-header__link")) { "All examples" }
             }
-            
-            // Replaced static component with SSR Container
-            div(
-                .class("poll-grid"),
-                .mistContainer(["LiveVotingComponent"]),
-                .mistSSR(initialHTML != nil)
-            ) {
-                if let html = initialHTML {
-                    HTMLRaw(html)
+        }
+
+        main(.class("container detail-page")) {
+            header(.class("example-intro")) {
+                span(.class("badge")) { "PollingComponent" }
+                h1 { "Swift or Kotlin?" }
+                p {
+                    "Cast a vote and watch the shared result settle as Mist re-aggregates the database."
                 }
             }
 
-            div(.class("mt-4")) {
-                p(.class("desc")) { "Two modern languages enter, only one leaves. Choose your favorite syntax and watch the results update in real-time." }
-                p(.class("desc")) {
-                    "Manually reads from the database periodically and re-renders when the result changes. This component polls the database every 2s to aggregate votes. It demonstrates server-side Actions that insert rows, while the polling loop naturally picks up the changes."
+            section(.class("demo-stage")) {
+                div(.class("demo-stage__bar")) {
+                    span(.class("live-status")) { "Live example" }
+                    code { "1 second poll" }
+                }
+                div(.class("demo-stage__body demo-stage__body--center")) {
+                    div(
+                        .class("poll-grid"),
+                        .mistContainer(["LiveVotingComponent"]),
+                        .mistSSR(initialHTML != nil)
+                    ) {
+                        if let html = initialHTML {
+                            HTMLRaw(html)
+                        }
+                    }
+                }
+            }
+
+            section(.class("implementation-note")) {
+                div {
+                    p(.class("eyebrow")) { "How it works" }
+                    h2 { "Fresh data, only when it changes" }
+                }
+                p {
+                    "Each vote inserts a database row. The "
+                    code { "PollingComponent" }
+                    " aggregates both choices once a second and redraws the result only when the returned context differs."
                 }
             }
         }

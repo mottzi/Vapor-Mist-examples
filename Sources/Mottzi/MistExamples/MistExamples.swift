@@ -70,78 +70,142 @@ struct MistExamplesPage: HTMLDocument {
 
     let title = "Mist Examples"
     var head: some HTML {
-        link(.rel(.stylesheet), .href("/mistexamples.css"))
+        meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
+        meta(
+            .name(.description),
+            .content("Runnable examples of server-driven Swift interfaces built with Mist and Vapor."))
+        link(.rel(.stylesheet), .href("/mistexamples.css?v=4"))
     }
 
     var body: some HTML {
-        main(.class("container")) {
-            header(.class("mb-4")) {
-                h1 { "Mist Examples" }
-                p(.class("desc")) {
-                    "A collection of interactive components built with Mist and Vapor."
+        a(.href("#examples"), .class("skip-link")) { "Skip to examples" }
+
+        header(.class("site-header")) {
+            div(.class("site-header__inner")) {
+                a(.href("https://mottzi.codes"), .class("brand")) {
+                    span(.class("mist-mark")) {
+                        i {}
+                        i {}
+                        i {}
+                    }
+                    span { "Mist" }
+                }
+                span(.class("site-header__section")) { "Interactive examples" }
+            }
+        }
+
+        main(.class("container examples-home")) {
+            section(.class("examples-hero")) {
+                div(.class("examples-hero__copy")) {
+                    p(.class("eyebrow")) { "Mist + Vapor" }
+                    h1 { "Live interfaces, rendered in Swift." }
+                    p(.class("hero-lede")) {
+                        "Explore six focused examples of server state becoming responsive browser UI—without building a second application in JavaScript."
+                    }
+                }
+
+                aside(.class("signal-card")) {
+                    div(.class("signal-card__bar")) {
+                        span(.class("live-status")) { "Connected" }
+                        code { "Mist" }
+                    }
+                    ol(.class("signal-path")) {
+                        li {
+                            span { "State" }
+                            strong { "Changes on the server" }
+                        }
+                        li {
+                            span { "Render" }
+                            strong { "Swift produces fresh HTML" }
+                        }
+                        li {
+                            span { "Update" }
+                            strong { "The component patches in place" }
+                        }
+                    }
                 }
             }
 
-            section {
-                ul {
-                    li {
+            section(.class("examples-section"), .id("examples")) {
+                header(.class("section-heading")) {
+                    div {
+                        p(.class("eyebrow")) { "Runnable demos" }
+                        h2 { "Choose an example" }
+                    }
+                    p { "Each page is live. Open two browser windows to see shared updates arrive in both." }
+                }
+
+                ul(.class("example-grid")) {
+                    li(.class("example-card")) {
                         a(.href("/FlashcardElementary")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "InstanceComponent" }
-                                span { "Flashcards (Elementary)" }
-                                p(.class("desc")) { "Interactive cards with real-time sync." }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "Flashcards · Elementary" }
+                            p { "Typed Swift markup, database-backed cards, and per-client flip state." }
                         }
                     }
-                    li {
+                    li(.class("example-card")) {
                         a(.href("/FlashcardLeaf")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "InstanceComponent" }
-                                span { "Flashcards (Leaf)" }
-                                p(.class("desc")) { "Interactive cards with real-time sync." }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "Flashcards · Leaf" }
+                            p { "The same live behavior rendered through familiar Leaf templates." }
                         }
                     }
-                    li {
+                    li(.class("example-card")) {
                         a(.href("/PatientMonitorExample")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "InstanceComponent" }
-                                span { "Patient Monitor" }
-                                p(.class("desc")) {
-                                    "Split-table architecture: EMR records + Live Telemetry."
-                                }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "Patient monitor" }
+                            p { "Stable patient records joined with changing bedside telemetry." }
                         }
                     }
-                    li {
+                    li(.class("example-card")) {
                         a(.href("/CounterExample")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "ManualComponent" }
-                                span { "Counter" }
-                                p(.class("desc")) { "Global counter with manual state updates." }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "Shared counter" }
+                            p { "One explicit state change, broadcast to every connected client." }
                         }
                     }
-                    li {
+                    li(.class("example-card")) {
                         a(.href("/SystemMonitorExample")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "LiveComponent" }
-                                span { "System Monitor" }
-                                p(.class("desc")) { "Live memory and CPU usage with auto-refresh." }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "System monitor" }
+                            p { "Memory, load, and client metrics refreshed on a schedule." }
                         }
                     }
-                    li {
+                    li(.class("example-card")) {
                         a(.href("/LivePollingExample")) {
-                            div(.class("stack")) {
+                            div(.class("example-card__meta")) {
                                 span(.class("badge")) { "PollingComponent" }
-                                span { "Live Polling" }
-                                p(.class("desc")) {
-                                    "Real-time voting and auto-aggregated results."
-                                }
+                                span(.class("example-card__arrow")) { "↗" }
                             }
+                            h3 { "Language poll" }
+                            p { "Database votes aggregated and redrawn every second." }
                         }
                     }
+                }
+            }
+        }
+
+        footer(.class("site-footer")) {
+            div(.class("site-footer__inner")) {
+                p { "Mist is server-driven UI for Swift and Vapor." }
+                div {
+                    a(.href("https://mottzi.codes/Mist")) { "How Mist works" }
+                    a(.href("https://github.com/mottzi/Mist")) { "GitHub ↗" }
                 }
             }
         }

@@ -1,28 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Flashcards</title>
+    <title>Flashcards in Leaf — Mist Examples</title>
     <link rel="icon" type="image/png" href="/deployer/mottzi.png">
-    <link rel="stylesheet" href="/mistexamples.css">
+    <link rel="stylesheet" href="/mistexamples.css?v=4">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <main class="container">
-        <a href="/MistExamples" class="back-link">← Back to Examples</a>
-        <header class="mb-4">
-            <span class="badge" style="margin-bottom: 0.75rem;">InstanceComponent</span>
-            <h1 style="margin-top: 0;">Flashcards</h1>
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="/MistExamples" class="brand">
+                <span class="mist-mark"><i></i><i></i><i></i></span>
+                <span>Mist</span>
+            </a>
+            <a href="/MistExamples" class="site-header__link">All examples</a>
+        </div>
+    </header>
+
+    <main class="container detail-page detail-page--wide">
+        <header class="example-intro">
+            <span class="badge">InstanceComponent · Leaf</span>
+            <h1>Flashcards in templates</h1>
+            <p>Create, shuffle, remove, and flip shared cards rendered through familiar Leaf templates.</p>
         </header>
-        #extend("FlashcardExample/FlashcardAddButtonLeaf")
-        <div class="flashcard-grid" mist-container="FlashcardLeaf">
-            #for(context in contexts):
-                #extend("FlashcardExample/FlashcardLeaf")
-            #endfor
-        </div>
-        <div class="mt-4">
-            <p class="desc">Tied to database rows; re-renders automatically when Mist detects Fluent create, update, or delete events. This example tracks two models per card. It demonstrates Actions for database mutations (shuffling, deleting) which sync globally, and per-client <code>ComponentState</code> (flipping the card) which only re-renders for the acting client.
+
+        <section class="demo-stage">
+            <div class="demo-stage__bar">
+                <span class="live-status">Live example</span>
+                <code>FlashcardLeaf</code>
+            </div>
+            <div class="demo-stage__body">
+                <div class="demo-toolbar">
+                    #extend("FlashcardExample/FlashcardAddButtonLeaf")
+                    <p>Select a card to reveal its translation.</p>
+                </div>
+                <div class="flashcard-grid" mist-container="FlashcardLeaf">
+                    #for(context in contexts):
+                        #extend("FlashcardExample/FlashcardLeaf")
+                    #endfor
+                </div>
+            </div>
+        </section>
+
+        <section class="implementation-note">
+            <div>
+                <p class="eyebrow">How it works</p>
+                <h2>Database rows become component instances</h2>
+            </div>
+            <p>
+                Mist watches the two Fluent models behind each card and redraws affected instances after a create, shuffle, or delete. Flip state stays in per-client <code>ComponentState</code>, so revealing a translation does not flip the card for everyone else.
             </p>
-        </div>
+        </section>
     </main>
     <script src="/morphdom.js"></script>
     <script src="/mist.js"></script>

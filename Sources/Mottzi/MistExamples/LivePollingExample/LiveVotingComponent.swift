@@ -23,68 +23,60 @@ struct LiveVotingComponent: PollingComponent {
     func body(context: LiveVotingContext) -> some HTML {
         div(
             .mistComponent(self.name),
-            .class("card stack")
+            .class("card poll-card stack")
         ) {
-            div(.style("display: flex; justify-content: space-between; align-items: start;")) {
-                div(.class("stack"), .style("gap: 0.5rem;")) {
-                    h2(.style("margin: 0;")) { "Language Poll" }
+            div(.class("poll-heading")) {
+                div {
+                    h2 { "Choose your language" }
+                    p(.class("poll-count")) { "\(context.total) votes recorded" }
                 }
                 button(
                     .mistAction("reset-poll"),
-                    .style(
-                        "background: transparent; border: 1px solid #F05138; color: #F05138; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-                    ),
-                    .custom(
-                        name: "onmouseover",
-                        value: "this.style.background='#F05138'; this.style.color='white'"),
-                    .custom(
-                        name: "onmouseout",
-                        value: "this.style.background='transparent'; this.style.color='#F05138'"),
+                    .class("btn-quiet")
                 ) { "Reset" }
             }
-            p(.class("desc mb-4"), .style("font-weight: 600; color: var(--text-primary);")) {
-                "\(context.total) votes"
-            }
 
-            div(.class("stack")) {
-                div(
-                    .style(
-                        "display: flex; justify-content: space-between; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;"
-                    )
-                ) {
-                    span { "Swift: \(Int(context.swiftPercent))%" }
-                    span { "Kotlin: \(Int(context.kotlinPercent))%" }
+            div(.class("poll-result")) {
+                div(.class("poll-labels")) {
+                    span(.class("poll-label poll-label--swift")) {
+                        i {}
+                        strong { "Swift" }
+                        em { "\(Int(context.swiftPercent))%" }
+                    }
+                    span(.class("poll-label poll-label--kotlin")) {
+                        i {}
+                        strong { "Kotlin" }
+                        em { "\(Int(context.kotlinPercent))%" }
+                    }
                 }
-                div(
-                    .style(
-                        "display: flex; background: #e5e7eb; border-radius: 999px; height: 16px; overflow: hidden;"
-                    )
-                ) {
+                div(.class("poll-track")) {
                     div(
+                        .class("poll-track__swift"),
                         .style(
-                            "background: #F05138; width: \(context.swiftPercent)%; height: 100%; transition: width 0.5s ease;"
+                            "width: \(context.swiftPercent)%;"
                         )
                     ) {}
                     div(
+                        .class("poll-track__kotlin"),
                         .style(
-                            "background: #7F52FF; width: \(context.kotlinPercent)%; height: 100%; transition: width 0.5s ease;"
+                            "width: \(context.kotlinPercent)%;"
                         )
                     ) {}
                 }
             }
 
-            div(.style("display: flex; gap: 1rem; margin-top: 1.5rem;")) {
+            div(.class("poll-actions")) {
                 button(
-                    .mistAction("vote-swift"), .class("btn-primary"),
-                    .style("flex: 1; background-color: #F05138; border-color: #F05138;")
+                    .mistAction("vote-swift"), .class("vote-button vote-button--swift")
                 ) {
-                    "Vote Swift"
+                    span { "Vote for Swift" }
+                    small { "Familiar, fast, native" }
                 }
                 button(
-                    .mistAction("vote-kotlin"), .class("btn-primary"),
-                    .style("flex: 1; background-color: #7F52FF; border-color: #7F52FF;")
+                    .mistAction("vote-kotlin"), .class("vote-button vote-button--kotlin")
                 ) {
-                    "Vote Kotlin"
+                    span { "Vote for Kotlin" }
+                    small { "Concise, pragmatic, modern" }
                 }
             }
         }

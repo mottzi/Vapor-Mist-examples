@@ -3,7 +3,7 @@
 import Elementary
 
 struct SystemMemoryPage: HTMLDocument {
-    var title = "System Monitor Example"
+    var title = "System Monitor — Mist Examples"
     let memoryHTML: String?
     let cpuHTML: String?
     let clientsHTML: String?
@@ -11,64 +11,89 @@ struct SystemMemoryPage: HTMLDocument {
 
     var head: some HTML {
         meta(.name(.description), .content("Live updating server metrics with Mist"))
-        link(.rel(.stylesheet), .href("/mistexamples.css"))
+        meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
+        link(.rel(.stylesheet), .href("/mistexamples.css?v=4"))
     }
 
     var body: some HTML {
-        main(.class("container"), .style("max-width: 1000px;")) {
-            a(.href("/MistExamples"), .class("back-link")) { "← Back to Examples" }
-            
-            header(.class("mb-4")) {
-                span(.class("badge"), .style("margin-bottom: 0.75rem;")) { "LiveComponent" }
-                h1(.style("margin-top: 0;")) { "System Monitor Example" }
-            }
-            
-            div(.class("stack"), .style("gap: 2rem; align-items: center;")) {
-                div(.class("inline"), .style("justify-content: center; gap: 2rem; flex-wrap: wrap; width: 100%;")) {
-                    div(
-                        .mistContainer(["MemoryUsageComponent"]),
-                        .mistSSR(memoryHTML != nil)
-                    ) {
-                        if let html = memoryHTML {
-                            HTMLRaw(html)
-                        }
+        header(.class("site-header")) {
+            div(.class("site-header__inner")) {
+                a(.href("/MistExamples"), .class("brand")) {
+                    span(.class("mist-mark")) {
+                        i {}
+                        i {}
+                        i {}
                     }
-
-                    div(
-                        .mistContainer(["CpuLoadComponent"]),
-                        .mistSSR(cpuHTML != nil)
-                    ) {
-                        if let html = cpuHTML {
-                            HTMLRaw(html)
-                        }
-                    }
-
-                    div(
-                        .mistContainer(["ConnectedClientsComponent"]),
-                        .mistSSR(clientsHTML != nil)
-                    ) {
-                        if let html = clientsHTML {
-                            HTMLRaw(html)
-                        }
-                    }
+                    span { "Mist" }
                 }
+                a(.href("/MistExamples"), .class("site-header__link")) { "All examples" }
+            }
+        }
 
-                div(
-                    .mistContainer(["StressTestComponent"]),
-                    .mistSSR(stressHTML != nil)
-                ) {
-                    if let html = stressHTML {
-                        HTMLRaw(html)
-                    }
+        main(.class("container detail-page detail-page--wide")) {
+            header(.class("example-intro")) {
+                span(.class("badge")) { "LiveComponent" }
+                h1 { "System monitor" }
+                p {
+                    "Watch server memory, load, and connected clients refresh without a page reload."
                 }
             }
 
-            div(.class("mt-4")) {
-                p(.class("desc")) {
-                    "A live server health widget that updates automatically every 2 seconds without user interaction. "
-                    "Periodically refreshes its persistent state and re-renders when the state changes. Owns a "
-                    code(.style("color: var(--color-accent); font-family: var(--font-mono);")) { "LiveState" }
-                    " and refreshes it on a 2-second schedule by reading the host server's memory usage and CPU load. Broadcasts new HTML only when the value changes."
+            section(.class("demo-stage")) {
+                div(.class("demo-stage__bar")) {
+                    span(.class("live-status")) { "Live example" }
+                    code { "2 second refresh" }
+                }
+                div(.class("demo-stage__body")) {
+                    div(.class("metrics-grid")) {
+                        div(
+                            .mistContainer(["MemoryUsageComponent"]),
+                            .mistSSR(memoryHTML != nil)
+                        ) {
+                            if let html = memoryHTML {
+                                HTMLRaw(html)
+                            }
+                        }
+                        div(
+                            .mistContainer(["CpuLoadComponent"]),
+                            .mistSSR(cpuHTML != nil)
+                        ) {
+                            if let html = cpuHTML {
+                                HTMLRaw(html)
+                            }
+                        }
+                        div(
+                            .mistContainer(["ConnectedClientsComponent"]),
+                            .mistSSR(clientsHTML != nil)
+                        ) {
+                            if let html = clientsHTML {
+                                HTMLRaw(html)
+                            }
+                        }
+                    }
+
+                    div(.class("metrics-toolbar")) {
+                        div(
+                            .mistContainer(["StressTestComponent"]),
+                            .mistSSR(stressHTML != nil)
+                        ) {
+                            if let html = stressHTML {
+                                HTMLRaw(html)
+                            }
+                        }
+                    }
+                }
+            }
+
+            section(.class("implementation-note")) {
+                div {
+                    p(.class("eyebrow")) { "How it works" }
+                    h2 { "State refreshed on a schedule" }
+                }
+                p {
+                    "Each metric owns a "
+                    code { "LiveState" }
+                    " and samples the host every two seconds. Mist renders and broadcasts a component only when its value changes, so idle metrics stay quiet."
                 }
             }
         }

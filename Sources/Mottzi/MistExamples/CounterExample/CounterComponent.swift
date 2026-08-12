@@ -16,16 +16,16 @@ struct CounterComponent: ManualComponent {
 
         div(
             .mistComponent(name),
-            .class("card stack text-center mx-auto max-w-sm")
+            .class("card counter-card stack text-center mx-auto max-w-sm")
         ) {
-            div(.class("stack"), .style("gap: 0.5rem; align-items: center;")) {
-                h2(.style("margin: 0;")) { "Count" }
+            div(.class("stack component-heading")) {
+                h2 { "Current count" }
             }
             div(.class("text-huge")) {
                 "\(state.count)"
             }
             button(.mistAction("increment"), .class("btn-primary mt-4")) {
-                "Increment"
+                "Increment count"
             }
         }
     }
